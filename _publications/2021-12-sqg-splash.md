@@ -1,7 +1,7 @@
 ---
 title: "An Improved Regularity Criterion and Absence of Splash-like Singularities for g-SQG Patches"
 collection: publications
-permalink: /publication/2009-10-01-paper-title-number-1
+permalink: /publication/2021-12-sqg-splash
 excerpt: ''
 date: 2021-12-01
 venue: 'arXiv preprint'
