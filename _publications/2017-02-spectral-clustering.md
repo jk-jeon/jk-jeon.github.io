@@ -3,11 +3,11 @@ title: "Spectral clustering with brainstorming process for multi-view data"
 collection: publications
 permalink: /publication/2017-02-spectral-clustering
 excerpt: ''
-date: 2017-02
+date: 2017-02-01
 venue: 'AAAI17'
 paperurl: 'https://dl.acm.org/doi/10.5555/3298483.3298606'
-#citation: 'Your Name, You. (2009). &quot;Paper Title Number 1.&quot; <i>Journal 1</i>. 1(1).'
 pubtype: 'non-math'
+#citation: 'Your Name, You. (2009). &quot;Paper Title Number 1.&quot; <i>Journal 1</i>. 1(1).'
 ---
 
 ### Abstract
