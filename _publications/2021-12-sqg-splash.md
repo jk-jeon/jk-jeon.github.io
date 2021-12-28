@@ -7,5 +7,5 @@ date: 2021-12-01
 venue: 'arXiv preprint'
 paperurl: 'https://arxiv.org/abs/2112.00191'
 pubtype: 'preprint'
-#citation: 'Your Name, You. (2009). &quot;Paper Title Number 1.&quot; <i>Journal 1</i>. 1(1).'
+citation: 'Junekey Jeon and Andrej Zlatoš. 2021. arXiv preprint'
 ---
