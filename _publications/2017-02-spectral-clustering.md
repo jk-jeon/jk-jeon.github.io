@@ -7,5 +7,5 @@ venue: 'AAAI&apos;17'
 paperurl: 'https://www.aaai.org/ocs/index.php/AAAI/AAAI17/paper/viewFile/14295/14443'
 link: 'https://dl.acm.org/doi/10.5555/3298483.3298606'
 pubtype: 'non-math'
-citation: 'Jeong-Woo Son, Shana, Junekey Jeon, Alex Lee, and Sun-Joong Kim. 2017. &quot;Spectral clustering with brainstorming process for multi-view data.&quot; <i>Proceedings of the AAAI Conference on Artificial Intelligence</i>, 2548–2554'
+citation: 'Jeong-Woo Son, Junekey Jeon, Alex Lee, and Sun-Joong Kim. 2017. &quot;Spectral clustering with brainstorming process for multi-view data.&quot; <i>Proceedings of the AAAI Conference on Artificial Intelligence</i>, 2548–2554'
 ---
