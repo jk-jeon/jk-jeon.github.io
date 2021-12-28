@@ -13,10 +13,6 @@ author_profile: true
 
 <!--
 Thanks to https://github.com/academicpages/academicpages.github.io/issues/48#issuecomment-418460161
-
-#{% for post in site.publications reversed %}
-#  {% include archive-single.html %}
-#{% endfor %}
 -->
 
 <h2>Preprints</h2>
