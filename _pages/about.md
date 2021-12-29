@@ -16,4 +16,6 @@ I am mainly working on fluid dynamics, currently on singularity formation proble
 
 Hobbies
 ======
-I also enjoy reading things from physics, computer science and electrical engineering for fun. I also occasionally do programming, with C++ as my primary language. I developed a fast floating-point-to-string conversion algorithm which I call [Dragonbox](https://github.com/jk-jeon/dragonbox). Music and musical instruments are also things I'm very enthusiastic about. I was a member of a [school band](https://www.facebook.com/KAISTCJDH/) when I was an undergrad, and I used to play many instruments such as guitar, piano and drums. I also occasionally write songs.
+* Besides math, I enjoy reading things from physics, computer science and electrical engineering for fun.
+* Programming is another thing that I do for fun, with C++ as my primary language. I developed a fast floating-point-to-string conversion algorithm which I call [Dragonbox](https://github.com/jk-jeon/dragonbox).
+* Music and musical instruments are also things I'm very enthusiastic about. I was a member of a [school band](https://www.facebook.com/KAISTCJDH/) when I was an undergrad, and I used to play many instruments such as guitar, piano and drums. I also occasionally write songs.
