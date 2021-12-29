@@ -4,7 +4,7 @@ collection: talks
 type: "Talk"
 permalink: /talks/2020-08-25-amelunxen-burgisser
 venue: "UC San Diego"
-date: 2017-01-31
+date: 2020-08-25
 location: "San Diego, California"
 ---
 
