@@ -6,4 +6,5 @@ permalink: /teaching/2019-fall-math110
 venue: "University of California San Diego"
 date: 2019-09-01
 location: "San Diego, California"
+role: "ta"
 ---
