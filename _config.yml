@@ -177,7 +177,6 @@ kramdown:
 collections:
   teaching:
     output: true
-    label: "Teaching"
     permalink: /:collection/:path/
   publications:
     output: true
