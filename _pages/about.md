@@ -12,8 +12,8 @@ I am a graduate student of the Department of Mathematics in the University of Ca
 
 Academic interests
 ======
-I am mainly working on fluid dynamics, but I have broad interests in mathematics, especially in PDE, differential geometry, functional analysis and measure theory (maybe also algebra and number theory to some extent).
+I am mainly working on fluid dynamics, currently on singularity formation problem for generalized SQG equations and related problems. I also have broad interests in mathematics, especially in PDE, differential geometry, functional analysis and measure theory (maybe also algebra and number theory to some extent).
 
 Hobbies
 ======
-I also enjoy reading things from physics, computer science and electrical engineering for fun. I also occasionally do programming, with C++ as my primary language. Music and musical instruments are also things I'm very enthusiastic about. I was a member of a [school band](https://www.facebook.com/KAISTCJDH/) when I was an undergrad, and I used to play many instruments such as guitar, piano and drums. I also occasionally write songs.
+I also enjoy reading things from physics, computer science and electrical engineering for fun. I also occasionally do programming, with C++ as my primary language. I developed a fast floating-point-to-string conversion algorithm which I call [Dragonbox](https://github.com/jk-jeon/dragonbox). Music and musical instruments are also things I'm very enthusiastic about. I was a member of a [school band](https://www.facebook.com/KAISTCJDH/) when I was an undergrad, and I used to play many instruments such as guitar, piano and drums. I also occasionally write songs.
