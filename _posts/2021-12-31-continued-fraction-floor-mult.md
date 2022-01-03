@@ -550,7 +550,7 @@ hence, what matters here is whether the fractional part of $nx$ is above or belo
 
 So, in some sense the situation is better if $x$ and $y$ are "far apart" in the sense that the denominators showing up in approximating rationals of $x$ and $y$ are very  different, and the situation is worse if there are a lot of common divisors between those denominators. Maybe someone better than me at number theory can formalize this into a precise language?
 
-Anyway, with a high probability the distance from $y$ to $\frac{u}{q}$ and $\frac{u+1}{q}$ will be of $O\left(\frac{1}{q}\right)$, but it is well-known that the distance from $x$ to $\frac{p}{q}$ is of $O\left(\frac{1}{q^{2}}\right)$, which will allow the equality
+Anyway, with a high probability the distance from $y$ to $\frac{u}{q}$ and $\frac{u+1}{q}$ will be of $O\left(\frac{1}{q}\right)$, but it is well-known that the distance from $x$ to $\frac{p}{q}$ can be made to be of $O\left(\frac{1}{q^{2}}\right)$, which will allow the equality
 
 $$
   \lfloor nx - y \rfloor = \left\lfloor \frac{np - u}{q} \right\rfloor
