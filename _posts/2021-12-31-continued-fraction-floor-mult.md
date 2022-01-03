@@ -145,7 +145,7 @@ $$
 
 To describe how those best rational approximations from below/above look like, let $x=[a_{0};a_{1},\ \cdots\ ]$ be a continued fraction expansion of a real number $x$ and $\left(\frac{p_{i}}{q_{i}}\right)_{i}$ be the corresponding sequence of convergents. When $x$ is a non-integer rational number so that the expansion terminates after a nonzero number of steps, then we always assume that the expansion is of the second form, that is, the last coefficient is assumed to be $1$.
 
-It can be shown that the sequence {% raw %} \\(\left(\frac{p_{2i}}{q_{2i}}\right)_{i}\\) {% endraw %} of even convergents strictly increases to $x$ from below, while the sequence {% raw %} \\(\left(\frac{p_{2i+1}}{q_{2i+1}}\right)_{i}\\) {% endraw %} of odd convergents strictly decreases to $x$ from above. In other words, the convergence of convergents happens in a "zig-zag" manner, alternating between below and above of $x$.
+It can be shown that the sequence $$\left(\frac{p_{2i}}{q_{2i}}\right)_{i}$$ of even convergents strictly increases to $x$ from below, while the sequence $$\left(\frac{p_{2i+1}}{q_{2i+1}}\right)_{i}$$ of odd convergents strictly decreases to $x$ from above. In other words, the convergence of convergents happens in a "zig-zag" manner, alternating between below and above of $x$.
 
 As the approximation errors of the even convergents decrease to zero, any sufficiently good rational approximation $\frac{p}{q}\leq x$ from below must lie in between some $\frac{p_{2i}}{q_{2i}}$ and $\frac{p_{2i+2}}{q_{2i+2}}$. Similarly, any sufficiently good rational approximation $\frac{p}{q}\geq x$ from above must lie in between some $\frac{p_{2i+1}}{q_{2i+1}}$ and $\frac{p_{2i-1}}{q_{2i-1}}$.
 
