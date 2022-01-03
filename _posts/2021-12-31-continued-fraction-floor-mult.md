@@ -145,7 +145,7 @@ $$
 
 To describe how those best rational approximations from below/above look like, let $x=[a_{0};a_{1},\ \cdots\ ]$ be a continued fraction expansion of a real number $x$ and $\left(\frac{p_{i}}{q_{i}}\right)_{i}$ be the corresponding sequence of convergents. When $x$ is a non-integer rational number so that the expansion terminates after a nonzero number of steps, then we always assume that the expansion is of the second form, that is, the last coefficient is assumed to be $1$.
 
-It can be shown that the sequence $\left(\frac{p_{2i}}{q_{2i}}\right)_{i} $ of even convergents strictly increases to $x$ from below, while the sequence $\left(\frac{p_{2i+1}}{q_{2i+1}}\right)_{i}$ of odd convergents strictly decreases to $x$ from above. In other words, the convergence of convergents happens in a "zig-zag" manner, alternating between below and above of $x$.
+It can be shown that the sequence $ \left(\frac{p_{2i}}{q_{2i}}\right)_{i} $ of even convergents strictly increases to $x$ from below, while the sequence $\left(\frac{p_{2i+1}}{q_{2i+1}}\right)_{i}$ of odd convergents strictly decreases to $x$ from above. In other words, the convergence of convergents happens in a "zig-zag" manner, alternating between below and above of $x$.
 
 As the approximation errors of the even convergents decrease to zero, any sufficiently good rational approximation $\frac{p}{q}\leq x$ from below must lie in between some $\frac{p_{2i}}{q_{2i}}$ and $\frac{p_{2i+2}}{q_{2i+2}}$. Similarly, any sufficiently good rational approximation $\frac{p}{q}\geq x$ from above must lie in between some $\frac{p_{2i+1}}{q_{2i+1}}$ and $\frac{p_{2i-1}}{q_{2i-1}}$.
 
@@ -188,22 +188,22 @@ strictly monotonically decreases from $\frac{p_{2i-1}}{q_{2i-1}}$ to $\frac{p_{2
 For the case of $x=\log_{10}2$, here are the lists of all best rational approximations from below:
 
 $$
-  {\color{red}0} < \frac{1}{4}< \frac{2}{7} < {\color{red}\frac{3}{10}}
-  < \frac{31}{103} < {\color{red}\frac{59}{196}} < \frac{205}{681}
-  < \frac{351}{1166} < \frac{497}{1651} < {\color{red}\frac{643}{2136}}
+  \mathbf{0} < \frac{1}{4}< \frac{2}{7} < \mathbf{\frac{3}{10}}
+  < \frac{31}{103} < \mathbf{\frac{59}{196}} < \frac{205}{681}
+  < \frac{351}{1166} < \frac{497}{1651} < \mathbf{\frac{643}{2136}}
   <\ \cdots\ <\log_{10}2,
 $$
 
 and from above:
 
 $$
-  1 > \frac{1}{2} > {\color{red}\frac{1}{3}} > \frac{4}{13} > \frac{7}{23}
+  1 > \frac{1}{2} > \mathbf{\frac{1}{3}} > \frac{4}{13} > \frac{7}{23}
   > \frac{10}{33} > \frac{13}{43} > \frac{16}{53} > \frac{19}{63}
-  > \frac{22}{73} > \frac{25}{83} > {\color{red}\frac{28}{93}}
+  > \frac{22}{73} > \frac{25}{83} > \mathbf{\frac{28}{93}}
   >\ \cdots\ >\log_{10}2
 $$
 
-with convergents highlighted in red.
+with convergents highlighted in bold.
 
 Clearly, if $\frac{p}{q}$ is a best rational approximation of $x$ from below, then we must have $p=\lfloor qx \rfloor$. Indeed, if $p$ is strictly less than $\lfloor qx \rfloor$, then $\frac{p+1}{q}$ must be a strictly better approximation of $x$ which is still below $x$, and if $p$ is strictly greater than $\lfloor qx \rfloor$, then $\frac{p}{q}$ must be strictly greater than $x$.
 
