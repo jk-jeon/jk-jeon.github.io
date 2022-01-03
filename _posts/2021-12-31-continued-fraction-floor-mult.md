@@ -468,11 +468,11 @@ At the very heart of [Ryū](https://dl.acm.org/doi/pdf/10.1145/3192366.3192369),
 
 Minmax Euclid algorithm is invented by Ulf Adams who is the author of Ryū and Ryū-printf mentioned above, and it appears on his paper on Ryū. What it does is this: given positive integers $a,b$ and $N$, compute the minimum and maximum of $ag\,\operatorname{mod}\,b$ where $g$ is any integer ranging from $1$ to $N$. It sounds simple, but naive exhaustive search doesn't scale if $a,b,N$ are very large numbers. Indeed, in its application into float-to-string conversion algorithms, $a,b$ are extremely large integers and $N$ can be as large as $2^{54}$. For that wide range of $g$, it is simply impossible to run an exhaustive search.
 
-A rough idea of minmax Euclid algorithm is that the coefficients appearing in the Euclid algorithm for computing GCD of $a$ and $b$ tell us what the minimum and the maximum are. It is hard to explain in words, but if you try to write down and see how $ag\,\operatorname{mod}\,b$ varies as $g$ increases, you might be able to understand why this is the case. Formalizing this idea will lead to the minmax Euclid algorithm.
+A rough idea of minmax Euclid algorithm is that the coefficients appearing in the Euclid algorithm for computing GCD of $a$ and $b$ tell us what the minimum and the maximum are. If you try to write down and see how $ag\,\operatorname{mod}\,b$ varies as $g$ increases, you will find out why this is the case. (Precise mathematical proof can be cumbersome, though.) Formalizing this idea will lead to the minmax Euclid algorithm.
 
 In fact, the exact minmax Euclid algorithm described in the [Ryū paper](https://dl.acm.org/doi/pdf/10.1145/3192366.3192369) is not entirely correct because it can produce wrong outputs for some inputs. Thus, I had to give some more thought on it after I realized the flaw in 2018 when I was trying to apply the algorithm to Grisu-Exact. Eventually, I came up with an improved and corrected version of it with a hopefully correct proof, which I wrote on the [paper on Grisu-Exact](https://github.com/jk-jeon/Grisu-Exact/blob/master/other_files/Grisu-Exact.pdf) (Figure 3 and Theorem 4.3).
 
-But more than 2 years after writing the long-winded and messy proof of the algorithm, I finally realized that in fact the algorithm is just an easy application of continued fractions. Well, I did not know anything about continued fractions back then, unfortunately.
+But more than 2 years after writing the long-winded and messy proof of the algorithm, I finally realized that in fact the algorithm is just an easy application of continued fractions. Well, I did not know anything about continued fractions back then, unfortunately!
 
 The story is as follows. Obtaining the minimum and the maximum of $ag\,\operatorname{mod}\,b$ is equivalent to obtaining the minimum and the maximum of
 
@@ -548,7 +548,7 @@ $$
 
 hence, what matters here is whether the fractional part of $nx$ is above or below $y$. Note that the fractional part of $nx$ must be approximately equal to $\frac{np\,\operatorname{mod}\,q}{q}$. Thus, find the unique integer $0\leq u < q-1$ such that $\frac{u}{q}\leq y < \frac{u+1}{q}$, then probably we can compare the fractional part of $nx$ with $y$ by just comparing $(np\,\operatorname{mod}\,q)$ with $u$. This is indeed the case if $y$ is sufficiently far from both $\frac{u}{q}$ and $\frac{u+1}{q}$, specifically, more than the error of $\frac{np}{q}$ from $nx$.
 
-So, in some sense the situation is better if $x$ and $y$ are "far apart" in the sense that the denominators showing up in approximating rationals of $x$ and $y$ are very  different, and the situation is worse if there are a lot of common divisors between those denominators. Maybe someone better than me at number theory can formalize this into a fancy language?
+So, in some sense the situation is better if $x$ and $y$ are "far apart" in the sense that the denominators showing up in approximating rationals of $x$ and $y$ are very  different, and the situation is worse if there are a lot of common divisors between those denominators. Maybe someone better than me at number theory can formalize this into a precise language?
 
 Anyway, with a high probability the distance from $y$ to $\frac{u}{q}$ and $\frac{u+1}{q}$ will be of $O\left(\frac{1}{q}\right)$, but it is well-known that the distance from $x$ to $\frac{p}{q}$ is of $O\left(\frac{1}{q^{2}}\right)$, which will allow the equality
 
