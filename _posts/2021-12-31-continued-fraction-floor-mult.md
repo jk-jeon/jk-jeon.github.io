@@ -307,9 +307,9 @@ $$
   = \frac{\lceil \vert n\vert x \rceil}{\vert n\vert}.
 $$
 
-Similarly to the case $n>0$, the minimum of the right-hand side is precisely $\frac{p^{*}}{q^{*}}$, where again $\frac{p^{*}}{q^{*}}$ is the best rational approximation from above of $x$ with the largest $q^{*}\leq n_{\max}$.
+Similarly to the case $n>0$, the minimum of the right-hand side is precisely $$\frac{p^{*}}{q^{*}}$$, where again $$\frac{p^{*}}{q^{*}}$$ is the best rational approximation from above of $x$ with the largest $$q^{*}\leq n_{\max}$$.
 
-The maximum of the left-hand side is, as one can expect, a bit more involved. It is precisely $\frac{p_{*}}{q_{*}}$ (with the same definition above) except when $x=\frac{p_{*}}{q_{*}}$, in which case we do some more analysis.
+The maximum of the left-hand side is, as one can expect, a bit more involved. It is precisely $$\frac{p_{*}}{q_{*}}$$ (with the same definition above) except when $$x=\frac{p_{*}}{q_{*}}$$, in which case we do some more analysis.
 
 As in the case $n>0$, assume $x=\frac{p}{q}$ with $q\leq n_{\max}$, and let us figure out a sufficient condition for having
 
@@ -384,7 +384,7 @@ $$
 
 which admits a solution if and only if $\frac{2^{k}p}{q}$ is an integer, which can happen only when $q$ is a power of $2$. But for that case the problem is already trivial.
 
-The number $x$ in main motivating examples are irrational numbers, so $(\square)$ is indeed a useful conclusion. Now, let us apply it to the case $x=\log_{10}2$ to see what we can get out of it. First, we need to see how $\frac{p_{*}}{q_{*}}$ and $\frac{p^{*}}{q^{*}}$ are determined for given $n_{\max}$. This can be done in a systematic way, as shown below:
+The number $x$ in main motivating examples are irrational numbers, so $(\square)$ is indeed a useful conclusion. Now, let us apply it to the case $x=\log_{10}2$ to see what we can get out of it. First, we need to see how $$\frac{p_{*}}{q_{*}}$$ and $$\frac{p^{*}}{q^{*}}$$ are determined for given $n_{\max}$. This can be done in a systematic way, as shown below:
 
 - Find the last convergent $\frac{p_{i}}{q_{i}}$ whose denominator $q_{i}$ is at most $n_{\max}$.
 
@@ -425,7 +425,7 @@ $$
 
 to have a solution is $k=18$, and in that case $m=78913$ is the unique solution. (One can verify that $78913$ is precisely $\lfloor 2^{18}\log_{10}2 \rfloor$.)
 
-In fact, note that $\frac{p^{*}}{q^{*}}$ and $\frac{p_{*}}{q_{*}}$ stay the same for any $681\leq n_{\max}\leq 1165$; here, $1165$ is one less of $196 + 2\cdot 485=1166$, which is the moment when $\frac{p_{*}}{q_{*}}$ changes into the next semiconvergent
+In fact, note that $$\frac{p^{*}}{q^{*}}$$ and $$\frac{p_{*}}{q_{*}}$$ stay the same for any $681\leq n_{\max}\leq 1165$; here, $1165$ is one less of $196 + 2\cdot 485=1166$, which is the moment when $$\frac{p_{*}}{q_{*}}$$ changes into the next semiconvergent
 
 $$
   \frac{59+2\cdot 146}{196+2\cdot 485}=\frac{351}{1166}.
@@ -437,7 +437,7 @@ $$
   \lfloor nx \rfloor = \left\lfloor \frac{78913\cdot n}{2^{18}} \right\rfloor
 $$
 
-for all $\vert n\vert \leq 1165$. In fact, even with $\frac{p_{*}}{q_{*}}=\frac{351}{1166}$ we still have $(\square)$, so the above should hold until the next moment when $\frac{p_{*}}{q_{*}}$ changes, which is when $n_{\max} = 196 + 3\cdot 485=1651$. If $n_{\max}=1651$, then
+for all $\vert n\vert \leq 1165$. In fact, even with $$\frac{p_{*}}{q_{*}}=\frac{351}{1166}$$ we still have $(\square)$, so the above should hold until the next moment when $$\frac{p_{*}}{q_{*}}$$ changes, which is when $n_{\max} = 196 + 3\cdot 485=1651$. If $n_{\max}=1651$, then
 
 $$
   \frac{p_{*}}{q_{*}} = \frac{59 + 3\cdot 146}{196 + 3\cdot 485} = \frac{497}{1651},
@@ -451,15 +451,15 @@ $$
 
 holds precisely up to $\vert n\vert\leq 1650$ and the first counterexample is $n=\pm 1651$.
 
-In a similar manner, one can see that $\frac{p_{*}}{q_{*}}=\frac{497}{1651}$ holds up to $n_{\max} = 196 + 4\cdot 485 - 1 = 2135$, and the minimum $k$ allowing $(\square)$ to have a solution is $k=20$, with $m=315653$ as the unique solution. (One can also verify that $315653$ is precisely $\lceil 2^{20}\log_{10}2 \rceil$, so this time it is not the truncated binary expansion of $\log_{10}2$, rather that plus $1$.) Hence,
+In a similar manner, one can see that $$\frac{p_{*}}{q_{*}}=\frac{497}{1651}$$ holds up to $n_{\max} = 196 + 4\cdot 485 - 1 = 2135$, and the minimum $k$ allowing $(\square)$ to have a solution is $k=20$, with $m=315653$ as the unique solution. (One can also verify that $315653$ is precisely $\lceil 2^{20}\log_{10}2 \rceil$, so this time it is not the truncated binary expansion of $\log_{10}2$, rather that plus $1$.) Hence,
 
 $$
   \lfloor nx \rfloor = \left\lfloor \frac{315653\cdot n}{2^{20}} \right\rfloor
 $$
 
-must hold at least up to $\vert n\vert\leq 2135$. When $n_{\max}=2136$, $\frac{p_{*}}{q_{*}}$ changes into $\frac{643}{2136}$, but $(\square)$ is still true with the same choice of $k$ and $m$, so the above formula must be valid at least for $\vert n\vert\leq 2620$; here $2621$ is the moment when $\frac{p^{*}}{q^{*}}$ changes from $\frac{146}{485}$ into $\frac{789}{2621}$. If $n_{\max}=2621$ so $\frac{p^{*}}{q^{*}}$ changes into $\frac{789}{2621}$, then the right-hand side of the inequality $(\square)$ is now violated, so $\vert n\vert\leq 2620$ is indeed the optimal range and $n=\pm 2621$ is the first counterexample.
+must hold at least up to $\vert n\vert\leq 2135$. When $n_{\max}=2136$, $$\frac{p_{*}}{q_{*}}$$ changes into $\frac{643}{2136}$, but $(\square)$ is still true with the same choice of $k$ and $m$, so the above formula must be valid at least for $\vert n\vert\leq 2620$; here $2621$ is the moment when $$\frac{p^{*}}{q^{*}}$$ changes from $\frac{146}{485}$ into $\frac{789}{2621}$. If $n_{\max}=2621$ so $$\frac{p^{*}}{q^{*}}$$ changes into $\frac{789}{2621}$, then the right-hand side of the inequality $(\square)$ is now violated, so $\vert n\vert\leq 2620$ is indeed the optimal range and $n=\pm 2621$ is the first counterexample.
 
-In general, the transition can only occur at the denominators of semiconvergents. With this method, we can figure out what is the minimum $k$ that allows the computation up to the chosen transition point and what $m$ should be used for that choice of minimum $k$. We want $m$ to be as small as possible, so $m=\left\lceil\frac{2^{k}p_{*}}{q_{*}} \right\rceil$ is the best choice. This $m$ will be probably either floor or ceil of $2^{k}x$, but we cannot determine which one is better by simply looking at the binary expansion of $x$. This indicates the flaw of the naive method I tried before.
+In general, the transition can only occur at the denominators of semiconvergents. With this method, we can figure out what is the minimum $k$ that allows the computation up to the chosen transition point and what $m$ should be used for that choice of minimum $k$. We want $m$ to be as small as possible, so $$m=\left\lceil\frac{2^{k}p_{*}}{q_{*}} \right\rceil$$ is the best choice. This $m$ will be probably either floor or ceil of $2^{k}x$, but we cannot determine which one is better by simply looking at the binary expansion of $x$. This indicates the flaw of the naive method I tried before.
 
 
 # Another application: minmax Euclid algorithm
