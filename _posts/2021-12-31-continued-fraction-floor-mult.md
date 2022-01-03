@@ -243,9 +243,9 @@ $$
 
 Now, note that $\frac{\lfloor nx \rfloor}{n}$ and $\frac{\lfloor nx \rfloor + 1}{n}$ are rational approximations of $x$, where the former is smaller than or equal to $x$ and the latter is strictly greater than $x$.
 
-Therefore, the left-hand side of $(**)$ is nothing but $\frac{p_{*}}{q_{*}}$, where $\frac{p_{*}}{q_{*}}$ is the best rational approximation from below of $x$ with largest $q_{*}\leq n_{\max}$.
+Therefore, the left-hand side of $$(**)$$ is nothing but $\frac{p_{*}}{q_{*}}$, where $\frac{p_{*}}{q_{*}}$ is the best rational approximation from below of $x$ with largest $q_{*}\leq n_{\max}$.
 
-Similarly, the right-hand side of $(**)$ is nothing but $\frac{p^{*}}{q^{*}}$, where $\frac{p^{*}}{q^{*}}$ is the best rational approximation from above of $x$ with the largest $q^{*}\leq n_{\max}$. **Except when $x=\frac{p^{*}}{q^{*}}$** (which means that $x$ is rational and its denominator is at most $n_{\max}$), in which case the situation is a bit dirtier and is analyzed as follows.
+Similarly, the right-hand side of $$(**)$$ is nothing but $\frac{p^{*}}{q^{*}}$, where $\frac{p^{*}}{q^{*}}$ is the best rational approximation from above of $x$ with the largest $q^{*}\leq n_{\max}$. **Except when $x=\frac{p^{*}}{q^{*}}$** (which means that $x$ is rational and its denominator is at most $n_{\max}$), in which case the situation is a bit dirtier and is analyzed as follows.
 
 Note that the case $x=\frac{p^{*}}{q^{*}}$ is essentially what has been done in [the classical paper by Granlund-Montgomery](https://gmplib.org/~tege/divcnst-pldi94.pdf) (Theorem 4.2), but we redo it here since it is relevent enough. Since the case we are considering here is when $x$ is rational and its denominator is at most $n_{\max}$, which means $\frac{p^{*}}{q^{*}}=\frac{p_{*}}{q_{*}}=x$, so let us drop those stars from our notation and just write $x=\frac{p}{q}$ for brevity. Then we want to have
 
