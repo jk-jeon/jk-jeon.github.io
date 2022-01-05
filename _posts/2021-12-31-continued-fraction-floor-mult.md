@@ -566,3 +566,8 @@ $$
 using a Grandlund-Montgomery style analysis we did for $\lfloor nx \rfloor$ with rational $x$.
 
 Unfortunately, the bound I got by applying this analysis to the case $x=\log_{10}2$ and $y=\log_{10}\frac{4}{3}$ was not that great, particularly because $y$ is too close to $\frac{u+1}{q}$ for the choice $\frac{p}{q}=\frac{643}{2136}$, which is otherwise a very efficient and effective approximation of $x$. Well, but I might be overlooking some things at this point, so probably I have to give some more tries on this later.
+
+
+# Acknolwedgement
+
+Thanks Seung uk Jang for teaching me many things about continued fractions (including useful references) and other  discussions relevant to this post.
