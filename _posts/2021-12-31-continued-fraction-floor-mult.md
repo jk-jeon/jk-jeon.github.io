@@ -265,7 +265,19 @@ $$
   \frac{q-r}{n} = \frac{1}{u}\cdot \frac{(q-r)u}{n},
 $$
 
-so it suffices to show that $n$ must be at most $(q-r)u$. Since $up\equiv -1\ (\operatorname{mod}\,q)$, we have $(q-r)u\equiv r\ (\operatorname{mod}\,q)$, so if $n$ is strictly greater than $(q-r)u$, then it must be at least $(q-r)u+q$, which is at least $u+q$ since $q-r\geq 1$. However, by definition of $u$, $u+q$ is strictly greater than $n_{\max}$ so this cannot be the case, so the claim is proved.
+so it suffices to show that $n$ must be at most $(q-r)u$, so suppose $n>(q-r)u$ on the contrary. Since $up\equiv -1\ (\operatorname{mod}\,q)$, we have $(q-r)up\equiv r\equiv np\ (\operatorname{mod}\,q)$. As we have $np>(q-r)up$, we must have
+
+$$
+  np = (q-r)up + eq
+$$
+
+for some $e\geq 1$. However, since $np$ and $(q-r)up$ are both multiples of $p$, $eq$ must be a multiple of $p$ as well, but since $p$ and $q$ are coprime, it follows that $e$ is a multiple of $p$. Therefore,
+
+$$
+  n = (q-r)u + \frac{eq}{p} \geq (q-r)u + q \geq u + q,
+$$
+
+but this contradicts to $n_{\max} < u + q$, thus proving the claim.
 
 As a result, we obtain
 
