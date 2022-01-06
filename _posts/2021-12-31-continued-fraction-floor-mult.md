@@ -285,6 +285,7 @@ $$
   \min_{n=1,\ \cdots\ ,n_{\max}}\frac{\lfloor nx \rfloor + 1}{n}
   = x + \frac{1}{qu}
 $$
+
 where $u$ is the largest integer such that $u\leq n_{\max}$ and $up\equiv -1\ (\operatorname{mod}\,q)$.
 
 In summary, we get the following conclusions:
