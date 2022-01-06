@@ -247,7 +247,7 @@ Therefore, the left-hand side of $$(**)$$ is nothing but $$\frac{p_{*}}{q_{*}}$$
 
 Similarly, the right-hand side of $$(**)$$ is nothing but $$\frac{p^{*}}{q^{*}}$$, where $$\frac{p^{*}}{q^{*}}$$ is the best rational approximation from above of $x$ with the largest $$q^{*}\leq n_{\max}$$. **Except when $$x=\frac{p^{*}}{q^{*}}$$** (which means that $x$ is rational and its denominator is at most $n_{\max}$), in which case the situation is a bit dirtier and is analyzed as follows.
 
-Note that the case $$x=\frac{p^{*}}{q^{*}}$$ is essentially what has been done in [the classical paper by Granlund-Montgomery](https://gmplib.org/~tege/divcnst-pldi94.pdf) (Theorem 4.2), but we redo it (with a little bit of improvement) here since it is relevent enough. Since the case we are considering here is when $x$ is rational and its denominator is at most $n_{\max}$, which means $$\frac{p^{*}}{q^{*}}=\frac{p_{*}}{q_{*}}=x$$, so let us drop those stars from our notation and just write $x=\frac{p}{q}$ for brevity. Then we want to find the minimizer of
+Note that the case $$x=\frac{p^{*}}{q^{*}}$$ is the case considered in [the classical paper by Granlund-Montgomery](https://gmplib.org/~tege/divcnst-pldi94.pdf) (Theorem 4.2), but here we will do a sharper analysis that gives us a condition that is not only sufficient but also necessary to have $$(*)$$ for all $n=1,\ \cdots\ ,n_{\max}$. Since the case we are considering here is when $x$ is rational and its denominator is at most $n_{\max}$, which means $$\frac{p^{*}}{q^{*}}=\frac{p_{*}}{q_{*}}=x$$, so let us drop those stars from our notation and just write $x=\frac{p}{q}$ for brevity. Then we want to find the minimizer of
 
 $$
   \frac{\left\lfloor np/q \right\rfloor + 1}{n}
