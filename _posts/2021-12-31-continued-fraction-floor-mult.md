@@ -59,7 +59,7 @@ $$
   \frac{415}{93} = 4 + \dfrac{1}{2+\dfrac{1}{6+\dfrac{1}{7}}}.
 $$
 
-It can be easily shown that this procedure terminates if and only if $x$ is a rational number. In fact, when $x=\frac{p}{q}$ is a rational number for some coprime integers $p,q$, then the coefficients $a_{i}$'s are nothing but those appearing in the Euclid algorithm of computing GCD of $p$ and $q$ (which is a priori assumed to be $1$ of course).
+It can be easily shown that this procedure terminates if and only if $x$ is a rational number. In fact, when $x=\frac{p}{q}$ is a rational number (whenever we say $\frac{p}{q}$ is a rational number, we implicitly assumes that it is in its reduced form; that is, $q$ is a positive integer and $p$ is an integer coprime to $q$), then the coefficients $a_{i}$'s are nothing but those appearing in the Euclid algorithm of computing GCD of $p$ and $q$ (which is a priori assumed to be $1$ of course).
 
 When $x$ is rational and $x=[a_{0};a_{1},\ \cdots\ ,a_{i}]$ is the continued fraction expansion of $x$ obtained from the above algorithm, then either $x$ is an integer (so $i=0$) or $a_{i}>1$. Then $[a_{0};a_{1},\ \cdots\ ,a_{i-1},a_{i}-1,1]$ is another continued fraction expansion of $x$. Then it can be shown that these two are the only continued fraction expansions for $x$. For example, we have the following alternative continued fraction expansion
 
@@ -117,7 +117,7 @@ Note that the sequence of convergents above is converging to $\log_{10}2$ rapidl
 
 ## Best rational approximations
 
-A cool thing about continued fractions is that, in fact convergents are ones of the best possible rational approximations in the following sense. Given a real number $x$, a rational number $\frac{p}{q}$, where $q$ is a positive integer and $p$ is an integer coprime to $q$ (let us now implicitly assume these two whenever we say $\frac{p}{q}$ is a rational number), is called a *best rational approximation* of $x$, if for every positive integer $b\leq q$ and an integer $a$, we always have
+A cool thing about continued fractions is that, in fact convergents are ones of the best possible rational approximations in the following sense. Given a real number $x$, a rational number $\frac{p}{q}$ is called a *best rational approximation* of $x$, if for every rational number $\frac{a}{b}$ with $b\leq q$, we always have
 
 $$
   \left\vert x - \frac{p}{q}\right\vert \leq \left\vert x - \frac{a}{b}\right\vert.
@@ -247,53 +247,51 @@ Therefore, the left-hand side of $$(**)$$ is nothing but $$\frac{p_{*}}{q_{*}}$$
 
 Similarly, the right-hand side of $$(**)$$ is nothing but $$\frac{p^{*}}{q^{*}}$$, where $$\frac{p^{*}}{q^{*}}$$ is the best rational approximation from above of $x$ with the largest $$q^{*}\leq n_{\max}$$. **Except when $$x=\frac{p^{*}}{q^{*}}$$** (which means that $x$ is rational and its denominator is at most $n_{\max}$), in which case the situation is a bit dirtier and is analyzed as follows.
 
-Note that the case $$x=\frac{p^{*}}{q^{*}}$$ is essentially what has been done in [the classical paper by Granlund-Montgomery](https://gmplib.org/~tege/divcnst-pldi94.pdf) (Theorem 4.2), but we redo it here since it is relevent enough. Since the case we are considering here is when $x$ is rational and its denominator is at most $n_{\max}$, which means $$\frac{p^{*}}{q^{*}}=\frac{p_{*}}{q_{*}}=x$$, so let us drop those stars from our notation and just write $x=\frac{p}{q}$ for brevity. Then we want to have
+Note that the case $$x=\frac{p^{*}}{q^{*}}$$ is essentially what has been done in [the classical paper by Granlund-Montgomery](https://gmplib.org/~tege/divcnst-pldi94.pdf) (Theorem 4.2), but we redo it (with a little bit of improvement) here since it is relevent enough. Since the case we are considering here is when $x$ is rational and its denominator is at most $n_{\max}$, which means $$\frac{p^{*}}{q^{*}}=\frac{p_{*}}{q_{*}}=x$$, so let us drop those stars from our notation and just write $x=\frac{p}{q}$ for brevity. Then we want to find the minimizer of
 
 $$
-  \frac{nm}{2^{k}} < \left\lfloor \frac{np}{q} \right\rfloor + 1,
+  \frac{\left\lfloor np/q \right\rfloor + 1}{n}
 $$
 
-or equivalently
+for $n=1,\ \cdots\ ,n_{\max}$. Let $r$ be the remainder of $np$ divided by $q$, then the above can be written as
 
 $$
-  \frac{nm}{2^{k}} \leq \left\lfloor \frac{np}{q} \right\rfloor + \frac{2^{k}-1}{2^{k}}
+  \frac{(np-r)/q + 1}{n} = \frac{p}{q} + \frac{q - r}{qn},
 $$
 
-for all $n=1,\ \cdots\ ,n_{\max}$. We can rewrite this inequality in terms of the remainder $r$ of $np$ divided by $q$ as:
+so the task is to find the minimizer of $\frac{q-r}{n}$. One can expect that the minimum will be achieved when $r=q-1$, so let $u$ be the largest integer such that $u\leq n_{\max}$ and $up\equiv -1\ (\operatorname{mod}\,q)$. We claim that $u$ is an optimizer of $\frac{q-r}{n}$. Indeed, by definition $u$, we must have $n_{\max}<u+q$. Note that for any $n$,
 
 $$
-  \frac{nm}{2^{k}} \leq \frac{np-r}{q} + \frac{2^{k}-1}{2^{k}},
+  \frac{q-r}{n} = \frac{1}{u}\cdot \frac{(q-r)u}{n},
 $$
 
-or equivalently
+so it suffices to show that $n$ must be at most $(q-r)u$. Since $up\equiv -1\ (\operatorname{mod}\,q)$, we have $(q-r)u\equiv r\ (\operatorname{mod}\,q)$, so if $n$ is strictly greater than $(q-r)u$, then it must be at least $(q-r)u+q$, which is at least $u+q$ since $q-r\geq 1$. However, by definition of $u$, $u+q$ is strictly greater than $n_{\max}$ so this cannot be the case, so the claim is proved.
+
+As a result, we obtain
 
 $$
-  m \leq \frac{2^{k}p}{q} + \frac{2^{k}}{n}\left(1-\frac{r}{q}-\frac{1}{2^{k}}\right).
+  \min_{n=1,\ \cdots\ ,n_{\max}}\frac{\lfloor nx \rfloor + 1}{n}
+  = x + \frac{1}{qu}
 $$
+where $u$ is the largest integer such that $u\leq n_{\max}$ and $up\equiv -1\ (\operatorname{mod}\,q)$.
 
-Because of the unpredictable way $r$ varies with $n$, it is not easy to obtain the precise optimizer of the right-hand side. Hence, let us be a little lenient here and just use the bound $r\leq q-1$ and $n\leq n_{\max}$ to obtain the following sufficient condition:
-
-$$
-  m \leq \frac{2^{k}p}{q} +
-  \frac{2^{k}}{n_{\max}}\left(\frac{1}{q} - \frac{1}{2^{k}}\right)
-  = \frac{2^{k}p}{q} + \frac{2^{k} - q}{qn_{\max}}.
-$$
-
-Hence, we obtain the following conclusions:
+In summary, we get the following conclusions:
 - If $x$ is irrational or rational with denominator strictly greater than $n_{\max}$, then $(*)$ holds for all $n=1,\ \cdots\ ,n_{\max}$ if and only if
 
   $$
-    \left\lceil\frac{2^{k}p_{*}}{q_{*}}\right\rceil
+    \frac{2^{k}p_{*}}{q_{*}}
     \leq m < \frac{2^{k}p^{*}}{q^{*}}.
   $$
 
-- If $x=\frac{p}{q}$ is rational with $q\leq n_{\max}$, then $(*)$ holds for all $n=1,\ \cdots\ ,n_{\max}$ if
+- If $x=\frac{p}{q}$ is rational with $q\leq n_{\max}$, then $(*)$ holds for all $n=1,\ \cdots\ ,n_{\max}$ if and only if
 
   $$
-    \left\lceil\frac{2^{k}p}{q}\right\rceil
+    \frac{2^{k}p}{q}
     \leq m
-    \leq \left\lfloor \frac{2^{k}p}{q} + \frac{2^{k} - q}{qn_{\max}} \right\rfloor.
+    < \frac{2^{k}p}{q} + \frac{2^{k}}{qu}
   $$
+
+  where $u$ is the largest integer such that $u\leq n_{\max}$ and $up\equiv -1\ (\operatorname{mod}\,q)$.
 
 ## The case $n<0$
 
@@ -311,59 +309,43 @@ Similarly to the case $n>0$, the minimum of the right-hand side is precisely $$\
 
 The maximum of the left-hand side is, as one can expect, a bit more involved. It is precisely $$\frac{p_{*}}{q_{*}}$$ (with the same definition above) except when $$x=\frac{p_{*}}{q_{*}}$$, in which case we do some more analysis.
 
-As in the case $n>0$, assume $x=\frac{p}{q}$ with $q\leq n_{\max}$, and let us figure out a sufficient condition for having
+As in the case $n>0$, assume $x=\frac{p}{q}$ with $q\leq n_{\max}$, and let us find the maximizer of
 
 $$
-  \left\lceil \frac{np}{q} \right\rceil - 1 < \frac{nm}{2^{k}},
+  \frac{\left\lceil np/q \right\rceil - 1}{n}
 $$
 
-or equivalently
-
-$$
-  \left\lceil \frac{np}{q} \right\rceil - \frac{2^{k}-1}{2^{k}}
-  \leq \frac{nm}{2^{k}}
-$$
-
-for all $n=1,\ \cdots\ ,n_{\max}$. This time, let $r$ be the unique integer such that $0\leq r\leq q-1$ and
+for $n=1,\ \cdots\ ,n_{\max}$. This time, let $r$ be the unique integer such that $0\leq r\leq q-1$ and
 
 $$
   np = \left\lceil \frac{np}{q} \right\rceil q - r,
 $$
 
-then we can rewrite our inequality as
+then we can rewrite our objective function as
 
 $$
-  \frac{np+r}{q} - \frac{2^{k}-1}{2^{k}} \leq \frac{nm}{2^{k}},
+  \frac{(np+r)/q - 1}{n} = \frac{p}{q} - \frac{q-r}{qn}.
 $$
 
-or equivalently
+Therefore, a maximizer of the above is a minimizer of $\frac{q-r}{qn}$, which is, as we obtained in the previous case, the largest integer $u$ such that $u\leq n_{\max}$ and $up\equiv -1\ (\operatorname{mod}\,q)$.
 
-$$
-  m \geq \frac{2^{k}p}{q}
-  - \frac{2^{k}}{n}\left(1 - \frac{r}{q} - \frac{1}{2^{k}}\right),
-$$
-
-thus we obtain a sufficient condition
-
-$$
-  m \geq \frac{2^{k}p}{q} - \frac{2^{k} - q}{qn_{\max}}.
-$$
-
-Hence, we obtain the following conclusions:
+Hence, we get the following conclusions:
 - If $x$ is irrational or rational with denominator strictly greater than $n_{\max}$, then $(*)$ holds for all $n=-1,\ \cdots\ ,-n_{\max}$ if and only if
   
   $$
     \frac{2^{k}p_{*}}{q_{*}} < m
-    \leq \left\lfloor \frac{2^{k}p^{*}}{q^{*}} \right\rfloor.
+    \leq \frac{2^{k}p^{*}}{q^{*}}.
   $$
 
-- If $x=\frac{p}{q}$ is rational with $q\leq n_{\max}$, then $(*)$ holds for all $n=-1,\ \cdots\ ,-n_{\max}$ if
+- If $x=\frac{p}{q}$ is rational with $q\leq n_{\max}$, then $(*)$ holds for all $n=-1,\ \cdots\ ,-n_{\max}$ if and only if
   
   $$
-    \left\lceil \frac{2^{k}p}{q} - \frac{2^{k} - q}{qn_{\max}} \right\rceil
-    \leq m
-    \leq \left\lfloor \frac{2^{k}p}{q} \right\rfloor.
+    \frac{2^{k}p}{q} - \frac{2^{k}}{qu}
+    < m
+    \leq \frac{2^{k}p}{q}
   $$
+
+  where $u$ is the largest integer such that $u\leq n_{\max}$ and $up\equiv -1\ (\operatorname{mod}\,q)$.
 
 
 ## Conclusion and an example
@@ -377,9 +359,9 @@ $$
 For the case $x=\frac{p}{q}$ with $q\leq n_{\max}$, we cannot really conclude anything useful if we consider positive $n$'s and negative $n$'s altogether, because the inequality we get is
 
 $$
-  \left\lceil \frac{2^{k}p}{q} \right\rceil
+  \frac{2^{k}p}{q}
   \leq m
-  \leq \left\lfloor \frac{2^{k}p}{q} \right\rfloor,
+  \leq \frac{2^{k}p}{q},
 $$
 
 which admits a solution if and only if $\frac{2^{k}p}{q}$ is an integer, which can happen only when $q$ is a power of $2$. But for that case the problem is already trivial.
@@ -568,6 +550,6 @@ using a Grandlund-Montgomery style analysis we did for $\lfloor nx \rfloor$ with
 Unfortunately, the bound I got by applying this analysis to the case $x=\log_{10}2$ and $y=\log_{10}\frac{4}{3}$ was not that great, particularly because $y$ is too close to $\frac{u+1}{q}$ for the choice $\frac{p}{q}=\frac{643}{2136}$, which is otherwise a very efficient and effective approximation of $x$. Well, but I might be overlooking some things at this point, so probably I have to give some more tries on this later.
 
 
-# Acknolwedgement
+# Acknolwedgements
 
 Thanks Seung uk Jang for teaching me many things about continued fractions (including useful references) and other  discussions relevant to this post.
