@@ -562,6 +562,8 @@ using a Grandlund-Montgomery style analysis we did for $\lfloor nx \rfloor$ with
 
 Unfortunately, the bound I got by applying this analysis to the case $x=\log_{10}2$ and $y=\log_{10}\frac{4}{3}$ was not that great, particularly because $y$ is too close to $\frac{u+1}{q}$ for the choice $\frac{p}{q}=\frac{643}{2136}$, which is otherwise a very efficient and effective approximation of $x$. Well, but I might be overlooking some things at this point, so probably I have to give some more tries on this later.
 
+**(Edit on 02-10-2022)** I included a better analysis of this in my new paper on [Dragonbox](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf), Section 4.4. But still I consider it incomplete, because it seems that the actual range of $n$ is much wider than what the analysis method described in the paper expects.
+
 
 # Acknolwedgements
 
