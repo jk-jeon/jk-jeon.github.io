@@ -1,5 +1,5 @@
 ---
-title: 'Faster integer formatting - James Anhalt (jeaiii) algorithm'
+title: "Faster integer formatting - James Anhalt (jeaiii)'s algorithm"
 date: 2022-02-16
 permalink: /posts/2022/02/jeaiii-algorithm/
 tags:
@@ -58,7 +58,7 @@ char* itoa_naive(std::uint32_t n, char* buffer) {
   return buffer + length;
 }
 ```
-(Demo: https://godbolt.org/z/7G7ecs7r4)
+(Demo: [https://godbolt.org/z/7G7ecs7r4](https://godbolt.org/z/7G7ecs7r4))
 
 The size of the temporary buffer is set to $10$, because that's the maximum possible decimal length for `uint32_t`.
 
@@ -112,7 +112,7 @@ char* itoa_two_digits_per_div(std::uint32_t n, char* buffer) {
   return buffer + remaining_length;
 }
 ```
-(Demo: https://godbolt.org/z/vnMTf7s9r)
+(Demo: [https://godbolt.org/z/vnMTf7s9r](https://godbolt.org/z/vnMTf7s9r))
 
 So the idea is, we first prepare a lookup table for converting two-digits integers into strings. Then we perform divisions by $100$, rather than $10$, to get two digits per a division. In this way, we can roughly halve the number of multiplications needed.
 
@@ -230,7 +230,7 @@ char* itoa_always_10_digits(std::uint32_t n, char* buffer) {
     return buffer + 10;
 }
 ```
-(Demo: https://godbolt.org/z/9c4Mb76hc)
+(Demo: [https://godbolt.org/z/9c4Mb76hc](https://godbolt.org/z/9c4Mb76hc))
 
 Of course, the constant $1441151881$ is only of $31$-bits so there is no overflow.
 
@@ -429,7 +429,7 @@ char* itoa_var_length(std::uint32_t n, char* buffer) {
   }
 }
 ```
-(Demo: https://godbolt.org/z/froGhEn3s)
+(Demo: [https://godbolt.org/z/froGhEn3s](https://godbolt.org/z/froGhEn3s))
 
 **Note**: The paths for $(2k-1)$-digits case and $2k$-digits case share a lot of code, so one might try to merge the printing of $(2k-2)$-digits and leave only the code for printing first $1$ or $2$ digits in separate branches. However, it seems that such a refactoring leads to a worse-performing code, probably because the number of additions performed is increased in that case. Nevertheless, that is also one viable option, especially regarding the code size.
 
@@ -465,7 +465,7 @@ will often do the job. Indeed, in this case we have
 $$
   \frac{mn}{2^{L}} \geq \frac{2^{D}n}{10^{k}} + \frac{n}{2^{L}},
 $$
-so the left-hand side of $(**)$ is always satisfied if
+so the left-hand side of $$(**)$$ is always satisfied if
 $$
   2^{L} \leq n
 $$
@@ -473,7 +473,7 @@ holds for all $n$ in the range. On the other hand, we have
 $$
   \frac{mn}{2^{L}} < \frac{2^{D}n}{10^{k}} + \frac{n}{2^{L-1}},
 $$
-so the right-hand side of $(**)$ is always satisfied if
+so the right-hand side of $$(**)$$ is always satisfied if
 $$
   \frac{n}{2^{L-1}}\leq \frac{2^{D}}{10^{k}},
 $$
@@ -616,7 +616,7 @@ char* itoa_better_y(std::uint32_t n, char* buffer) {
   return buffer;
 }
 ```
-(Demo: https://godbolt.org/z/7TaqYa9h1)
+(Demo: [https://godbolt.org/z/7TaqYa9h1](https://godbolt.org/z/7TaqYa9h1))
 
 **Note**: Looking at a [port](https://github.com/tearosccebe/fast_io/blob/e74bd525b6765a9f418137d9aebd193f133e400e/include/fast_io_core_impl/integers/jeaiii_method.h#L49) of James Anhalt's original algorithm, it seems that the above is probably a little bit better than the original implementation because the original algorithm performs an addition after the first multiplication and shift, for digit length longer than some value. With our choice of magic numbers, that is not necessary.
 
@@ -627,7 +627,7 @@ Alright, now let's compare the performance of these implementations!
 
 ![2022-02-16-itoa_bench](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/_posts/2022-02-16-itoa_bench.png)
 
-Link: https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY
+Link: [https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY](https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY)
 
 `itoa_var_length_naive` is a straightforward variation of `itoa_var_length` doing the naive quotient/remainder computation instead of playing with $y$. Well, compared to `itoa_var_length_naive`, the performance benefit of `itoa_better_y` seems not very impressive to be honest. Nevertheless, I still think the idea behind the algorithm is pretty intriguing.
 
