@@ -122,41 +122,53 @@ So the idea is, we first prepare a lookup table for converting two-digits intege
 Okay, so for integers of $10$ decimal digits, how many multiplications we need? Note that we need to compute both the quotient and the remainder, and as far as I know there is no way to get both of them with just one multiplication. Hence, for each $2$ digits, we need to perform $2$ multiplications, thus for integers with $10$ digits we need $10$ multiplications.
 
 Surprisingly, in fact we can halve that number again into $5$, which (I believe) is the core idea of James Anhalt's algorithm. The crux of the idea can be summarized as follows: given $n$, we find the integer $y$ satisfying
+
 $$
   n = \left\lfloor\frac{10^{k}y}{2^{D}}\right\rfloor
 $$
+
 for some nonnegative integer constants $k$ and $D$.
 
 This transformation is a real deal, because after we get such $y$, we can extract two digits of $n$ per a multiplication. To see why, recall that in general
+
 $$
   \left\lfloor\frac{a}{bc}\right\rfloor
   =\left\lfloor\frac{\lfloor a/b \rfloor}{c}\right\rfloor
 $$
+
 holds for any positive integers $a,b,c$; that is, the quotient of $a$ divided by $bc$ is obtained by first obtaining the quotient of $a$ divided by $b$ and then obtaining the quotient of it divded by $c$. Therefore, for any $l\leq k$, we have
+
 $$
   \left\lfloor\frac{10^{k-l}y}{2^{D}}\right\rfloor
   = \left\lfloor\frac{n}{10^{l}}\right\rfloor.
 $$
 
 So, for example, let $k=l=8$, then
+
 $$
   \left\lfloor\frac{n}{10^{8}}\right\rfloor
   = \left\lfloor\frac{y}{2^{D}}\right\rfloor.
 $$
+
 Assuming that $n$ is of $10$ digits, the left-hand side is precisely the first $2$ digits of $n$, while the right-hand side is just the right-shift of $y$ by $D$-bits.
 
 On the other hand, the next $2$ digits of $n$ can be computed as
+
 $$
   \left(\left\lfloor\frac{n}{10^{6}}\right\rfloor
   \ \operatorname{mod}\ 10^{2}\right)
   = \left(\left\lfloor\frac{10^{2}y}{2^{D}}\right\rfloor
   \ \operatorname{mod}\ 10^{2}\right).
 $$
+
 Note that, if we write $y$ as $y=2^{D}q + r$ where $q$ is the quotient and $r$ is the remainder, then
+
 $$
   10^{2}y = 2^{D}(10^{2}q) + 10^{2}r,
 $$
+
 so
+
 $$
   \left(\left\lfloor\frac{10^{2}y}{2^{D}}\right\rfloor
   \ \operatorname{mod}\ 10^{2}\right)
@@ -165,44 +177,58 @@ $$
   = \left(\left\lfloor\frac{10^{2}r}{2^{D}}\right\rfloor
   \ \operatorname{mod}\ 10^{2}\right).
 $$
+
 Also, since $r<2^{D}$, $\left\lfloor\frac{10^{2}r}{2^{D}}\right\rfloor$
 is strictly less than $10^{2}$, thus we get
+
 $$
   \left(\left\lfloor\frac{n}{10^{6}}\right\rfloor
   \ \operatorname{mod}\ 10^{2}\right)
   = \left\lfloor\frac{10^{2}r}{2^{D}}\right\rfloor.
 $$
+
 This means that, in order to compute the next $2$ digits of $n$, we first obtain the remainder of $y$ divided by $2^{D}$, and then multiply $10^{2}$ to it, and then obtain the quotient of it divided by $2^{D}$. In other words, we just need to first obtain the lowest $D$-bits, multiply $10^{2}$ to it, and then right-shift the result by $D$-bits. As you can see, we only need $1$ multiplication here.
 
 This trend continues: we only need to obtain the lowest $D$-bits, multiply by $10^{2}$, and then right-shift the result by $D$-bits to compute the next $2$ digits of $n$, thus only $1$ multiplication per $2$ digits. Indeed, it can be inductively shown that if we write $y_{0}=y$ and $y_{i+1} = 10^{2}(y_{i}\ \operatorname{mod}\ 2^{D})$, then
+
 $$
   \left(\left\lfloor\frac{n}{10^{k-2i}}\right\rfloor
   \ \operatorname{mod}\ 10^{2}\right)
   = \left\lfloor\frac{y_{i}}{2^{D}}\right\rfloor
 $$
+
 holds for each $i=0,1,2,3,4$.
 
 ## How to compute $y$?
 
 Alright, so we get that computing $y$ satisfying
+
 $$
   n = \left\lfloor\frac{10^{k}y}{2^{D}}\right\rfloor
 $$
+
 is pretty useful. The next question is how to find such $y$. Note that the above equality is equivalent to the inequality
+
 $$
   n \leq \frac{10^{k}y}{2^{D}} < n+1,
 $$
+
 or
+
 $$\tag{$*$}
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}.
 $$
+
 Assuming $2^{D}\geq 10^{k}$, $y=\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil$ will obviously do the job, but to do so we have to come up with a nice method of computing it. Hence, here let us try something easier, like
+
 $$
   y = n\left\lceil\frac{2^{D}}{10^{k}}\right\rceil.
 $$
+
 In this case, $\left\lceil\frac{2^{D}}{10^{k}}\right\rceil$ is just a constant not depending on $n$.
 
 With $k=8$ and $n<2^{32}$, we can show that this $y$ always satisfies $(*)$ if we take $D\geq 57$. (Just find the smallest $D$ satisfying $(2^{32}-1)\left(\left\lceil\frac{2^{D}}{10^{k}}\right\rceil - \frac{2^{D}}{10^{k}}\right) < \frac{2^{D}}{10^{k}}$!) Choosing $D=57$, we get the magic number
+
 $$
   \left\lceil\frac{2^{D}}{10^{k}}\right\rceil = 1441151881.
 $$
@@ -292,13 +318,17 @@ char* itoa_var_length(std::uint32_t n, char* buffer) {
 It sounds pretty crazy, but anyway it does the job.
 
 Now, recall that our main idea was to find $y$ satisfying
+
 $$
   n = \left\lfloor\frac{10^{k}y}{2^{D}}\right\rfloor.
 $$
+
 And, note that the choice $k=8$ was to make sure that $\left\lfloor\frac{y}{2^{D}}\right\rfloor$ is the first $2$ digits, given that $n$ is of $10$ digits. Since $n$ is not of $10$ digits in each of the branches except only for one branch, we do not need to take $k=8$. For example, when $n$ is of $3$ digits, it would be better to choose $k=2$. Then since $n\leq 999$ in this case, the choice
+
 $$
   y = n\left\lceil\frac{2^{D}}{10^{k}}\right\rceil
 $$
+
 is valid for any $D\geq 12$, as $999\cdot \left(\left\lceil\frac{2^{12}}{10^{2}}\right\rceil - \frac{2^{12}}{10^{2}}\right) < \frac{2^{12}}{10^{2}}$ holds. In this case, we may choose $D=32$ rather than $D=12$, because for platforms like x86, obtaining the lowest $32$-bits from a $64$-bit integer is basically no-op.
 
 Similarly, we can choose $D=32$ (with the above $y$) for $n$'s up to $6$ digits, but for larger $n$ we may need to choose larger $D$. For $n$'s with $7$ or $8$ digits, we set $k=6$, and it can be shown that $D=47$ does the job. For $n$'s with $9$ or $10$ digits, we set $k=8$, and as we have already seen $D=57$ does the job. With these choices of parameters, we get the following code:
@@ -439,18 +469,25 @@ char* itoa_var_length(std::uint32_t n, char* buffer) {
 The above code is pretty good for $n$'s up to $6$ digits, but not so much for longer $n$'s, as we have to perform masking in addition to multiplication and shifting for each $2$ digits. Can we actually get rid of that? That is, can we choose $D=32$ even for $n$'s with digits more than $6$? It turns out that we can.
 
 The reason we had to choose $D>32$ was due to our poor choice of $y$:
+
 $$
   y = n\left\lceil\frac{2^{D}}{10^{k}}\right\rceil.
 $$
+
 Recall that, we do not need to choose $y$ like this; all we need to do is find any integer $y$ satisfying the inequality
+
 $$\tag{$*$}
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}.
 $$
+
 Suppose that we want to obtain $y$ by computing
+
 $$
   y = \left\lfloor\frac{nm}{2^{L}}\right\rfloor
 $$
+
 for some positive integer constants $m$ and $L$. Then the inequality $(*)$ can be rewritten as
+
 $$\tag{$**$}
   \frac{1}{n}\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil
   \leq \frac{m}{2^{L}}
@@ -458,65 +495,91 @@ $$\tag{$**$}
 $$
 
 At the time of writing this post, I am not quite sure if there is an elegant way to obtain the precise admissible range of $m$ and $L$ for the above inequality with any given range of $n$, but a reasonable guess is that
+
 $$
   m = \left\lceil\frac{2^{D+L}}{10^{k}}\right\rceil + 1
 $$
+
 will often do the job. Indeed, in this case we have
+
 $$
   \frac{mn}{2^{L}} \geq \frac{2^{D}n}{10^{k}} + \frac{n}{2^{L}},
 $$
+
 so the left-hand side of $$(**)$$ is always satisfied if
+
 $$
   2^{L} \leq n
 $$
+
 holds for all $n$ in the range. On the other hand, we have
+
 $$
   \frac{mn}{2^{L}} < \frac{2^{D}n}{10^{k}} + \frac{n}{2^{L-1}},
 $$
+
 so the right-hand side of $$(**)$$ is always satisfied if
+
 $$
   \frac{n}{2^{L-1}}\leq \frac{2^{D}}{10^{k}},
 $$
+
 or equivalently,
+
 $$
   \frac{10^{k}n}{2^{D-1}} \leq 2^{L}
 $$
+
 holds for all $n$ in the range.
 
 For example, when $n$ is of $7$ or $8$ digits (so $n\in[10^{6}, 10^{8}-1]$), $k=6$, and $D=32$, thus it is enough to have
+
 $$
   \frac{10^{6}(10^{8} - 1)}{2^{31}} \leq 2^{L} \leq 10^{6},
 $$
+
 thus
+
 $$
   16 \leq L \leq 19.
 $$
+
 Hence, we take $L = 16$ and accordingly $m = 281474978$. Of course, we can equivalently take $L = 15$ and $m = 140737489$ as well, so this analysis is clearly far from being tight.
 
 (In fact, it can be exhaustively verified that the left-hand side of $(*)$ is maximized when $n=1000795$, while the right-hand side is minimized when $n=10^{8}-1$, which yield the inequality
+
 $$
   \frac{4298381796}{1000795}
   \leq \frac{m}{2^{L}}
   < \frac{429496729600}{99999999}.
 $$
+
 The minimum $L$ allowing an integer solution $m$ to the above inequality is $L=15$ and in this case $m = 140737489$ is the unique solution.)
 
 When $n$ is of $9$ or $10$ digits, this analysis does not give the best result. Nevertheless, it can be exhaustively verified that, when $k=8$ and $D=32$, if we set $L = 25$ and
+
 $$
   m = \left\lceil\frac{2^{D+L}}{10^{k}}\right\rceil + 1 = 1441151882,
 $$
+
 then
+
 $$
   n = \left\lfloor \frac{10^{k}\lfloor nm/2^{L} \rfloor}{2^{D}} \right\rfloor
 $$
+
 holds for all $n\in [10^{8}, 10^{9}-1]$, and similarly, if we set $L = 25$ and
+
 $$
   m = \left\lceil\frac{2^{D+L}}{10^{k}}\right\rceil = 1441151881,
 $$
+
 then
+
 $$
   n = \left\lfloor \frac{10^{k}\lfloor nm/2^{L} \rfloor}{2^{D}} \right\rfloor
 $$
+
 holds for all $n\in [10^{9}, 2^{32}-1]$.
 
 (In fact, while a similar analysis completely fails for $n$'s of $10$ digits, if we restrict to $n$'s of $9$ digits, it gives a valid choice $L=26$ and $m=2882303763$. However, $1441151882$ is a better magic number than $2882303763$ anyway, because the former is of $31$-bits while the latter is of $32$-bits. This matters for platforms like x86, because when computing $y=\left\lfloor\frac{nm}{2^{L}}\right\rfloor$, we want to leverage the fast `imul` instruction, but `imul` sign-extends the immediate constant when performing $64$-bit multiplication. Hence, if the magic number is of $32$-bits, the multiplication cannot be done in a single instruction.)
@@ -637,32 +700,42 @@ Link: [https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY](https://quick-benc
 So far we only have looked at the case of $32$-bit unsigned integers. For $64$-bit integers, what people typically do is to divide the input number by $10^9$ so that the quotient and the remainder now both fit into $32$-bits, and they can be printed with methods for $32$-bit numbers. When the quotient is not zero, then we always print $9$ digits for the remainder, no matter how small it is. As we can see in the benchmark above, when the length is known we can do a lot better than the general case.
 
 What we have done in `itoa_always_10_digits` is not so bad, but we can certainly do better by choosing $D=32$ which eliminates the need for performing masking at each step. Recall that all we need to do is to find an integer $y$ satisfying
+
 $$\tag{$*$}
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}
 $$
+
 for given $n$. Since we want to print $9$ digits, we take $k=8$. What's different from the previous case is that now $n$ can be any integer in the range $[1,10^{9}-1]$, in particular it can be very small. In this case, one can show by exhaustively checking all possible $n$'s that the inequality
+
 $$\tag{$**$}
   \frac{1}{n}\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil
   \leq \frac{m}{2^{L}}
   < \frac{1}{n}\left\lceil\frac{2^{D}(n+1)}{10^{k}}\right\rceil
 $$
+
 does not have a solution, because the maximum value of the left-hand side is bigger than the minimum value of the right-hand side. Therefore, it is not possible to compute $y$ by performing a multiplication followed by a shift.
 
 Instead, we can try something like
+
 $$
   y = \left\lfloor \frac{nm}{2^{L}} \right\rfloor + 1,
 $$
+
 which means that we can indeed omit masking at each step, at the cost of additionally performing an addition for the initial step of computing $y$.
 
 In this case, $(*)$ becomes
+
 $$\tag{$**'$}
   \frac{1}{n}\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil - \frac{1}{n}
   \leq \frac{m}{2^{L}}
   < \frac{1}{n}\left\lceil\frac{2^{D}(n+1)}{10^{k}}\right\rceil - \frac{1}{n}
 $$
+
 instead of $(**)$. Then we can perform a similar analysis to conclude that $L = 25$ with
+
 $$
   m = \left\lceil \frac{2^{D+L}}{10^{k}} \right\rceil
   = 1441151881
 $$
+
 do the job. In fact, an exhasutive check shows that we can even take $L = 24$ and $m = 720575941$.
