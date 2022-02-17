@@ -1,5 +1,5 @@
 ---
-title: 'Faster integer formatting - James Anhalt (jeaiii)'s algorithm'
+title: 'Faster integer formatting - James Anhalt (jeaiii)\'s algorithm'
 date: 2022-02-16
 permalink: /posts/2022/02/jeaiii-algorithm/
 tags:
