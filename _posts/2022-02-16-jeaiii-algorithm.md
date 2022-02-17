@@ -625,7 +625,7 @@ char* itoa_better_y(std::uint32_t n, char* buffer) {
 
 Alright, now let's compare the performance of these implementations!
 
-![2022-02-16-itoa_bench](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/_posts_/2022-02-16-itoa_bench.png)
+![2022-02-16-itoa_bench](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/_posts/2022-02-16-itoa_bench.png)
 
 Link: https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY
 
