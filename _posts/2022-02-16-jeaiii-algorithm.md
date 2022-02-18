@@ -711,7 +711,7 @@ Alright, now let's compare the performance of these implementations.
 
 ![2022-02-16-itoa_bench](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/_posts/2022-02-16-itoa_bench.png)
 
-Link: [https://quick-bench.com/q/ILG9wO9mZHDsAoybHNooXSZSvx0](https://quick-bench.com/q/ILG9wO9mZHDsAoybHNooXSZSvx0)
+Link: [https://quick-bench.com/q/ieIpsBhWC751YUhyVS2OE83dTO4](https://quick-bench.com/q/ieIpsBhWC751YUhyVS2OE83dTO4)
 
 `itoa_var_length_naive` is a straightforward variation of `itoa_var_length` doing the naive quotient/remainder computation instead of playing with $y$. Well, compared to `itoa_var_length_naive`, the performance benefit of `itoa_better_y` seems not very impressive to be honest. Nevertheless, I still think the idea behind the algorithm is pretty intriguing.
 
