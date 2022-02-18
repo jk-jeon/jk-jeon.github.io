@@ -38,7 +38,7 @@ I actually have not looked (and will not look) carefully at his code ([MACROS](h
 So it is totally possible that in fact what's written in this post has nothing to do with what he actually did; however, I strongly believe that what I ended up with is more or less equivalent to what his code is doing, modulo some small minor differences.
 
 
-# Naive implementations
+# Naïve implementations
 
 The very first problem that anyone who tries to implement such a function will face is that we want to write digits from left to right, but naturally we compute the digits from right to left. Hence, unless we know the number of decimal digits in the input upfront, we do not know the exact position in the buffer that we can write our digits into. There are several different strategies to cope with this issue. Probably the simplest (and quite effective) one is to just print the digit from right to left but into a temporary buffer, and after we get all digits of $n$ we copy the temporary buffer back to the destination buffer. At the point of obtaining the left-most decimal digit of $n$, we also get the length of the string, so we know what exact bytes to copy.
 
@@ -60,13 +60,13 @@ char* itoa_naive(std::uint32_t n, char* buffer) {
 ```
 (Demo: [https://godbolt.org/z/7G7ecs7r4](https://godbolt.org/z/7G7ecs7r4))
 
-The size of the temporary buffer is set to $10$, because that's the maximum possible decimal length for `uint32_t`.
+The size of the temporary buffer is set to $10$, because that's the maximum possible decimal length for `std::uint32_t`.
 
 The mismatch of between the order of computation and the order of desired output is indeed a quite nasty problem, but let us forget about this issue for a while because there is something more interesting to say here.
 
 There are several performance issues in this code, and one of them is the division by $10$. Of course, since the divisor is a known constant, our lovely compiler will automatically convert the division into multiply-and-shift (see [this classic paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) for example), so we do not need to worry about the dreaded `idiv` instruction which is extremely infamous of its performance. However, for simple enough algorithms like this, multiplication can still be a performance killer, so it is reasonable to expect that we will get a better performance by reducing the number of multiplications.
 
-Regarding this, Andrei Alexandrescu popularized the idea of generating two digits per a division, so halving the required number of multiplications:
+Regarding this, Andrei Alexandrescu popularized the idea of generating two digits per a division, so halving the required number of multiplications. That is, we first prepare a lookup table for converting $2$-digit integers into strings. Then in the loop we perform divisions by $100$, rather than $10$, to get $2$ digits per each division. The following code illustrates this:
 ```cpp
 static constexpr char radix_100_table[] = {
     '0', '0', '0', '1', '0', '2', '0', '3', '0', '4',
@@ -114,12 +114,10 @@ char* itoa_two_digits_per_div(std::uint32_t n, char* buffer) {
 ```
 (Demo: [https://godbolt.org/z/vnMTf7s9r](https://godbolt.org/z/vnMTf7s9r))
 
-The idea is, we first prepare a lookup table for converting $2$-digit integers into strings. Then we perform divisions by $100$, rather than $10$, to get $2$ digits per a division.
 
+# The core idea of James Anhalt's algorithm
 
-# The core idea
-
-So for integers of $10$ decimal digits, how many multiplications we need? Note that we need to compute both the quotient and the remainder, and as far as I know there is no way to get both of them with just one multiplication, and the minimum required number of multiplications is $2$. Hence, for each $2$ digits, we need to perform $2$ multiplications, thus for integers with $10$ digits we need $10$ multiplications.
+So, with the above trick of grouping $2$ digits, how many multiplications do we need for integers of, say, $10$ decimal digits? Note that we need to compute both the quotient and the remainder, and as far as I know at least $2$ multiplications should be performed to get both of them and there is no way to do it with just one multiplication. Hence, for each pair of $2$ digits, we need to perform $2$ multiplications, thus for integers with $10$ digits we need $10$ multiplications.
 
 Quite surprisingly, in fact we can halve that number again into $5$, which (I believe) is the core idea of James Anhalt's algorithm. The crux of the idea can be summarized as follows: given $n$, we find the integer $y$ satisfying
 
@@ -129,7 +127,7 @@ $$
 
 for some nonnegative integer constants $k$ and $D$.
 
-This transformation is a real deal, because after we get such $y$, we can extract two digits of $n$ per a multiplication. To see how, recall that in general
+This transformation is a real deal, because after we get such $y$, we can extract $2$ digits of $n$ per a multiplication. To see how, recall that in general
 
 $$
   \left\lfloor\frac{a}{bc}\right\rfloor
@@ -179,7 +177,7 @@ $$
 $$
 
 Also, since $r<2^{D}$, $\left\lfloor\frac{10^{2}r}{2^{D}}\right\rfloor$
-is strictly less than $10^{2}$, we get
+is strictly less than $10^{2}$, so we get
 
 $$
   \left(\left\lfloor\frac{n}{10^{6}}\right\rfloor
@@ -189,7 +187,7 @@ $$
 
 This means that, in order to compute the next $2$ digits of $n$, we first obtain the remainder of $y$ divided by $2^{D}$, and then multiply $10^{2}$ to it, and then obtain the quotient of it divided by $2^{D}$. In other words, we just need to first obtain the lowest $D$-bits, multiply $10^{2}$ to it, and then right-shift the result by $D$-bits. As you can see, we only need $1$ multiplication here.
 
-This trend continues: to compute the next $2$ digits of $n$, we only need to obtain the lowest $D$-bits, multiply $10^{2}$, and then right-shift the result by $D$-bits, thus we only need $1$ multiplication for generating each pair of $2$ digits. Indeed, it can be inductively shown that if we write $y_{0}=y$ and $y_{i+1} = 10^{2}(y_{i}\ \operatorname{mod}\ 2^{D})$, then
+This trend continues: to compute the next $2$ digits of $n$, we only need to obtain the lowest $D$-bits, multiply $10^{2}$, and then right-shift the result by $D$-bits, so in particular we only need $1$ multiplication for generating each pair of $2$ digits. Indeed, it can be inductively shown that if we write $y_{0}=y$ and $y_{i+1} = 10^{2}(y_{i}\ \operatorname{mod}\ 2^{D})$, then
 
 $$
   \left(\left\lfloor\frac{n}{10^{k-2i}}\right\rfloor
@@ -201,7 +199,7 @@ holds for each $i=0,1,2,3,4$.
 
 ## How to compute $y$?
 
-Alright, so we get that computing $y$ satisfying
+Alright, so we get that having $y$ satisfying
 
 $$
   n = \left\lfloor\frac{10^{k}y}{2^{D}}\right\rfloor
@@ -219,13 +217,13 @@ $$\tag{$*$}
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}.
 $$
 
-Assuming $2^{D}\geq 10^{k}$, $y=\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil$ will obviously do the job, but to do so we have to come up with a nice method of computing it. Hence, here let us try something easier, like
+Assuming $2^{D}\geq 10^{k}$, $y=\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil$ will obviously do the job, but computing $\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil$ might be nontrivial. Hence, let us first try something easier:
 
 $$
   y = n\left\lceil\frac{2^{D}}{10^{k}}\right\rceil.
 $$
 
-Here, $\left\lceil\frac{2^{D}}{10^{k}}\right\rceil$ is just a constant and is not dependent on $n$.
+Here, $\left\lceil\frac{2^{D}}{10^{k}}\right\rceil$ is just a constant and is not dependent on $n$, so computing $y$ is just a single integer multiplication.
 
 With $k=8$ and $n<2^{32}$, we can show that this $y$ always satisfies $(*)$ if we take $D\geq 57$; we just need to find the smallest $D$ satisfying $(2^{32}-1)\left(\left\lceil\frac{2^{D}}{10^{k}}\right\rceil - \frac{2^{D}}{10^{k}}\right) < \frac{2^{D}}{10^{k}}$. Hence, choosing $D=57$, we get the magic number
 
@@ -233,7 +231,7 @@ $$
   \left\lceil\frac{2^{D}}{10^{k}}\right\rceil = 1441151881.
 $$
 
-As a result, we get the following code for always printing $10$ digits of given $n$ with possible leading zeros:
+This leads us to the following code for always printing $10$ digits of given $n$ with possible leading zeros:
 
 ```cpp
 char* itoa_always_10_digits(std::uint32_t n, char* buffer) {
@@ -258,7 +256,7 @@ char* itoa_always_10_digits(std::uint32_t n, char* buffer) {
 ```
 (Demo: [https://godbolt.org/z/9c4Mb76hc](https://godbolt.org/z/9c4Mb76hc))
 
-Of course, the constant $1441151881$ is only of $31$-bits and multiplications are performed in $64$-bits so there is no overflow.
+The constant $1441151881$ is only of $31$-bits and multiplications are performed in $64$-bits so there is no overflow.
 
 
 # Considertaion of variable length
@@ -317,7 +315,7 @@ char* itoa_var_length(std::uint32_t n, char* buffer) {
 ```
 It sounds pretty crazy, but it does the job quite well.
 
-Now, recall that our main idea is to find $y$ satisfying
+Now, recall that our main job is to find $y$ satisfying
 
 $$
   n = \left\lfloor\frac{10^{k}y}{2^{D}}\right\rfloor.
@@ -329,9 +327,26 @@ $$
   y = n\left\lceil\frac{2^{D}}{10^{k}}\right\rceil
 $$
 
-is valid for any $D\geq 12$, as $999\cdot \left(\left\lceil\frac{2^{12}}{10^{2}}\right\rceil - \frac{2^{12}}{10^{2}}\right) < \frac{2^{12}}{10^{2}}$ holds. In this case, it is better to choose $D=32$ rather than $D=12$, because in platforms such as x86 obtaining the lower half of a $64$-bit integer is basically no-op.
+is valid for any $D\geq 12$, as $999\cdot \left(\left\lceil\frac{2^{12}}{10^{2}}\right\rceil - \frac{2^{12}}{10^{2}}\right) < \frac{2^{12}}{10^{2}}$ holds. In this case, it is in fact better to choose $D=32$ rather than $D=12$, because in platforms such as x86 obtaining the lower half of a $64$-bit integer is basically no-op.
 
-Similarly, we can choose $D=32$ (with the above $y$) for $n$'s up to $6$ digits, but for larger $n$ our simplistic analysis does not allow us to do so. For $n$'s with $7$ or $8$ digits, we set $k=6$, and it can be shown that $D=47$ does the job. For $n$'s with $9$ or $10$ digits, we set $k=8$, and as we have already seen $D=57$ does the job. With these choices of parameters, we get the following code:
+As a result, the first digit of $n$ can be computed as
+
+$$
+  \left\lfloor\frac{n}{10^{2}}\right\rfloor =
+  \left\lfloor\frac{y}{2^{32}}\right\rfloor =
+  \left\lfloor\frac{\lceil 2^{32}/10^{2} \rceil n}{2^{32}}\right\rfloor =
+  \left\lfloor\frac{42949673\cdot n}{2^{32}}\right\rfloor,
+$$
+
+and the remaining $2$ digits can be computed as
+
+$$
+  \left(\left\lfloor\frac{n}{10^{0}}\right\rfloor
+  \ \operatorname{mod}\ 10^{2}\right)=
+  \left\lfloor\frac{10^{2}(y\ \operatorname{mod}\ 2^{32})}{2^{32}}\right\rfloor.
+$$
+
+Similarly, we can choose $D=32$ (with the above $y$ with different $k$'s) for $n$'s up to $6$ digits (so $k=0,2,4$), but for larger $n$ our simplistic analysis does not allow us to do so. For $n$'s with $7$ or $8$ digits, we set $k=6$, and it can be shown that $D=47$ does the job. For $n$'s with $9$ or $10$ digits, we set $k=8$, and as we have already seen $D=57$ does the job. With these choices of parameters, we get the following code:
 
 ```cpp
 //      /\____________
@@ -461,7 +476,7 @@ char* itoa_var_length(std::uint32_t n, char* buffer) {
 ```
 (Demo: [https://godbolt.org/z/froGhEn3s](https://godbolt.org/z/froGhEn3s))
 
-**Note**: The paths for $(2k-1)$-digits case and $2k$-digits case share a lot of code, so one might try to merge the printing of $(2k-2)$-digits and leave only the code for printing first $1$ or $2$ digits in separate branches. However, it seems that such a refactoring causes it to perform worse, probably because the number of additions performed is increased. Nevertheless, that is also one viable option, especially regarding the code size.
+**Note**: The paths for $(2k-1)$-digits case and $2k$-digits case share a lot of code, so one might try to merge the code for printing $(2k-2)$ remaining digits while leaving in separate branches only the code for printing the leading $1$ or $2$ digits. However, it seems that such a refactoring causes the code to perform worse, probably because the number of additions performed is increased. Nevertheless, that is also one viable option, especially regarding the code size.
 
 
 # Better choices for $y$
@@ -474,7 +489,7 @@ $$
   y = n\left\lceil\frac{2^{D}}{10^{k}}\right\rceil.
 $$
 
-Recall that we do not need to choose $y$ like this; all we need ensure is that $y$ satisfies the inequality
+Recall that we do not need to choose $y$ like this; all we need to ensure is that $y$ satisfies the inequality
 
 $$\tag{$*$}
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}.
@@ -544,7 +559,7 @@ $$
   16 \leq L \leq 19.
 $$
 
-Hence, we take $L = 16$ and accordingly $m = 281474978$. Of course, since $m$ is even we can equivalently take $L = 15$ and $m = 140737489$ as well, so this method pf analysis is clearly far from being tight.
+Hence, we take $L = 16$ and accordingly $m = 281474978$. Of course, since $m$ is even we can equivalently take $L = 15$ and $m = 140737489$ as well, so this method of analysis is clearly far from being tight.
 
 (In fact, it can be exhaustively verified that the left-hand side of $(*)$ is maximized when $n=1000795$, while the right-hand side is minimized when $n=10^{8}-1$, which together yield the inequality
 
@@ -554,7 +569,7 @@ $$
   < \frac{429496729600}{99999999}.
 $$
 
-The minimum $L$ allowing an integer solution $m$ to the above inequality is $L=15$ and in this case $m = 140737489$ is the unique solution.)
+The minimum $L$ allowing an integer solution for $m$ to the above inequality is $L=15$ and in this case $m = 140737489$ is the unique solution.)
 
 When $n$ is of $9$ or $10$ digits, a similar analysis does not give the best result, especially for $10$ digits it fails to give any admissible choice of $L$ and $m$. Nevertheless, it can be exhaustively verified that, when $k=8$ and $D=32$, if we set $L = 25$ and
 
@@ -580,9 +595,15 @@ $$
   n = \left\lfloor \frac{10^{k}\lfloor nm/2^{L} \rfloor}{2^{D}} \right\rfloor
 $$
 
-holds for all $n\in [10^{9}, 2^{32}-1]$.
+holds for all $n\in [10^{9}, 2^{32}-1]$, so we can still take
 
-(In fact, applying what we have done for $7$ or $8$ digits into the case of $9$ digits gives $L=26$ and $m=2882303763$. However, $1441151882$ is a better magic number than $2882303763$, because the former is of $31$-bits while the latter is of $32$-bits. This trivially-looking difference actually quite matters on platforms like x86, because when computing $y=\left\lfloor\frac{nm}{2^{L}}\right\rfloor$, we want to leverage the fast `imul` instruction, but `imul` sign-extends the input immediate constant when performing $64$-bit multiplication. Hence, if the magic number is of $32$-bits, the multiplication cannot be done in a single instruction, and the magic number must be first loaded into a register and zero-extended.)
+$$
+  y = \left\lfloor \frac{nm}{2^{L}} \right\rfloor
+$$
+
+with the above $L$ and $m$.
+
+(In fact, applying what we have done for $7$ or $8$ digits into the case of $9$ digits gives $L=26$ and $m=2882303763$. However, $1441151882$ is a better magic number than $2882303763$, because the former is of $31$-bits while the latter is of $32$-bits. This trivially-looking difference actually quite matters on platforms like x86, because when computing $y=\left\lfloor\frac{nm}{2^{L}}\right\rfloor$, we want to leverage the fast `imul` instruction, but `imul` sign-extends the input immediate constant when performing $64$-bit multiplication. Hence, if the magic number is of $32$-bits, the multiplication cannot be done in a single instruction, and the magic number must be first loaded into a register and then zero-extended.)
 
 Therefore, we are indeed able to always choose $D=32$, which results in the following code:
 
@@ -681,7 +702,7 @@ char* itoa_better_y(std::uint32_t n, char* buffer) {
 ```
 (Demo: [https://godbolt.org/z/7TaqYa9h1](https://godbolt.org/z/7TaqYa9h1))
 
-**Note**: Looking at a [port](https://github.com/tearosccebe/fast_io/blob/e74bd525b6765a9f418137d9aebd193f133e400e/include/fast_io_core_impl/integers/jeaiii_method.h#L49) of James Anhalt's original algorithm, it seems that the above code is probably a little bit better than the original implementation because the original algorithm performs an addition after the first multiplication and shift, for digit length longer than some value. With our choice of magic numbers, that is not necessary.
+**Note**: Looking at a [port](https://github.com/tearosccebe/fast_io/blob/e74bd525b6765a9f418137d9aebd193f133e400e/include/fast_io_core_impl/integers/jeaiii_method.h#L49) of James Anhalt's original algorithm, it seems that the above code is probably a little bit better than the original implementation (which can be confirmd in the benchmark below) because the original algorithm performs an addition after the first multiplication and shift, for digit length longer than some value. With our choice of magic numbers, that is not necessary.
 
 
 # Benchmark
@@ -690,14 +711,14 @@ Alright, now let's compare the performance of these implementations.
 
 ![2022-02-16-itoa_bench](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/_posts/2022-02-16-itoa_bench.png)
 
-Link: [https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY](https://quick-bench.com/q/hw6UGPRsZGKeg35uod8BgyIjbiY)
+Link: [https://quick-bench.com/q/ILG9wO9mZHDsAoybHNooXSZSvx0](https://quick-bench.com/q/ILG9wO9mZHDsAoybHNooXSZSvx0)
 
 `itoa_var_length_naive` is a straightforward variation of `itoa_var_length` doing the naive quotient/remainder computation instead of playing with $y$. Well, compared to `itoa_var_length_naive`, the performance benefit of `itoa_better_y` seems not very impressive to be honest. Nevertheless, I still think the idea behind the algorithm is pretty intriguing.
 
 
 # Back to fixed-length case
 
-So far we only have looked at the case of $32$-bit unsigned integers. For $64$-bit integers, what people typically do is to first divide the input number by $10^9$ so that the quotient and the remainder both fit into $32$-bits, and then print them using methods for $32$-bit numbers. Note that when the quotient is not zero, we always print $9$ digits for the remainder no matter how small it is. As we can see in the benchmark above, when the length is known we can do a lot better than the general case.
+So far we only have looked at the case of $32$-bit unsigned integers. For $64$-bit integers, what people typically do is to first divide the input number into several segments of $32$-bit integers, and then print them using methods for $32$-bit integers. In this case, typically only the first segment is of variable length and remaining segments are of fixed length. As we can see in the benchmark above, when the length is known we can do a lot better. For simplicity of the following discussion, let us suppose that the input integer is at most of $9$ digits and we want to always print $9$  digits with possible leading zeros.
 
 While what we have done in `itoa_always_10_digits` is not so bad, we can certainly do better by choosing $D=32$ which eliminates the need for performing masking at each generation of $2$ digits. Recall that all we need to do is to find an integer $y$ satisfying
 
@@ -705,7 +726,7 @@ $$\tag{$*$}
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}
 $$
 
-for given $n$. Since we want to always print $9$ digits, we take $k=8$. What's different from the previous case is that now $n$ can be any integer in the range $[1,10^{9}-1]$, in particular it can be very small. In this case, one can show by exhaustively checking all possible $n$'s that the inequality
+for given $n$. Since we want to always print $9$ digits, we take $k=8$. What's different from the previous case is that now $n$ can be any integer in the range $[1,10^{9}-1]$ (ignoring $n=0$ case, but that is not a big deal), in particular it can be very small. In this case, one can show by exhaustively checking all possible $n$'s that the inequality
 
 $$\tag{$**$}
   \frac{1}{n}\left\lceil\frac{2^{D}n}{10^{k}}\right\rceil
@@ -743,4 +764,4 @@ do the job. In fact, an exhasutive check shows that we can even take $L = 24$ an
 
 # Concluding remarks
 
-I applied a minor variation of the algorithm explained into my [Dragonbox implementation](https://github.com/jk-jeon/dragonbox/blob/master/source/dragonbox_to_chars.cpp) to speed up digit generation, and the result was quite satisfactory. I think probably the complete branching for all possible lengths of the input is not a brilliant idea for generic applications, but the idea of coming up with $y$ that enables generating each pair of $2$ digits by only performing a multiplication followed by a shift is very clever. I expect that this same trick might be applicable to other problems as well, fixed-precision floating-point formatting for example.
+I applied a minor variation of the algorithm explained here into my [Dragonbox implementation](https://github.com/jk-jeon/dragonbox/blob/master/source/dragonbox_to_chars.cpp) to speed up digit generation, and the result was quite satisfactory. I think probably the complete branching for all possible lengths of the input is not a brilliant idea for generic applications, but the idea of coming up with $y$ that enables generating each pair of $2$ digits by only performing a multiply-and-shift is very clever and useful. I expect that this same trick might be applicable to other problems as well, fixed-precision floating-point formatting for example.
