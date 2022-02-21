@@ -62,7 +62,7 @@ char* itoa_naive(std::uint32_t n, char* buffer) {
 
 The size of the temporary buffer is set to $10$, because that's the maximum possible decimal length for `std::uint32_t`.
 
-The mismatch of between the order of computation and the order of desired output is indeed a quite nasty problem, but let us forget about this issue for a while because there is something more interesting to say here.
+The mismatch between the order of computation and the order of desired output is indeed a quite nasty problem, but let us forget about this issue for a while because there is something more interesting to say here.
 
 There are several performance issues in this code, and one of them is the division by $10$. Of course, since the divisor is a known constant, our lovely compiler will automatically convert the division into multiply-and-shift (see [this classic paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) for example), so we do not need to worry about the dreaded `idiv` instruction which is extremely infamous of its performance. However, for simple enough algorithms like this, multiplication can still be a performance killer, so it is reasonable to expect that we will get a better performance by reducing the number of multiplications.
 
@@ -117,9 +117,9 @@ char* itoa_two_digits_per_div(std::uint32_t n, char* buffer) {
 
 # The core idea of James Anhalt's algorithm
 
-So, with the above trick of grouping $2$ digits, how many multiplications do we need for integers of, say, $10$ decimal digits? Note that we need to compute both the quotient and the remainder, and as far as I know at least $2$ multiplications should be performed to get both of them and there is no way to do it with just one multiplication. Hence, for each pair of $2$ digits, we need to perform $2$ multiplications, thus for integers with $10$ digits we need $10$ multiplications.
+So, with the above trick of grouping $2$ digits, how many multiplications do we need for integers of, say, $10$ decimal digits? Note that we need to compute both the quotient and the remainder, and as far as I know at least $2$ multiplications should be performed to get both of them and there is no way to do it with just one multiplication. Hence, for each pair of $2$ digits, we need to perform $2$ multiplications, thus for integers with $10$ digits we need $8$ multiplications, since we need $4$ divisions to separate $5$ pairs of $2$ digits.
 
-Quite surprisingly, in fact we can halve that number again into $5$, which (I believe) is the core idea of James Anhalt's algorithm. The crux of the idea can be summarized as follows: given $n$, we find an integer $y$ satisfying
+Quite surprisingly, in fact we can almost halve that number again into $5$, which (I believe) is the core benefit of James Anhalt's algorithm. The crux of the idea can be summarized as follows: given $n$, we find an integer $y$ satisfying
 
 $$
   n = \left\lfloor\frac{10^{k}y}{2^{D}}\right\rfloor
