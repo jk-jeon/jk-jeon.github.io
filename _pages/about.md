@@ -12,7 +12,7 @@ I am a graduate student of the Department of Mathematics in the University of Ca
 
 Academic interests
 ======
-I am mainly working on fluid dynamics, currently on singularity formation problem for generalized SQG equations and related problems. I also have broad interests in mathematics, especially in PDE, differential geometry, functional analysis and measure theory (maybe also algebra and number theory to some extent).
+I am mainly working on fluid dynamics, currently on singularity formation problem for incompressible Euler equation, generalized SQG equations and related problems. I also have broad interests in mathematics, especially in PDE, differential geometry, functional analysis and measure theory (maybe also algebra and number theory to some extent).
 
 Hobbies
 ======
