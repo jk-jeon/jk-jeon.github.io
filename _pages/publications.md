@@ -15,6 +15,13 @@ author_profile: true
 Thanks to https://github.com/academicpages/academicpages.github.io/issues/48#issuecomment-418460161
 -->
 
+<h2>Journal papers</h2>
+{% for post in site.publications reversed %}
+  {% if post.pubtype == 'journal' %}
+      {% include archive-single.html %}
+  {% endif %}
+{% endfor %}
+
 <h2>Preprints</h2>
 {% for post in site.publications reversed %}
   {% if post.pubtype == 'preprint' %}
