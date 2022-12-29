@@ -708,7 +708,7 @@ So, the proposed algorithm performs:
 
 >***WARNING***
 >
-> The implementation has **NEVER** polished for real-world usage. Especially, I have **NOT** done any fair amount of formal testing of this implementation. Furthermore, the code is ultra-messy and is almost impossible to maintain without doing a fair amount of refactoring, which ensures that there will be bugs.
+> The implementation has **NEVER** been polished for real-world usage. Especially, I have **NOT** done any fair amount of formal testing of this implementation. Furthermore, the code is ultra-messy and is almost impossible to maintain without doing a fair amount of refactoring, which ensures that there will be bugs.
 >
 > I'm pretty confident about the correctness of the algorithm itself though. I believe that any error (if any) is likely due to some careless mistakes rather than due to some fundamental errors in the algorithm.
 
