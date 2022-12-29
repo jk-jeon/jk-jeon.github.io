@@ -248,7 +248,7 @@ $$
 
 given $x = 2^{e+k-1}\cdot 5^{k}$ and $D=10^{\eta}$. Let's for a while ignore the ceiling and pretend that it's actually floor. Then what are the lowest $Q$-bits of the above integer?
 
-| ![2022-12-28-bits_of_pow5.png](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/_posts/2022-12-28-bits_of_pow5.png) |
+| ![2022-12-28-bits_of_pow5.png](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/images/blog_post_images/2022-12-28-bits_of_pow5.png) |
 |:--:|
 | Figure 1 - Bits of $5^{k-\eta}$ is shown in a row; bits in the window (red box) are the bits consisting of $m$. The example shown is when $Q+e+k+\eta-1>0$. For the other case, the window will be on the left to the blue vertical line.|
 
