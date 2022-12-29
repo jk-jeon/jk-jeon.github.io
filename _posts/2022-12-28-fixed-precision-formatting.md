@@ -1,7 +1,7 @@
 ---
 title: "Fixed-precision formatting of floating-point numbers"
-date: 2022-09-xx
-permalink: /posts/2022/09/fixed-precision-formatting/
+date: 2022-12-28
+permalink: /posts/2022/12/fixed-precision-formatting/
 tags:
   - programming
   - C/C++
