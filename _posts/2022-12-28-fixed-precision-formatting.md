@@ -116,7 +116,7 @@ $$
   m_{w}^{+} = \pm (2f_{c} + 1) \cdot 2^{e-1}
 $$
 
-if we want. For convenience, we will just use the notation $w$ to mean either of the above two, and use the notation $n$ to denote the significand part of it, i.e., either of $2f_{c}$ or $2f_{c}+1$.
+if we want. For convenience, we will just use the notation $w$ to mean either of the above two, and use the notation $n$ to denote the significand part of it, i.e., either $2f_{c}$ or $2f_{c}+1$.
 
 Also, we will always assume that $w$ is strictly positive since once this case is done the other cases can be done easily.
 
@@ -136,7 +136,7 @@ $$
   \ \mathrm{mod}\ 10^{\eta}\right)
 $$
 
-for some positive integer $\eta$. Note that once we get the above which is an integer of (at most) $\eta$-many decimal digits, we can leverage fast integer formatting algorithms (like [the one](https://github.com/jeaiii/itoa) by James Edward Anhalt III) to extract decimal digits out of it. Considering $\eta>1$ essentially means that we work with a block of multiple decimal digits at once, rather than with individual digits. I will call this block of digits a *segment*. Of course, to really leverage fast integer formatting algorithms, we may need to choose $\eta$ to be not very big. Maybe the largest value for $\eta$ we can think of is $9$ because $10^{9}$ is the highest power of $10$ that fits in $32$-bits, or maybe $19$ if we consider $64$-bits instead. However, it turns out, we can in fact take $\eta$ even larger than that. We will get into this later.
+for some positive integer $\eta$. Note that once we get the above which is an integer of (at most) $\eta$-many decimal digits, we can leverage fast integer formatting algorithms (like [the one](https://github.com/jeaiii/itoa) by James Edward Anhalt III) to extract decimal digits out of it. Considering $\eta>1$ essentially means that we work with a block of multiple decimal digits at once, rather than with individual digits. I will call this block of digits a *segment*. Of course, to really leverage fast integer formatting algorithms, we may need to choose $\eta$ to be not very big. Maybe the largest value for $\eta$ we can think of is $9$ because $10^{9}$ is the highest power of $10$ that fits in $32$-bits, or maybe $19$ if we consider $64$-bits instead. However, it turns out, we can in fact take $\eta$ even larger than that, which is a crucial factor in the flexible trade-off we have talked about. We will get into this later.
 
 Generalizing it a little bit, what we want to do is to compute
 
@@ -148,7 +148,7 @@ where $n=1,\ \cdots\ ,n_{\max}$ is a positive integer, $x$ is a positive rationa
 
 As I mentioned in the previous section, we want to avoid big integer arithmetic of arbitrary precision (especially division) so we do not want to literally do this computation. The required precision for doing so is indeed quite big. For instance, let's say $D=10^{9}$, $e=-1074$ and $k=560$ so that we are obtaining the 552nd~560th digits of $w$ after the decimal point. Then the numerator of $x$ is $5^{560}$ which is $1301$-bit long, so we have to compute this $1301$-bit long number, multiply our $n$ into this $1301$-bit long number, and then divide it by $2^{515}$ (which is the denominator of $x$ in this case) which means throwing the last $515$-bits away, and then compute the division of the resulting $800$-ish-bits number by $D$. Or, let $e=971$ and $k=-100$ so that we are obtaining 9 digits up to the 101st digit before the decimal point. Then the numerator of $x$ is $2^{870}$ and the denominator is $5^{100}$, so we may need to first left-shift $n$ by $870$-bits, and then divide it by either $5^{100}$ after computing $5^{100}$ or by lower powers of $5$ iteratively. Either way, we end up with dividing $900$-ish-bits number.
 
-(In fact, by performing big integer multiplications in *decimal*, that is, using [this](https://en.wikipedia.org/wiki/Binary-coded_decimal) or a slight extension of it, we can avoid doing divisions by big integers. The idea is that we can always turn the denominator of $x$ into a power of $10$ by adjusting the numerator accordingly, and in decimal, dividing by a power of $10$ is just a matter of cutting off some digits. The cost to pay is that multiplication in decimal involves a lot of divisions by a constant power of $10$ (but fortunately of small dividends). Some cool things about this trick are that it generalizes trivially to any binary floating-point formats, and also we can store precomputed powers of $5$ and $2$ if needed, while the total size of the table can be quite easily tuned according to any given requirements. Nevertheless, I think the method that will be explained below is probably way faster than this. I learned this idea from Shengdun Wang.)
+(In fact, by performing big integer multiplications in *decimal*, that is, using [this](https://en.wikipedia.org/wiki/Binary-coded_decimal) or a slight extension of it, we can avoid doing divisions by big integers. The idea, which I learned from Shengdun Wang, is that we can always turn the denominator of $x$ into a power of $10$ by adjusting the numerator accordingly, and in decimal, dividing by a power of $10$ is just a matter of cutting off some digits. The cost to pay is that multiplication in decimal involves a lot of divisions by constant powers of $10$ (but fortunately of small dividends). Some cool things about this trick are that it generalizes trivially to any binary floating-point formats, and also we can store precomputed powers of $5$ and $2$ if needed, while the total size of the table can be quite easily tuned according to any given requirements. This is all good, but I think the method that will be explained from now on is probably way faster.)
 
 The following theorem from [the paper on Dragonbox](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf) again proves itself to be very useful for computing $\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D$:
 
@@ -157,24 +157,24 @@ The following theorem from [the paper on Dragonbox](https://github.com/jk-jeon/d
 > Let $x$ be a positive real number and $n_{\max}$ a positive integer. Then for a positive real number $\xi$, we have the followings.
 >
 >  1. If $x=\frac{p}{q}$ is a rational number with $q\leq n_{\max}$, then we have
->  $$
->    \left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor
->  $$
->  for all $n=1,\ \cdots\ ,n_{\max}$ if and only if
->  $$
->    x \leq \xi < x + \frac{1}{vq}
->  $$
->  holds, where $v$ is the greatest integer such that $vp\equiv -1\ (\mathrm{mod}\ q)$ and $v\leq n_{\max}$.
+>      $$
+>        \left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor
+>      $$
+>      for all $n=1,\ \cdots\ ,n_{\max}$ if and only if
+>      $$
+>        x \leq \xi < x + \frac{1}{vq}
+>      $$
+>      holds, where $v$ is the greatest integer such that $vp\equiv -1\ (\mathrm{mod}\ q)$ and $v\leq n_{\max}$.
 >
 >  2. If $x$ is either irrational or a rational number with the denominator strictly greater than $n_{\max}$, then we have
->  $$
->    \left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor
->  $$
->  for all $n=1,\ \cdots\ ,n_{\max}$ if and only if
->  $$
->    \frac{p_{*}}{q_{*}} \leq \xi < \frac{p^{*}}{q^{*}}
->  $$
->  holds, where $$\frac{p_{*}}{q_{*}}$$, $$\frac{p^{*}}{q^{*}}$$ are the best rational approximations of $x$ from below and above, respectively, with the largest denominators $$q_{*},q^{*}\leq n_{\max}$$.
+>     $$
+>        \left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor
+>      $$
+>      for all $n=1,\ \cdots\ ,n_{\max}$ if and only if
+>      $$
+>        \frac{p_{*}}{q_{*}} \leq \xi < \frac{p^{*}}{q^{*}}
+>      $$
+>      holds, where $$\frac{p_{*}}{q_{*}}$$, $$\frac{p^{*}}{q^{*}}$$ are the best rational approximations of $x$ from below and above, respectively, with the largest denominators $$q_{*},q^{*}\leq n_{\max}$$.
 
 The core idea is to take $\xi=\frac{mD}{2^{Q}}$ for certain positive integers $m$ and $Q$ depending on $x$ and $n_{\max}$ (but not on $n$). Suppose $\xi=\frac{mD}{2^{Q}}$ satisfies the conditions given above, then, the following magic happens:
 
@@ -195,19 +195,19 @@ $$\begin{aligned}
 
 In other words, if we first multiply $m$ to $n$, take the lowest $Q$-bits out of it, multiply $D$ to the resulting $Q$-bits, and then throw away the lowest $Q$-bits, then what's remaining is precisely equal to $\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D$.
 
-This trick is in fact no different from the idea presented in [this paper](https://arxiv.org/abs/1902.01961v3) by Lemire et al. But we are relying on a more general result (**Theorem 4.2**) which gives a much better bound. A similar, slightly different idea is also used in [the integer formatting algorithm](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/) I analyzed in the previous post. Really, I consider the algorithm presented here as a simple generalization of those works.
+This trick is in fact no different from the idea presented in [this paper](https://arxiv.org/abs/1902.01961v3) by Lemire et al. But here we are relying on a more general result (**Theorem 4.2**) which gives a much better bound when the denominator of $x$ is large. A similar, slightly different idea is also used in [the integer formatting algorithm](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/) I analyzed in the previous post. Really, I consider the algorithm presented here as a simple generalization of those works.
 
 Note that, turning a modular operation into a multiplication followed by some bit manipulations is not the greatest achievement of this reduction; rather, it is that *we only need to know the lowest $Q$-bits of $m$*, rather than all bits of $m$, because we are going to take $\mathrm{mod}\ 2^{Q}$ right after multiplying $n$ to it.
 
-By **Theorem 4.2**, given $x$ and $n_{\max}$, any $m$ and $Q$ that such that $\xi = \frac{mD}{2^{Q}}$ satisfies the conditions will work. Obviously, we want to choose $Q$ to be as small as possible because that will reduce the number of bits we need to throw in the computation, which both saves the memory and improves the performance. However, due to a reason that will become clear later in this post, it is beneficial to have some generic formula of $m$ that works for any large enough $Q$, rather than the one that allows us to choose the smallest $Q$. That generic formula we will use is:
+By **Theorem 4.2**, given $x$ and $n_{\max}$, any $m$ and $Q$ such that $\xi = \frac{mD}{2^{Q}}$ satisfies the conditions will work. Obviously, we want to choose $Q$ to be as small as possible because that will reduce the number of bits we need to throw in the computation, which both saves the memory and improves the performance. However, due to a reason that will become clear later in this post, it is beneficial to have a generic formula of $m$ that works for any large enough $Q$, rather than the one that allows us to choose the smallest $Q$. That generic formula we will use is:
 
 $$
   m = \left\lceil \frac{2^{Q}x}{D} \right\rceil.
 $$
 
-This choice of $m$ kinda makes sense, because morally $\xi$ is supposed to be a good approximation of $x$, so $m$ should be a good approximation of $\frac{2^{Q}x}{D}$, but $m$ needs to be at least $\frac{2^{Q}x}{D}$ when the denominator of $x$ is small, due to the first case of **Theorem 4.2**.
+This choice of $m$ kinda makes sense, because morally $\xi$ is meant to be a good approximation of $x$, so $m$ should be a good approximation of $\frac{2^{Q}x}{D}$, but $m$ needs to be at least $\frac{2^{Q}x}{D}$ when the denominator of $x$ is small, due to the first case of **Theorem 4.2**.
 
-With this $m$, $\xi = \frac{mD}{2^{Q}}$ is automatically at least $x$, so the left-hand sides of the inequalities given in **Theorem 4.2** is always satisfied, thus we only need to care about the right-hand sides. That is, we look for $Q$ such that
+With this $m$, $\xi = \frac{mD}{2^{Q}}$ is automatically at least $x$, so the left-hand sides of the inequalities given in **Theorem 4.2** are always satisfied, thus we only need to care about the right-hand sides. That is, we look for $Q$ such that
 
 $$
   \xi = \frac{\left\lceil 2^{Q}x/D\right\rceil D}{2^{Q}} <
@@ -224,7 +224,7 @@ This leads us to the following strategy for computing $\left\lfloor nx \right\rf
 
 1. For all relevant values of $x$, find the smallest $Q$ satisfying the inequality above, and store the lowest $Q$-bits of $m = \left\lceil\frac{2^{Q}x}{D}\right\rceil$ and $Q$ to a cache table. This is done only once, before the runtime.
 
-2. During the runtime, for given $x$, load the corresponding $m$ and $Q$. Then for given $n$, we can compute
+2. During the runtime, for given $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$. Then for given $n$, we can compute
 
     $$
       \left(\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D\right)
@@ -233,7 +233,7 @@ This leads us to the following strategy for computing $\left\lfloor nx \right\rf
 
     only with some multipilcations and bit manipulations.
 
-In practice, however, this strategy is not directly applicable to our situation, because there is too much information that needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in a later section), one can figure out that there are about $540$ thousands pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$-bits when $\eta=1$, and it grows larger if $\eta$ is bigger. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all, since we need to store $Q$ in addition to it. This is not acceptable.
+In practice, however, this strategy is not directly applicable to our situation, because there is too much information that needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in a later section), one can figure out that there are about $540$ thousands pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$-bits when $\eta=1$, while it is even larger for larger $\eta$. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all we need, since we need to store $Q$ in addition to it. This is not acceptable.
 
 Now the art is on how far we can compress this down. Indeed, there are several interesting features of the formula we derived which together allow us to compactify this ridiculously large data into something much smaller. Let's dig into them one by one.
 
@@ -250,25 +250,25 @@ given $x = 2^{e+k-1}\cdot 5^{k}$ and $D=10^{\eta}$. Let's for a while ignore the
 
 | ![2022-12-28-bits_of_pow5.png](https://raw.githubusercontent.com/jk-jeon/jk-jeon.github.io/master/images/blog_post_images/2022-12-28-bits_of_pow5.png) |
 |:--:|
-| Figure 1 - Bits of $5^{k-\eta}$ is shown in a row; bits in the window (red box) are the bits consisting of $m$. The example shown is when $Q+e+k+\eta-1>0$. For the other case, the window will be on the left to the blue vertical line.|
+| Figure 1 - Bits of $5^{k-\eta}$ is shown in a row; bits in the window (red box) are the bits consisting of $m$. The example shown is when $Q+e+k-\eta-1>0$. For the other case, the window will be on the left to the blue vertical line.|
 
-Those are of course bits of $5^{k-\eta}$, starting (MSB) from the $(e+k+\eta)$-th bit, ending (LSB) at the $(Q+e+k+\eta-1)$-th bit. So for fixed $k$, a different choice of $e$ corresponds to a different choice of the window (the red box in the figure). In particular, they share a lot of bits. Hence, we do not need to store $m$ for each pair of $e$ and $k$. Rather, for each $k$, we just store sufficiently many bits of $5^{k-\eta}$, sufficient enough to just cover all possible windows corresponding to different $e$'s. In other words, for all $e$'s such that the pair $(e,k)$ is relevant, we take the union of all the windows corresponding to those $e$'s to get a large single window, and we store the bits inside that large window.
+Those are of course bits of $5^{k-\eta}$, starting (MSB) from the $(e+k-\eta)$-th bit, ending (LSB) at the $(Q+e+k-\eta-1)$-th bit. So for a fixed $k$, a different choice of $e$ corresponds to a different choice of the window (the red box in the figure). In particular, they share a lot of bits. Hence, we do not need to store $m$ for each pair of $e$ and $k$. Rather, for each $k$, we just store sufficiently many bits of $5^{k-\eta}$, just enough to cover all possible windows corresponding to different $e$'s. In other words, for all $e$'s such that the pair $(e,k)$ is "relevant", we take the union of all the windows corresponding to those $e$'s to get a large single window, and then we store the bits inside that large window.
 
-Often, the resulting large window may contain some leading zeros and/or trailing zeros, so we can cut those zeros to reduce the amount of information we need to store even more. This means that, when we are to load the necessary bits from the cache table in runtime, then the window corresponding to the given $e$ may go outside of the range of bits we actually have in the table. But we can simply fill those missing bits with zeros.
+Often, the resulting large window may contain some leading zeros, so we can cut those zeros to reduce the amount of information we need to store even more. This means that, when we are to load the necessary bits from the cache table in runtime, then the window corresponding to the given $e$ may go beyond the range of bits we actually have in the table. But we can simply fill those missing bits with zeros.
 
-Now, let's not forget that we need the ceiling rather than the floor, but that's not a tremendous issue because we can easily compute the ceiling from the floor just by checking if $2^{Q+e+k+\eta-1}\cdot 5^{k-\eta}$ is an integer, which is just a matter of inspecting the inequalities
+Now, let's not forget that we need the ceiling rather than the floor, but that's not a tremendous issue because we can easily compute the ceiling from the floor just by checking if $2^{Q+e+k-\eta-1}\cdot 5^{k-\eta}$ is an integer, which is just a matter of inspecting the inequalities
 
 $$
-  Q+e+k+\eta-1 \geq 0\quad\textrm{and}\quad k-\eta \geq 0.
+  Q+e+k-\eta-1 \geq 0\quad\textrm{and}\quad k-\eta \geq 0.
 $$
 
 ## (b) We need only one $k$ per $\eta$-many $k$'s.
 
-Since we work with segments consisting of $\eta$-many digits rather than individual digits, we do not need to consider all $k$'s. Rather, we choose a small enough $k_{\min}$ and a large enough $k_{\max}$, and then only consider $k_{\min}$, $k_{\min} + \eta$, $k_{\min} + 2\eta$, $\cdots$, up to the smallest $k_{\min} + s\eta$ which is bigger than or equal to $k_{\max}$. Roughly speaking, choosing a big $\eta$ results in the reduction of the size of the cache table by the factor of $\eta$.
+Since we work with segments consisting of $\eta$-many digits rather than individual digits, we do not need to consider all $k$'s. Rather, we choose a small enough $k_{\min}$ and a large enough $k_{\max}$, and then only consider $k_{\min}$, $k_{\min} + \eta$, $k_{\min} + 2\eta$, $\cdots$, up to the smallest $k_{\min} + s\eta$ that is bigger than or equal to $k_{\max}$. Hence, roughly speaking, choosing a big $\eta$ can result in the reduction of the size of the table by the factor of $\eta$.
 
 ## (c) We don't need to remember the smallest $Q$.
 
-Recall that we not only need to store $m$ but also $Q$, and this adds a non-negligible amount of static data. However, we do not really need to precisely know the smallest $Q$ that does the job. More specifically, the $Q$ we used for computing the $m$ we will store in the table does not need to match the actual $Q$ we use in the runtime, *as long as the actual $Q$ we use is greater than or equal to the smallest $Q$ that satisfies the condition*.
+Recall that we not only need to store $m$ but also $Q$, and this adds a non-negligible amount of static data. However, we do not really need to precisely know the smallest $Q$ that does the job. More specifically, the $Q$ we used for computing the $m$ we store in the table does not need to match the actual $Q$ we use in the runtime, *as long as the actual $Q$ we use is greater than or equal to the smallest $Q$ that satisfies the condition*.
 
 What I mean is this. When we compute $m$ which is to be stored in the table, we want to find the minimum possible $Q$ that works, so that the window we get will be of the smallest possible size. However, it is okay to use a larger window in the runtime if we want. To see why, note that using a larger $Q$ does **not** change the starting (the left-most) position of the window. It just changes the size of the window. More precisely, let $Q$ be the one that we used when computing the table, and let $Q'$ be any integer with $Q'\geq Q$. Let $m'$ be what we will end up with if we try to load $Q'$-bits from the table instead of $Q$-bits, then we have
 
@@ -276,7 +276,7 @@ $$
   m' = \left\lceil\frac{2^{Q''}x}{D}\right\rceil 2^{Q'-Q''}
 $$
 
-for some $Q\leq Q''\leq Q'$. (The reason why we have yet another $Q''$ is because the window may pass further than the right boundary of the stored bits, in which case the missing bits are filled with zeros.) Then the corresponding $\xi'$ is given as
+for some $Q\leq Q''\leq Q'$. Here we are assuming that, if the window of size $Q'$ goes beyond the right limit of the stored bits (which happens since $Q'$ is bigger than $Q$), then the remaining bits are filled with zeros, and we perform ceiling at the last bit we loaded from the cache. This is why we get yet another $Q''$. Note that, however, this $Q''$ is guaranteed to be in between $Q$ and $Q'$ because of the construction of the cache table. Then the corresponding $\xi'$ is now given as
 
 $$
   \xi' = \frac{m'D}{2^{Q'}} = \frac{\left\lceil 2^{Q''}x/D \right\rceil}{2^{Q''}}.
@@ -308,9 +308,9 @@ This analysis gives us two strategies for reducing the number of bits we need fo
 
 1. Find the maximum among all the smallest $Q$'s for relevant $(e,k)$-pairs. Then in the runtime, we will use this maximum $Q$ for all $(e,k)$. Then there is no need to store $Q$'s at all since it is a constant.
 
-2. Or, partition the set of $(e,k)$-pairs into groups which share a single $Q$, which is the largest of all the smallest $Q$'s for each group member. One way to make such a partition is to fix a positive integer $\ell$ (which I call *the collapse factor*), and group all $(e,k)$-pairs which share the same $k$ and the quotient $\left\lfloor (e-e_{\min})/\ell \right\rfloor$. In this way, we can reduce the required number of bits for $Q$'s roughly by the factor of $\ell$. In addition to that, we may store $\left\lceil Q/64 \right\rceil$ instead of $Q$, because (assuming a $64$-bit platform) it is the number of $64$-bit blocks, rather than the number of bits, which determines the amount of computation we need to perform. In other words, we don't benefit anything by choosing $Q=125$ instead of $Q=128$, for example. This then also reduces the required number of bits by a certain factor.
+2. Or, partition the set of $(e,k)$-pairs into groups which share a single $Q$, which is the largest of all the smallest $Q$'s for each group member. One way to make such a partition is to fix a positive integer $\ell$ (which I call *the collapse factor*), and group all $(e,k)$-pairs which share the same $k$ and the same quotient $\left\lfloor (e-e_{\min})/\ell \right\rfloor$. In this way, we can reduce the required number of bits for $Q$'s roughly by the factor of $\ell$. In addition to that, we may store $\left\lceil Q/64 \right\rceil$ instead of $Q$, because (assuming a $64$-bit platform) it is the number of $64$-bit blocks, rather than the number of bits, which determines the amount of computation we need to perform. In other words, there is no benefit of choosing $Q=125$ over choosing $Q=128$, for example. This then also reduces the required number of bits by a certain factor.
 
-In practice, having $Q$ as a fixed constant seems to allow the compiler to do many aggressive optimizations, so the advantage of the second strategy seems to become real only when the variation of $Q$'s for different $x$'s is very wild.
+In practice, having $Q$ as a fixed constant seems to allow the compiler to do many aggressive optimizations, so the advantage of the second strategy is only visible when the variation of $Q$'s for different $x$'s is wild.
 
 # Decimal digit generation
 
