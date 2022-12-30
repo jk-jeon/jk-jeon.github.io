@@ -25,7 +25,7 @@ tags:
 
   2. Profit.
 
-- If you are a "shut up and show me the code" type of person, please go down to [here](#actual-implementation), then you will find a benchmark graph and the link to the source code.
+- If you are a "shut up and show me the code" type of person, please go down [here](#actual-implementation), then you will find a benchmark graph and the link to the source code.
 
 - I would not consider this work to be "Done" yet, as there are lots of things that could be improved further. Especially the implementation right now is far from complete, is a complete mess, the exact anti-thesis of [the DRY principle](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself), and furthermore I haven't done a good enough amount of formal testing.
 
@@ -52,7 +52,7 @@ Historically, fixed-precision methods came first. For example, functions like `p
 
 A typical scenario when fixed-precision formatting is desired, rather than the shortest roundtrip, is when your output window is too small for typical outputs from the latter. Indeed, fixed-precision formatting is the natural choice for this case. One might still use the shortest roundtrip formatting for this case and then cut the results at a certain precision, but that would be considered double-rounding, which should be actively avoided. This is a very common and valid usage of fixed-precision formatting, but note that we never need things like `printf("%.100e", x)` in this case.
 
-A funny thing about fixed-precision formatting is that it is a **hard** problem, in my opinion a **way harder** problem than the shortest roundtrip formatting, contrary to its simpler look. And the reason is precisely because the precision requested by the user can be arbitrarily big. This lengthy blog post would not have needed at all if we could only care about the small digits case. But if dealing with the large digits case is very difficult while it is not something anyone really needs, then why do we care about it?
+A funny thing about fixed-precision formatting is that it is a **hard** problem, in my opinion a **way harder** problem than the shortest roundtrip formatting, contrary to its simpler look. And the reason is precisely because the precision requested by the user can be arbitrarily big. This lengthy blog post would not have needed at all if we could only care about the small digits case. But if dealing with the large digits case requires too much effort while it is not something anyone really needs, then what's the point of working on it?
 
 The thing is, someone anyway needs to implement it even though nobody really needs it in practice, because, in my limited understanding, it is required by someone else for whatever reason, regardless of whether it is due to a sane engineering rationale or not. Seriously! Like, the C/C++ standards say it's allowed to do `printf("%.100e", x)`, so C/C++ standard library implementers have no choice but to make it work correctly. (To be honest, I'm not a language lawyer and not 100% sure if this claim is completely correct. But apparently, it seems the only restrictions on the precision field in the format string are that (1) negative numbers are ignored, and (2) the number should be representable as an `int`. So yes, even crazier things like `printf("%.2000000000e", x)` is technically allowed!)
 
