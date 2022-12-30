@@ -56,7 +56,7 @@ A funny thing about fixed-precision formatting is that it is a **hard** problem,
 
 The thing is, someone still needs to implement it even though nobody really needs it in practice because, in my limited understanding, it is required by someone else for whatever reason, regardless of whether it is due to a sane engineering rationale or not. Seriously! Like, the C/C++ standards say it's allowed to do `printf("%.100e", x)`, so C/C++ standard library implementers have no choice but to make it work correctly. (To be honest, I'm not a language lawyer and not 100% sure if this claim is completely correct. But apparently, it seems the only restrictions on the precision field in the format string are that (1) negative numbers are ignored, and (2) the number should be representable as an `int`. So yes, even crazier things like `printf("%.2000000000e", x)` are technically allowed!)
 
-Actually, there is a quite compelling reason why it would be valuable for someone to think about this problem: a fast fixed-precision formatting algorithm can be used as a subroutine of a correct parser. For example, assuming [IEEE-754 binary32](https://en.wikipedia.org/wiki/Single-precision_floating-point_format) encoding (which is what the data type `float` usually means) we cannot decide whether $1.70141193601674033557522515689509748736000000......000001 \times 10^{38}$ is closer to `0x1.p+127` or to `0x1.000002p+127` until we fully read the input. Then a possible strategy here is to generate the decimal digits of the middle point between `0x1.p+127` and `0x1.000002p+127`. If the number given is larger than the generated digits, then it is closer to the latter, and if it is smaller then it is closer to the former. This turns out to be a quite successful strategy, as demonstrated [here](https://github.com/jk-jeon/fp#unlimited-precision-decimal-to-binary-conversion-1).
+Actually, there is a quite compelling reason why it would be valuable for someone to think about this problem: a fast fixed-precision formatting algorithm can be used as a subroutine of a correct parser. For example, assuming [IEEE-754 binary32](https://en.wikipedia.org/wiki/Single-precision_floating-point_format) encoding (which is what the data type `float` usually means) we cannot decide whether $1.70141193601674033557522515689509748736000000......000001 \times 10^{38}$ is closer to `0x1.p+127` or to `0x1.000002p+127` until we fully read the input. Then a possible strategy here is to generate the decimal digits of the midpoint between `0x1.p+127` and `0x1.000002p+127`. If the number given is larger than the generated digits, then it is closer to the latter, and if it is smaller then it is closer to the former. This turns out to be a quite successful strategy, as demonstrated [here](https://github.com/jk-jeon/fp#unlimited-precision-decimal-to-binary-conversion-1).
 
 Actually, there is yet another reason for me to think about this problem: it is interesting enough to catch my attention😃 This post is about my attempt at solving this problem so far.
 
@@ -64,37 +64,37 @@ I want to mention before getting into the main point that this work is a continu
 
 # So what is the goal precisely?
 
-Let's summarize what exactly is the problem we want to solve:
+Let's summarize what exactly the problem we want to solve is:
 
-> For a given binary floating-point number $w$ and a positive integer $d$, how to print $d$ many decimal digits of $w$, counting from the first nonzero digit?
+> For a given binary floating-point number $w$ and a positive integer $d$, how to print $d$ many decimal digits of $w$ with rounding, counting from the first nonzero digit?
 
-First, I want to mention that I stated the number of digits is counted *from the first nonzero digit*. Sometimes what the user gives is not that number of digits, for example it might be the number of digits after the decimal point. For instance, if our number is $0.00175$, then it has $3$ decimal digits counting from the first nonzero digit (which is $1$), but it has $5$ decimal digits after the decimal point. However, this difference in the end will not affect the core of the algorithm that much, so I will just stick to what I have stated.
+First, I want to mention that I have stated the number of digits is counted *from the first nonzero digit*. Sometimes the users may have a different idea about the number of digits; for example it might be the number of digits after the decimal point. For instance, if our number is $0.00175$, then it has $3$ decimal digits counting from the first nonzero digit (which is $1$), but it has $5$ decimal digits after the decimal point. However, this difference will not significantly affect the core of the algorithm, so I will stick to what I have stated.
 
-Note that, of course, this is not a very interesting problem if all we want is just to print the digits. However, typically this is done with the so called "big integer" arithmetic. Big integer arithmetic is notoriously slow, and also it typically involves heap allocation which is an absolute No-No in certain domains. In our case, it is probably easy to at least avoid heap allocations since the numbers we need to deal with are not horrendously large. But even without heaps, big integer arithmetic is still very heavy, especially the typical performance of division is quite dreadful. With this in mind, here is a revised version of our goal:
+Note that, of course, this is not a very interesting problem if all we want to do is just printing the digits. However, typically this is done with so-called "big integer" arithmetic. Big integer arithmetic is notoriously slow, and also typically involves heap allocation, which is an absolute no-no in certain domains. In our case, it is probably easier to at least avoid heap allocations since the numbers we need to deal with are not horrendously large. But even without heaps, big integer arithmetic is still very heavy; the typical performance of division is especially quite dreadful. With this in mind, here is a revised version of our goal:
 
-> For a given binary floating-point number $w$ and a positive integer $d$, how to *quickly* print $d$ many decimal digits of $w$, counting from the first nonzero digit, *only with* reasonably-sized big integer arithmetic, possibly avoiding divisions?
+> For a given binary floating-point number $w$ and a positive integer $d$, how to **quickly** print $d$ many decimal digits of $w$ with rounding, counting from the first nonzero digit, with **reasonably-sized** big integer arithmetic only, possibly avoiding divisions?
 
-Actually, the current state-of-the-art algorithm to my knowledge, [Ryū-printf](https://dl.acm.org/doi/pdf/10.1145/3360595), developed by Ulf Adams in 2019, already achieves this goal. Assuming IEEE-754 binary64, the maximum size of integers appearing inside the algorithm is $256$-bits, which is quite reasonable. It also does not directly do long division. As a consequence, Ryū-printf is very fast, especially for large precision it is so much faster than other algorithms out there using regular big integers.
+The current state-of-the-art algorithm to my knowledge, [Ryū-printf](https://dl.acm.org/doi/pdf/10.1145/3360595), developed by Ulf Adams in 2019, already achieves this goal. Assuming IEEE-754 binary64, the maximum size of integers appearing inside the algorithm is $256$-bits, which is quite reasonable. It also does not directly do long division. As a consequence, Ryū-printf is very fast, especially for large precision, where it is much faster than other algorithms that use regular big integers.
 
-However, the biggest problem of Ryū-printf is that it relies on a gigantic precomputed data table, which is about $\mathbf{102}$ **KB**. Compare this to the size of the Dragonbox table, which is only of $9.7$ KB. Moreover, it is not so difficult to trade a little bit of performance to compress this $9.7$ KB table down to $584$ bytes. However, it is not so obvious if can we do something like that for Ryū-printf.
+However, the biggest problem with Ryū-printf is that it relies on a gigantic precomputed data table, which is about $\mathbf{102}$ **KB**. Compare this to the size of the Dragonbox table, which is only of $9.7$ KB. Moreover, it is not so difficult to trade a little bit of performance to compress this $9.7$ KB table down to $584$ bytes. However, it is not obvious if can we do something similar for Ryū-printf.
 
-Back in 2020, I tried to implement Ryū-printf and was able to come up with an implementation strategy that allows us to compress the table down into $39$ KB, while at the same time delivering a more or less equivalent performance to the reference implementation. But you know, $39$ KB is still HUGE. More importantly, I was still not aware of any way to reasonably trade more performance to get a smaller table size. I mean, I knew a way to make the table smaller by sacrificing some performance (and I'm pretty sure Ulf Adams is probably also aware of a similar idea), but I could not make it smaller than, say, $10$ KB.
+Back in 2020, I tried to implement Ryū-printf and was able to come up with an implementation strategy that allows us to compress the table down into $39$ KB, while delivering performance that is more or less equivalent to the reference implementation. But you know, $39$ KB is still *huge*. More importantly, I was not aware of any way to reasonably trade more performance for a smaller table size. I mean, I knew of a way to make the table smaller by sacrificing some performance (and I'm pretty sure Ulf Adams is probably also aware of a similar idea), but I couldn't make it smaller than, say, $10$ KB.
 
-A funny thing is that the large table size is essentially due to the possibility of excessive precision, which as I pointed out several times, is not the common use-case. I do not think it's a good idea to have a table as large as $39$ KB just to be prepared for a very rare possibility. If we can reduce the size of the table while delivering a reasonable performance for the common case, which is, the small precision case, then that would be nice.
+The large table size is essentially due to the possibility of excessive precision, which, as I pointed out several times, is not the common use case. I do not think it's a good idea to have a table as large as $39$ KB just to be prepared for a very rare possibility. If we can reduce the size of the table while delivering a reasonable performance for the common case, i.e., the small precision case, then that would be nice.
 
 So here is the second revision of our goal:
 
-> For a given binary floating-point number $w$ and a positive integer $d$, how to quickly print $d$ many decimal digits of $w$, counting from the first nonzero digit, only with reasonably-sized big integer arithmetic, possibly avoiding divisions, and also with reasonably-sized precomputed cache data, preferably with a generic method of trading the performance with the data size? Also the performance when $d$ is small is more important than the performance when $d$ is large.
+> For a given binary floating-point number $w$ and a positive integer $d$, how to quickly print $d$ many decimal digits of $w$ with rounding, counting from the first nonzero digit, with reasonably-sized big integer arithmetic only, possibly avoiding divisions, and also with reasonably-sized precomputed cache data, preferably with a generic method of trading the performance with the data size? Also the performance when $d$ is small is more important than the performance when $d$ is large.
 
-As a spoiler, this is what I concluded: *for IEEE-754 binary64, it is possible to compute an arbitrary number of digits only with computations involving integers no longer than $256$-bits, with precomputed data only of size $\mathbf{3.6}$ **KB**, also with a fewer number of $64$-bit integer multiplications than Ryū-printf*.
+As a spoiler, this is what I concluded: *for IEEE-754 binary64, it is possible to compute an arbitrary number of digits using only computations involving integers no longer than $256$-bits, with precomputed data that is only $\mathbf{3.6}$ **KB** in size, also requiring a fewer number of $64$-bit integer multiplications than Ryū-printf*.
 
-(Actually, this is a lie; this $3.6$ KB table is *in addition to* the Dragonbox table, which is of $9.7$ KB. But as I pointed out, it is easy to compress it down to $584$ bytes.)
+(Actually, this is a lie; this $3.6$ KB table is *in addition to* the Dragonbox table, which is of $9.7$ KB. But the combined size of the two tables is still much smaller than Ryū-printf's, and as I pointed out, it is easy to compress the Dragonbox table down to $584$ bytes.)
 
-Furthermore, it is possible to flexibly trade the maximum required bit-width of integers (thus the required number of multiplications) and the size of precomputed data. For example, it is possible to reduce the size of data to $\mathbf{580}$ **bytes**, at the cost of allowing integers of at most $1024$-bits to appear during the computation.
+Additionally, it is possible to flexibly trade the maximum required bit-width of integers (thus the required number of multiplications) for the size of precomputed data. For example, it is possible to reduce the size of data to $\mathbf{580}$ **bytes**, at the cost of allowing integers of uo to $1024$-bits to appear during computation.
 
 # Acknowledgement
 
-[Ryū-printf](https://dl.acm.org/doi/pdf/10.1145/3360595) is of course the first source of inspirations, although what I ended up with is not directly based on it. Many other crucial inspirations were from private conversation with James Edward Anhalt III about his [integer formatting algorithm](https://github.com/jeaiii/itoa) and related topics. [This paper](https://arxiv.org/abs/1902.01961v3) by Lemire et al on remainder computation was also quite influential. [The work](https://drive.google.com/file/d/1luHhyQF9zKlM8yJ1nebU0OgVYhfC6CBN/view) by Raffaello Giulietti and Dmitry Nadezhin, which my [previous work](https://github.com/jk-jeon/dragonbox) on shortest roundtrip formatting is directly based on, is where I learned the relevancy of the concept of [continued fractions](https://en.wikipedia.org/wiki/Continued_fraction), which is undoubtedly the most crucial element in the development of this algorithm. Thanks to Shengdun Wang for many discussions on possible optimizations. He is also the one who told me that fixed-precision formatting can be utilized as a subroutine for correct parsing back in 2019-2020.
+[Ryū-printf](https://dl.acm.org/doi/pdf/10.1145/3360595) is the first source of inspiration, although what I ended up with is not directly based on it. Many other crucial inspirations came from private conversations with James Edward Anhalt III about his [integer formatting algorithm](https://github.com/jeaiii/itoa) and related topics. [This paper](https://arxiv.org/abs/1902.01961v3) by Lemire et al on remainder computation was also influential. [The work](https://drive.google.com/file/d/1luHhyQF9zKlM8yJ1nebU0OgVYhfC6CBN/view) by Raffaello Giulietti and Dmitry Nadezhin, on which my [previous work](https://github.com/jk-jeon/dragonbox) on shortest roundtrip formatting is directly based, is where I learned about the relevancy of the concept of [continued fractions](https://en.wikipedia.org/wiki/Continued_fraction), which is undoubtedly the most crucial element in the development of this algorithm. Thanks to Shengdun Wang for many discussions on possible optimizations. He is also the one who told me that fixed-precision formatting could be used as a subroutine for correct parsing back in 2019-2020. Special thanks to Seung uk Jang for reviewing this lengthy post.
 
 # The core idea
 
@@ -104,15 +104,15 @@ $$
   w = \pm f_{c}\cdot 2^{e},
 $$
 
-where $f_{c}$ is an unsigned integer and $e$ is an integer in certain range. For IEEE-754 binary32, $f_{c}$ is at most $2^{24}-1$ and $e$ is from $-149$ to $104$. More precisely, $f_{c}$ is also at least $2^{23}$ unless $e=-149$ (see [this](https://en.wikipedia.org/wiki/Subnormal_number)). Also, for IEEE-754 binary64, $f_{c}$ is at most $2^{53}-1$ and $e$ is from $-1074$ to $971$, and $f_{c}$ is also at least $2^{52}$ unless $e=-1074$. For simplicity, we will only focus on IEEE-754 binary64 in this post, but there is nothing deep about this assumption and most of the discussions can be extended to other common formats without fundamental difficulties.
+where $f_{c}$ is an unsigned integer and $e$ is an integer within certain range. For IEEE-754 binary32, $f_{c}$ is at most $2^{24}-1$ and $e$ is from $-149$ to $104$. More precisely, $f_{c}$ is also at least $2^{23}$ unless $e=-149$ (see [this](https://en.wikipedia.org/wiki/Subnormal_number)). Also, for IEEE-754 binary64, $f_{c}$ is at most $2^{53}-1$ and $e$ is from $-1074$ to $971$, and $f_{c}$ is also at least $2^{52}$ unless $e=-1074$. For simplicity, we will only focus on IEEE-754 binary64 in this post, but there is nothing deep about this assumption and most of the discussions can be extended to other common formats without fundamental difficulties.
 
-Since we are also interested in printing out the digits of middle points (for the application into parsing), we will in fact work with the form
+Since we are also interested in printing out the digits of midpoints (for the application into parsing), we will in fact work with the form
 
 $$
   w = \pm 2f_{c}\cdot 2^{e-1}
 $$
 
-so that we can easily replace $w$ by the middle point
+so that we can easily replace $w$ by the midpoint
 
 $$
   m_{w}^{+} = \pm (2f_{c} + 1) \cdot 2^{e-1}
@@ -120,7 +120,7 @@ $$
 
 if we want. For convenience, we will just use the notation $w$ to mean either of the above two, and use the notation $n$ to denote the significand part of it, i.e., either $2f_{c}$ or $2f_{c}+1$.
 
-Also, we will always assume that $w$ is strictly positive since once this case is done the other cases can be done easily.
+Also, we will always assume that $w$ is strictly positive since once positive case is done then the other cases, zero, negative, infinities, or NaN, can be done easily.
 
 So what does it mean by obtaining decimal digits from $w$? By *the* $k$*th decimal digit of $w$*, we mean the number
 
@@ -138,19 +138,19 @@ $$
   \ \mathrm{mod}\ 10^{\eta}\right)
 $$
 
-for some positive integer $\eta$. Note that once we get the above which is an integer of (at most) $\eta$-many decimal digits, we can leverage fast integer formatting algorithms (like [the one](https://github.com/jeaiii/itoa) by James Edward Anhalt III) to extract decimal digits out of it. Considering $\eta>1$ essentially means that we work with a block of multiple decimal digits at once, rather than with individual digits. I will call this block of digits a *segment*. Of course, to really leverage fast integer formatting algorithms, we may need to choose $\eta$ to be not very big. Maybe the largest value for $\eta$ we can think of is $9$ because $10^{9}$ is the highest power of $10$ that fits in $32$-bits, or maybe $19$ if we consider $64$-bits instead. However, it turns out, we can in fact take $\eta$ even larger than that, which is a crucial factor in the flexible trade-off we have talked about. We will get into this later.
+for some positive integer $\eta$. Note that once we get the above which is an integer of (at most) $\eta$-many decimal digits, we can leverage fast integer formatting algorithms (like [the one](https://github.com/jeaiii/itoa) by James Edward Anhalt III) to extract decimal digits out of it. Considering $\eta>1$ essentially means that we work with a block of multiple decimal digits at once, rather than with individual digits. I will call this block of digits a *segment*. Of course, to really leverage fast integer formatting algorithms, we may need to choose $\eta$ to be not very big. Maybe the largest value for $\eta$ we can think of is $9$ because $10^{9}$ is the highest power of $10$ that fits in $32$-bits, or maybe $19$ if we consider $64$-bits instead. However, it turns out, we can in fact take $\eta$ even larger than that, which is a crucial factor in the flexible trade-off we have talked about. We will discuss this later.
 
-Generalizing it a little bit, what we want to do is to compute
+Abstractly speaking, what we want to do is to compute
 
 $$
   \left\lfloor nx \right\rfloor \ \mathrm{mod}\ D
 $$
 
-where $n=1,\ \cdots\ ,n_{\max}$ is a positive integer, $x$ is a positive rational number, and $D$ is a positive integer. What this equation means is: we multiply $n$ to the numerator of $x$, dividing it by the denominator of $x$ and take the quotient, and then dividing it by $D$ and take the remainder.
+where $n=1,\ \cdots\ ,n_{\max}$ is a positive integer, $x$ is a positive rational number, and $D$ is a positive integer. What this expression means is this: we multiply $n$ to the numerator of $x$, divide it by the denominator of $x$, take the quotient, then divide the quotient by $D$ and take the remainder.
 
-As I mentioned in the previous section, we want to avoid big integer arithmetic of arbitrary precision (especially division) so we do not want to literally do this computation. The required precision for doing so is indeed quite big. For instance, let's say $D=10^{9}$, $e=-1074$ and $k=560$ so that we are obtaining the 552nd~560th digits of $w$ after the decimal point. Then the numerator of $x$ is $5^{560}$ which is $1301$-bit long, so we have to compute this $1301$-bit long number, multiply our $n$ into this $1301$-bit long number, and then divide it by $2^{515}$ (which is the denominator of $x$ in this case) which means throwing the last $515$-bits away, and then compute the division of the resulting $800$-ish-bits number by $D$. Or, let $e=971$ and $k=-100$ so that we are obtaining 9 digits up to the 101st digit before the decimal point. Then the numerator of $x$ is $2^{870}$ and the denominator is $5^{100}$, so we may need to first left-shift $n$ by $870$-bits, and then divide it by either $5^{100}$ after computing $5^{100}$ or by lower powers of $5$ iteratively. Either way, we end up with dividing $900$-ish-bits number.
+As I mentioned in the previous section, we want to avoid big integer arithmetic of arbitrary precision (especially division) so we do not want to do this computation as literally described above. The required precision for doing so is indeed quite big. For instance, let's say $D=10^{9}$, $e=-1074$ and $k=560$ so that we are obtaining the 552nd~560th digits of $w$ after the decimal point. Then the numerator of $x$ is $5^{560}$ which is $1301$-bit long, so we have to compute this $1301$-bit long number, multiply our $n$ into this $1301$-bit long number, and then divide it by $2^{515}$ (which is the denominator of $x$ in this case) which means throwing the last $515$-bits away, and then compute the division by $D$ for the resulting $800$-ish-bits number. Or, let $e=971$ and $k=-100$ so that we are obtaining 9 digits up to the 101st digit before the decimal point. Then the numerator of $x$ is $2^{870}$ and the denominator is $5^{100}$, so we may need to first left-shift $n$ by $870$-bits, and then divide it by either $5^{100}$ after computing $5^{100}$ or by lower powers of $5$ iteratively. Either way, we end up with dividing a number that is $900$-ish-bits long.
 
-(In fact, by performing big integer multiplications in *decimal*, that is, using [this](https://en.wikipedia.org/wiki/Binary-coded_decimal) or a slight extension of it, we can avoid doing divisions by big integers. The idea, which I learned from Shengdun Wang, is that we can always turn the denominator of $x$ into a power of $10$ by adjusting the numerator accordingly, and in decimal, dividing by a power of $10$ is just a matter of cutting off some digits. The cost to pay is that multiplication in decimal involves a lot of divisions by constant powers of $10$ (but fortunately of small dividends). Some cool things about this trick are that it generalizes trivially to any binary floating-point formats, and also we can store precomputed powers of $5$ and $2$ if needed, while the total size of the table can be quite easily tuned according to any given requirements. This is all good, but I think the method that will be explained from now on is probably way faster.)
+(In fact, by performing big integer multiplications in *decimal*, that is, using [this](https://en.wikipedia.org/wiki/Binary-coded_decimal) or a slight extension of it, we can avoid doing divisions by big integers. The idea, which I learned from Shengdun Wang, is that we can always turn the denominator of $x$ into a power of $10$ by adjusting the numerator accordingly, and in decimal, dividing by a power of $10$ is just a matter of cutting off some digits. The cost to pay is that multiplication of integers in decimal involves a lot of divisions by constant powers of $10$ (but fortunately of small dividends). Some cool things about this trick are that it generalizes trivially to any binary floating-point formats, and also that we can store precomputed powers of $5$ and $2$ if needed, while the total size of the table can be quite easily tuned according to any given requirements. This is all good, but I think the method that will be explained below is probably way faster.)
 
 The following theorem from [the paper on Dragonbox](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf) again proves itself to be very useful for computing $\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D$:
 
@@ -195,23 +195,30 @@ $$\begin{aligned}
   &= \left\lfloor \frac{(nm\ \mathrm{mod}\ 2^{Q})D}{2^{Q}} \right\rfloor.
 \end{aligned}$$
 
-In other words, if we first multiply $m$ to $n$, take the lowest $Q$-bits out of it, multiply $D$ to the resulting $Q$-bits, and then throw away the lowest $Q$-bits, then what's remaining is precisely equal to $\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D$.
+In other words, we first multiply $m$ to $n$, take the lowest $Q$-bits out of it, multiply $D$ to the resulting $Q$-bits, and then throw away the lowest $Q$-bits. Then what's remaining is precisely equal to $\left(\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D\right)$.
 
 This trick is in fact no different from the idea presented in [this paper](https://arxiv.org/abs/1902.01961v3) by Lemire et al. But here we are relying on a more general result (**Theorem 4.2**) which gives a much better bound when the denominator of $x$ is large. A similar, slightly different idea is also used in [the integer formatting algorithm](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/) I analyzed in the previous post. Really, I consider the algorithm presented here as a simple generalization of those works.
 
-Note that, turning a modular operation into a multiplication followed by some bit manipulations is not the greatest achievement of this reduction; rather, it is that *we only need to know the lowest $Q$-bits of $m$*, rather than all bits of $m$, because we are going to take $\mathrm{mod}\ 2^{Q}$ right after multiplying $n$ to it.
+Note that, turning a modular operation into a multiplication followed by some bit manipulations is not the greatest achievement of this reduction; rather, it is that *we only need to know the lowest $Q$-bits of $m$*, rather than all bits of $m$, because we are going to take $\mathrm{mod}\ 2^{Q}$ right after multiplying $n$ to it; that is, $\left(nm\ \mathrm{mod}\ 2^{Q}\right)$ is equal to $\left(n\left(m\ \mathrm{mod}\ 2^{Q}\right)\ \mathrm{mod}\ 2^{Q}\right)$.
 
-By **Theorem 4.2**, given $x$ and $n_{\max}$, any $m$ and $Q$ such that $\xi = \frac{mD}{2^{Q}}$ satisfies the conditions will work. Obviously, we want to choose $Q$ to be as small as possible because that will reduce the number of bits we need to throw in the computation, which both saves the memory and improves the performance. However, due to a reason that will become clear later in this post, it is beneficial to have a generic formula of $m$ that works for any large enough $Q$, rather than the one that allows us to choose the smallest $Q$. That generic formula we will use is:
+By **Theorem 4.2**, given $x$ and $n_{\max}$, any $m$ and $Q$ such that $\xi = \frac{mD}{2^{Q}}$ satisfies the conditions will allow us to compute $\left(\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D\right)$ using the formula
+
+$$\label{eq:core formula}
+  \left(\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D\right)
+  = \left\lfloor \frac{\left(n\left(m\ \mathrm{mod}\ 2^{Q}\right)\ \mathrm{mod}\ 2^{Q}\right)D}{2^{Q}} \right\rfloor.
+$$
+
+Obviously, we want to choose $Q$ to be as small as possible because that will reduce the number of bits we need to throw into the computation, which both saves the memory and improves the performance. However, due to a reason that will become clear [later](#a-it-is-that-matters-not) in this section, it is beneficial to have a generic formula of $m$ that works for any large enough $Q$, rather than the one that allows us to choose the smallest $Q$. That generic formula we will use is:
 
 $$
   m = \left\lceil \frac{2^{Q}x}{D} \right\rceil.
 $$
 
-This choice of $m$ kinda makes sense, because morally $\xi$ is meant to be a good approximation of $x$, so $m$ should be a good approximation of $\frac{2^{Q}x}{D}$, but $m$ needs to be at least $\frac{2^{Q}x}{D}$ when the denominator of $x$ is small, due to the first case of **Theorem 4.2**.
+This choice of $m$ kinda makes sense, because morally $\xi=\frac{mD}{2^{Q}}$ is meant to be a good approximation of $x$, so $m$ should be a good approximation of $\frac{2^{Q}x}{D}$, but $m$ needs to be at least $\frac{2^{Q}x}{D}$ when the denominator of $x$ is small, due to the first case of **Theorem 4.2**, so we choose the ceiling.
 
 With this $m$, $\xi = \frac{mD}{2^{Q}}$ is automatically at least $x$, so the left-hand sides of the inequalities given in **Theorem 4.2** are always satisfied, thus we only need to care about the right-hand sides. That is, we look for $Q$ such that
 
-$$
+$$\label{eq:core inequality}
   \xi = \frac{\left\lceil 2^{Q}x/D\right\rceil D}{2^{Q}} <
   \begin{cases}
     x + \frac{1}{vq}
@@ -220,24 +227,17 @@ $$
   \end{cases}
 $$
 
-holds. Thanks to the wonderful theory of [continued fractions](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/), we can efficiently compute the right-hand side of the above inequality for any given $x$ and $n_{\max}$, which allows us to find the smallest $Q$ that satisfies the inequality.
+holds. Thanks to a wonderful theory of [continued fractions](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/), we can efficiently compute the right-hand side of the above inequality for any given $x$ and $n_{\max}$, which allows us to find the smallest $Q$ that satisfies the inequality.
 
 This leads us to the following strategy for computing $\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D$:
 
-1. For all relevant values of $x$, find the smallest $Q$ satisfying the inequality above, and store the lowest $Q$-bits of $m = \left\lceil\frac{2^{Q}x}{D}\right\rceil$ and $Q$ to a cache table. This is done only once, before the runtime.
+1. For all values of $x$ that we care about, find the smallest $Q$ satisfying the inequality $\eqref{eq:core inequality}$, and store the lowest $Q$-bits of $m = \left\lceil\frac{2^{Q}x}{D}\right\rceil$ and $Q$ to a cache table. This is done only once, before the runtime.
 
-2. During the runtime, for given $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$. Then for given $n$, we can compute
+2. During the runtime, for the given $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$. Then for given $n$, we can compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$ using the formula $\eqref{eq:core formula}$, which only requires some multipilcations and bit manipulations.
 
-    $$
-      \left(\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D\right)
-      = \left\lfloor \frac{\left(n(m\ \mathrm{mod}\ 2^{Q})\ \mathrm{mod}\ 2^{Q}\right)D}{2^{Q}} \right\rfloor
-    $$
+In practice, however, this strategy is not directly applicable to our situation, because there is too much information that needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in [a later section](#which--pairs-are-relevant)), one can figure out that there are about $540$ thousands pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$-bits when $\eta=1$, while it is even larger for larger $\eta$. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all we need, since we need to store $Q$ in addition to it. This is not acceptable.
 
-    only with some multipilcations and bit manipulations.
-
-In practice, however, this strategy is not directly applicable to our situation, because there is too much information that needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in a later section), one can figure out that there are about $540$ thousands pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$-bits when $\eta=1$, while it is even larger for larger $\eta$. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all we need, since we need to store $Q$ in addition to it. This is not acceptable.
-
-Now the art is on how far we can compress this down. Indeed, there are several interesting features of the formula we derived which together allow us to compactify this ridiculously large data into something much smaller. Let's dig into them one by one.
+Now the art is on how far we can compress this down. Indeed, there are several interesting features of the formula $\eqref{eq:core formula}$ we derived which together allow us to compactify this ridiculously large data into something much smaller. Let's dig into them one by one.
 
 ## (a) It is $k$ that matters, not $e$.
 
