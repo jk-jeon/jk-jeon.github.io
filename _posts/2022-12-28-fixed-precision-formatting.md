@@ -757,44 +757,44 @@ Now, let's talk about some problematic aspects of our algorithm which can result
 
 ## Deep hierarchy
 
-Taking large segment length $\eta$ (e.g. $\eta=22$) is great in terms of saving both the size of static table and the required number of multiplications, but it has a cost: it introduces deep levels of hierarchy. Let me elaborate what I mean by that.
+Taking large segment length $\eta$ (e.g. $\eta=22$) is a great way to reduce the size of the table, but it has a cost: it introduces deep levels of hierarchy. Let me elaborate what I mean by that.
 
-As pointed out in [the previous post](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/), the common wisdom for printing integers is to work with two digits at a time, rather than one. So basically what happens when we print integers is that we split the input integer into pairs of digits. This introduces one level of hierarchy: individual digits and pairs of digits. Recall also from the previous post that, when we are working with $64$-bit integers rather than $32$-bit integers, it is beneficial to split the $64$-bit input into several $32$-bit chunks, because usually $32$-bit math is cheaper. This introduces another level of hierarchy: individual digits, pairs of digits, and groups of pairs of digits fitting into $32$-bits.
+As pointed out in [the previous post](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/), the common wisdom for printing integers is to work with two digits at a time, rather than one. So when we print integers we basically split the input integer into pairs of digits. This introduces one level of hierarchy: individual digits and pairs of digits. Recall also from the previous post that, when we are working with $64$-bit integers rather than $32$-bit integers, it is beneficial to split the $64$-bit input into several $32$-bit chunks, because usually $32$-bit math is cheaper. This introduces another level of hierarchy: individual digits, pairs of digits, and groups of pairs of digits fitting into $32$-bits.
 
-Now, if $\eta$ is bigger than $9$, we cannot store the whole segment into $32$-bits, and if $\eta$ is bigger than $19$, even $64$-bits are insufficient. For our standard choice of $\eta$, which is $\eta=22$, we can split the whole segment into three subsegments each fitting into $32$-bits, for example, into two $8$-digits subsegments and one $6$-digits subsegment. Note that getting a subsegment from a segment, following the method explained in the **Decimal digit generation** section, requires $Q$-bit math which is much more expensive than $64$-bit math. So we may group two subsegments into a single $64$-bit integer, so that separating it into two subsegments only involves $64$-bit math. And this introduces yet another level of hierarchy.
+Now, if $\eta$ is bigger than $9$, we cannot store the whole segment into $32$-bits, and if $\eta$ is bigger than $19$, even $64$-bits are insufficient. For $\eta=22$, we need at least three $32$-bit subsegments. For example, we split a segment into two $8$-digits subsegments and one $6$-digits subsegment. Note that getting a subsegment from a segment, following the method explained in the **Decimal digit generation** section, requires $Q$-bit math which is much more expensive than $64$-bit math. So we do not repeat the iteration $3$ times, rather, we group two subsegments into a single $64$-bit integer, so we need only $2$ iterations and then we separate this $64$-bit integer into two subsegments (which involves $64$-bit math). And this introduces yet another level of hierarchy.
 
-And the bottom-line is that, hierarchy is bad in terms of the complexity of the actual implementation, and it may introduce more branching, more code, and thus in particular more instruction cache pollution. Roughly speaking, introducing one more level of hierarchy is like converting a flat `for` loop into a nested loop. In our case it is actually worse than that because it complicates the rounding logic a lot.
+And the bottom-line is, *hierarchy is bad in terms of the complexity of the actual implementation*. It may introduce more branching, more code, and thus in particular more instruction cache pollution. Roughly speaking, introducing one more level of hierarchy is like converting a flat `for` loop into a nested loop. In our case it is actually worse than that because it complicates the rounding logic a lot.
 
-In comparison, (the standard implementation of) Ryū-printf only involves more or less three levels of hierarchy: individual digits, pairs of digits, and $9$-digits segments. We could achieve the same depth of hierarchy by just choosing $\eta=9$, but that will of course bloat the size of the static table by the factor of approximately $22/9$.
+In comparison, (the standard implementation of) Ryū-printf only involves more or less three levels of hierarchy: individual digits, pairs of digits, and $9$-digits segments. We could achieve the same depth of hierarchy by just choosing $\eta=9$, but that will of course bloat the size of the static table by the factor of approximately $22/9$. I'm suspecting that maybe choosing $\eta=18$ will be the sweet spot and results in the best performance, but I did not run an actual experiment.
 
 ## Too much compression
 
-In Ryū-printf, loading the required cache bits from the static table is a no-brainer once you have the index. You just load the table entry located at that index, job done. But our compression scheme complicates this procedure a lot. As already mentioned, since we trim all leading and trailing zeros, we have to manually fill those missing bits with zeros. Worse, a $64$-bit block from the cache table may contain bits from multiple different powers of $5$, so we have to manually remove all the wrong bits when we load them. Also, we have to perform bitwise-shifts spanning multiple $64$-bit blocks, and the direction of shift can depend on the input. Due to all of these (and more), the algorithm consumes quite considerable amount of time just to load the required bits from the table even before it actually starts the real computation. And note that this is not a one-time cost, as we need to do this each time we need a new segment, thus it impacts the throughput quite a lot. Probably this is the reason why our implementation doesn't show a clear win over Ryū-printf in terms of the throughput.
+In Ryū-printf, loading the required cache bits from the static table is a no-brainer once you have the index. You just load the table entry located at that index, job done. But our compression scheme complicates this procedure a lot. For example, our compression scheme mandates us to fill in missing leading and trailing bits with zero. Also, due to the compact bitwise packing, a $64$-bit block from the cache table may contain bits from multiple different powers of $5$, so we have to manually remove all the wrong bits "flooding" from adjacent powers of $5$. Also, we have to perform bitwise-shifts spanning multiple $64$-bit blocks, and the direction of shift can depend on the input. Due to all of these (and more), the algorithm consumes quite considerable amount of time for load the required bits from the table even before it actually starts multiplying them. And note that this is not a one-time cost, as we need to do this each time we need a new segment, thus it impacts the throughput quite a lot. Probably this is the reason why our implementation doesn't show a clear win over Ryū-printf in terms of the throughput.
 
-Again, by not applying many of our compression strategies (e.g. removing leading/trailing zeros), this complication can be relaxed as much as we want. But I decided to compress the table as much as possible at any cost of performance loss, because, as I pointed out before, most of the small precision cases are basically covered by the main cache table (the Dragonbox table) alone, and the extended table is essentially used only for pretty large precisions. Anyway, it's worth noting that this is another place where there is a space-time trade-off.
+Again, by not applying many of our compression strategies (e.g. removing leading zeros), this complication can be relaxed as much as we want. But I decided to compress the table as much as possible at any cost of performance loss, because the small precision case is already mostly covered by the main cache table (the Dragonbox table) alone, and the extended table is essentially used only for pretty large precisions. Anyway, it's worth noting that this is another place where there is a space-time trade-off.
 
 ## Overlapping digits
 
-Using two separate tables, one for first several digits and another for further digits, has an issue of possible overlapping digits. What happens here is that, for first several digits, we basically select any $k$ that maximizes the number of digits we get at once by computing $\left\lfloor w\cdot 10^{k}\right\rfloor$. That is, we select $k$ such that $\left\lfloor w\cdot 10^{k}\right\rfloor$ is maximized while still fitting inside $64$-bits. This allows us to squeeze out $18\sim 19$ digits for normal numbers, and possibly less digits for subnormal numbers. However, when we need further digits, we cannot select the right $k$ that will give us the $\eta$-digits that immediately follow the ones we got from the previous computation, because we only store one power of $5$ per $\eta$ many exponents. In the worst case scenario, the $k$ we select will give us only one new digit. A real headache here is that the number of these "overlapping digits" between the first segment (which we got using the main cache table) and the second segment (which we got using the extended cache table) can vary depending on the input. However, this is again a price worth paying, because this separation of two tables considerably boosts the performance of the small precision case.
+Using two separate tables, one for first several digits and another for further digits, has an issue of possible overlapping digits. What happens here is that, for the first several digits, we basically select any $k$ that maximizes the number of digits we get at once. That is, we select $k$ such that $\left\lfloor w\cdot 10^{k}\right\rfloor$ is maximized while still fitting inside $64$-bits. This allows us to squeeze out $18\sim 19$ digits (for normal numbers, and possibly less for subnormal numbers). However, when we need further digits, we cannot select the right $k$ that will give us the $\eta$-digits that immediately follow the ones we got from the first segment, because we only store one power of $5$ per $\eta$ exponents. In the worst case scenario, the $k$ we select will give us only one new digit. Furthermore, the number of these "overlapping digits" between the first segment (which we get using the main cache table) and the second segment (which we get using the extended cache table) can vary depending on the input. However, this is again a price worth paying, because this separation of two tables allows us to compress the extended cache table as much as we want, while not compromising the performance for the small digits case.
 
 ## Having to load/store
 
-If we choose $Q$ to vary, then it somewhat mandates the access to the stored blocks in the digit generation procedure to be through the stack (rather than registers), because there usually is no concept of "arrays" of registers, and it is not possible to dynamically index the registers. In principle, it should be actually possible to load the memory to the register only once and use it forever because the maximum size of array is fixed, and is often small, say $3 = 192/64$, so even all the dynamic indexing can be actually converted into constant indexing plus some branchings. But this is complex enough in that probably there is no real gain of doing so, and no actual compiler seems to do something like that. This is why I chose a fixed constant $Q$ for $\eta=22$ case in the implementation.
+If we choose $Q$ to vary, then it somewhat mandates the access to the stored blocks in the digit generation procedure to be through the stack rather than registers. This is because there is usually no concept of "arrays" of registers, and it is not possible to dynamically index the registers. In theory, it should be possible to load the memory into the register only once and use it indefinitely because the maximum size of the array is fixed (and often small, say $3 = 192/64$). This means that the dynamic indexing could be converted into constant indexing plus some branching. However, this is complex enough that there may be benefit in doing so, and no actual compiler seems to do something like this. This is why I chose a fixed constant $Q$ for $\eta=22$ in the implementation.
 
 # Conclusion
 
 It is possible to achieve a comparable performance to Ryū-printf while having much smaller amount of static data. To be fair, I should say that the benchmark I've done is not quite fair, because the reference implementation of Ryū-printf does not do a lot of integer-formatting tricks I did for my implementation. I think the Ryū-printf implementation could be made a lot faster by doing so.
 
-However, I would dare say that the proposed algorithm is just strictly better overall, because the core formula behind it is simpler than the corresponding one of Ryū-printf. Those two are more or less equally powerful in terms of their ability to compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ 10^{\eta}\right)$ for the same segment size $\eta$, but our formula is simpler and requires less number of multiplications. If we give up many of the compression ideas given and follow the similar approach to Ryū-printf while using our core formula instead of the Ryū-printf one, then I don't doubt that the resulting algorithm will perform better than Ryū-printf. But I didn't bother doing the actual experiment, because the motivation for me from the first place was to come up with something that only requires small enough cache table.
+However, I would dare say that the proposed algorithm is overall just strictly superior, because the core formula behind it is simpler than the corresponding formula in Ryū-printf. Both formulae are more or less equally powerful in terms of their ability to compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ 10^{\eta}\right)$ for the same segment size $\eta$, but the formula for the proposed algorithm is simpler and requires less number of multiplications. If we give up many of the compression ideas given and adopt a similar approach to Ryū-printf, but use the core formula from the proposed algorithm instead, then I don't doubt that the resulting algorithm would perform way better than Ryū-printf. However, I haven't bothered to conduct this experiment because my main motivation was to develop an algorithm that only requires small cache table.
 
-Nevertheless, I see there are still tons of places where things can get further improved. Also, it would be great to see what we will get if we use the proposed algorithm to implement arbitrary-precision floating-point parser in the future. Hope we will get there soon!
+There are still tons of places where things can get further improved, and it would be interesting to see how it could be used to implement an arbitrary-precision floating-point parser in the future. I hope we can get there soon!
 
 # Appendix: Fixed-point fraction trick revisited
 
 The implementation extensively relies on the fixed-point fraction trick explained in the [previous post](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/). Due to excessive variety of different combinations of the parameters, I felt obliged to give some more shots on it to come up with a better analysis. Here is what I got.
 
 ## Fixed-length case
-Here I describe a better analysis of the fixed-length case treated in the last section of the previous post. Recall that given $n$, we want to find $y$ such that
+Here I describe a better analysis of the fixed-length case treated in [the last section](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/#back-to-fixed-length-case) of the previous post. Recall that for given $n$, we want to find $y$ such that
 
 $$
   \frac{2^{D}n}{10^{k}} \leq y < \frac{2^{D}(n+1)}{10^{k}}.
@@ -820,7 +820,7 @@ $$
 
 instead. (Note that these generalizations are not just for the sake of generalizations; the point is really to *simplify* the analysis by throwing away all the details that play little to no role in the core arguments.) Then the inequality we need to consider is
 
-$$\tag{$*$}
+$$\label{eq:jeaiii fixed-length}
   \frac{1}{n}\left\lceil\frac{np}{q}\right\rceil - \frac{1}{n}
   \leq \xi <
   \frac{1}{n}\left\lceil\frac{(n+1)p}{q}\right\rceil - \frac{1}{n}.
@@ -835,7 +835,7 @@ $$
   = \frac{np}{q} + \frac{r}{q}
 $$
 
-where $0\leq r < q$ is an integer. Then the left-hand side of $(*)$ becomes
+where $0\leq r < q$ is an integer. Then the left-hand side of $\eqref{eq:jeaiii fixed-length}$ becomes
 
 $$
   \frac{p}{q} - \frac{q - r}{nq}.
@@ -873,7 +873,7 @@ $$
 
 This in particular implies $v+q\leq n_{\max}$, but that contradicts to the definition of $v$. Hence, $v$ must be the minimizer.
 
-As a result, we can rewrite $(*)$ as
+As a result, we can rewrite $\eqref{eq:jeaiii fixed-length}$ as
 
 $$
   \frac{p}{q} - \frac{1}{vq}
@@ -900,7 +900,7 @@ $$
   + \left\lceil \frac{p - r}{q} \right\rceil.
 $$
 
-Hence, the right-hand side of $(*)$ can be written as
+Hence, the right-hand side of $\eqref{eq:jeaiii fixed-length}$ can be written as
 
 $$
   \frac{p}{q} + \frac{1}{n}
@@ -954,7 +954,7 @@ $$
 
 Specializing to the case $\xi = \frac{m}{2^{L}}$ then gives
 
-$$\tag{$**$}
+$$\label{eq:jeaiii fixed-length specialized}
   \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \leq m
   < \frac{2^{L}p}{q} + \frac{2^{L}}{n_{\max}}\left(\frac{p}{q} - 1\right).
 $$
@@ -965,7 +965,7 @@ $$
   m = \left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil
 $$
 
-(or any other $m$ that is greater than or equal to the above and strictly smaller than the ceiling of the right-hand side of $(**)$.)
+(or any other $m$ that is greater than or equal to the above and strictly smaller than the ceiling of the right-hand side of $\eqref{eq:jeaiii fixed-length specialized}$.)
 
 Note that $v$, the greatest integer such that $vp\equiv 1\ (\mathrm{mod}\ q)$ and $v\leq n_{\max}$, is determined independently to $L$.
 
@@ -979,7 +979,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{28}$, $q=5^{k}=5^{4}$.
   - $\mathrm{ModInv}(p,q)=196$, so $v=\left\lfloor\frac{n_{\max}-196}{q}\right\rfloor q + 196 = 999571$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=4$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =687195$, which is of $20$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=4$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =687195$, which is of $20$-bits.
 
 - $D=32$, $k=5$, $n\in[0,10^{6})$.
 
@@ -987,7 +987,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{27}$, $q=5^{k}=5^{5}$.
   - $\mathrm{ModInv}(p,q)=1642$, so $v=\left\lfloor\frac{n_{\max}-1642}{q}\right\rfloor q + 1642 = 998517$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =429497$, which is of $19$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =429497$, which is of $19$-bits.
 
 - $D=32$, $k=5$, $n\in[0,10^{7})$.
 
@@ -995,7 +995,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{27}$, $q=5^{k}=5^{5}$.
   - $\mathrm{ModInv}(p,q)=1642$, so $v=\left\lfloor\frac{n_{\max}-1642}{q}\right\rfloor q + 1642 = 9998517$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=8$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =10995117$, which is of $24$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=8$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =10995117$, which is of $24$-bits.
 
 - $D=32$, $k=6$, $n\in[0,10^{7})$.
 
@@ -1003,7 +1003,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{26}$, $q=5^{k}=5^{6}$.
   - $\mathrm{ModInv}(p,q)=12659$, so $v=\left\lfloor\frac{n_{\max}-12659}{q}\right\rfloor q + 12659 = 9997034$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=12$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =17592187$, which is of $25$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=12$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =17592187$, which is of $25$-bits.
 
 - $D=32$, $k=6$, $n\in[0,10^{8})$.
 
@@ -1011,7 +1011,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{26}$, $q=5^{k}=5^{6}$.
   - $\mathrm{ModInv}(p,q)=12659$, so $v=\left\lfloor\frac{n_{\max}-12659}{q}\right\rfloor q + 12659 = 99997034$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=15$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =140737489$, which is of $28$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=15$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =140737489$, which is of $28$-bits.
 
 - $D=32$, $k=7$, $n\in[0,10^{8})$.
 
@@ -1019,7 +1019,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{25}$, $q=5^{k}=5^{7}$.
   - $\mathrm{ModInv}(p,q)=56568$, so $v=\left\lfloor\frac{n_{\max}-56568}{q}\right\rfloor q + 56568 = 99978443$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=18$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =112589991$, which is of $27$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=18$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =112589991$, which is of $27$-bits.
 
 - $D=32$, $k=7$, $n\in[0,10^{9})$.
 
@@ -1027,7 +1027,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{25}$, $q=5^{k}=5^{7}$.
   - $\mathrm{ModInv}(p,q)=56568$, so $v=\left\lfloor\frac{n_{\max}-56568}{q}\right\rfloor q + 56568 = 999978443$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=20$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =450359963$, which is of $29$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=20$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =450359963$, which is of $29$-bits.
 
 - $D=32$, $k=8$, $n\in[0,10^{9})$.
 
@@ -1035,7 +1035,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{24}$, $q=5^{k}=5^{8}$.
   - $\mathrm{ModInv}(p,q)=35011$, so $v=\left\lfloor\frac{n_{\max}-35011}{q}\right\rfloor q + 35011 = 999644386$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=24$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =720575941$, which is of $30$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=24$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =720575941$, which is of $30$-bits.
 
 - $D=64$, $k=8$, $n\in[0,10^{10})$.
 
@@ -1043,7 +1043,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{56}$, $q=5^{k}=5^{8}$.
   - $\mathrm{ModInv}(p,q)=233416$, so $v=\left\lfloor\frac{n_{\max}-233416}{q}\right\rfloor q + 233416 = 9999842791$.
 
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =184467440738$, which is of $38$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =184467440738$, which is of $38$-bits.
 
 - $D=64$, $k=9$, $n\in[0,10^{10})$.
 
@@ -1051,7 +1051,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{55}$, $q=5^{k}=5^{9}$.
   - $\mathrm{ModInv}(p,q)=857457$, so $v=\left\lfloor\frac{n_{\max}-857457}{q}\right\rfloor q + 857457 = 9998904332$.
 
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =18446744074$, which is of $35$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =18446744074$, which is of $35$-bits.
 
 - $D=64$, $k=13$, $n\in[0,10^{14})$.
 
@@ -1059,7 +1059,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{51}$, $q=5^{k}=5^{13}$.
   - $\mathrm{ModInv}(p,q)=888719312$, so $v=\left\lfloor\frac{n_{\max}-888719312}{q}\right\rfloor q + 888719312 = 99999668016187$.
   
-  The smallest $L$ that allows an integer solution to $(**)$ is $L=26$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =123794003928539$, which is of $47$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=26$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =123794003928539$, which is of $47$-bits.
 
 
 ## Variable-length case
@@ -1084,7 +1084,7 @@ $$
 
 or equivalently,
 
-$$\tag{$\square$}
+$$\label{eq:jeaiii variable-length}
   \frac{1}{n}\left\lceil\frac{np}{q}\right\rceil
   \leq \xi <
   \frac{1}{n}\left\lceil\frac{(n+1)p}{q}\right\rceil.
@@ -1109,7 +1109,7 @@ $$
   + \left\lceil \frac{p - r}{q} \right\rceil.
 $$
 
-Then we can rewrite $(\square)$ as
+Then we can rewrite $\eqref{eq:jeaiii variable-length}$ as
 
 $$
   \frac{p}{q} + \frac{r}{nq}
@@ -1146,7 +1146,7 @@ $$
 
 Specializing to the case $\xi = \frac{m}{2^{L}}$ then gives
 
-$$\tag{$\square\square$}
+$$\label{eq:jeaiii variable-length specialized}
   \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \leq m
   < \frac{2^{L}p}{q} + \frac{2^{L}p}{n_{\max}q}.
 $$
@@ -1160,53 +1160,53 @@ Here I collected some example applications of the above analysis that I used in 
   In this case, we have
   - $p=2^{D-k}=2^{46}$, $q=5^{k}=5^{18}$.
   
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=56$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =1329227995784915873$, which is of $61$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=56$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =1329227995784915873$, which is of $61$-bits.
 
 - $D=64$, $k=17$, $n\in[10^{18},10^{19})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{47}$, $q=5^{k}=5^{17}$.
   
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=55$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =6646139978924579365$, which is of $63$-bits. Or, when $L=56$, we get $m=13292279957849158730$ which is of $64$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=55$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =6646139978924579365$, which is of $63$-bits. Or, when $L=56$, we get $m=13292279957849158730$ which is of $64$-bits.
 
 - $D=64$, $k=17$, $n\in[10^{17},10^{18})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{47}$, $q=5^{k}=5^{17}$.
   
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=52$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =830767497365572421$, which is of $60$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=52$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =830767497365572421$, which is of $60$-bits.
 
 - $D=64$, $k=16$, $n\in[10^{17},10^{18})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{48}$, $q=5^{k}=5^{16}$.
   
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=48$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =519229685853482763$, which is of $59$-bits. Or, when $L=52$, we get $m=8307674973655724206$ which is of $63$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=48$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =519229685853482763$, which is of $59$-bits. Or, when $L=52$, we get $m=8307674973655724206$ which is of $63$-bits.
 
 - $D=64$, $k=16$, $n\in[10^{16},10^{17})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{48}$, $q=5^{k}=5^{16}$.
   
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=44$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =32451855365842673$, which is of $55$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=44$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =32451855365842673$, which is of $55$-bits.
 
 - $D=64$, $k=15$, $n\in[10^{16},10^{17})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{49}$, $q=5^{k}=5^{15}$.
   
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=41$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =40564819207303341$, which is of $56$-bits. Or, when $L=44$, we get $m=324518553658426727$ which is of $59$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=41$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =40564819207303341$, which is of $56$-bits. Or, when $L=44$, we get $m=324518553658426727$ which is of $59$-bits.
 
 - $D=32$, $k=8$, $n\in[10^{8},10^{9})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{24}$, $q=5^{k}=5^{8}$.
 
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=24$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =720575941$, which is of $30$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=24$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =720575941$, which is of $30$-bits.
 
 - $D=32$, $k=7$, $n\in[10^{8},10^{9})$.
   
   In this case, we have
   - $p=2^{D-k}=2^{25}$, $q=5^{k}=5^{7}$.
 
-  The smallest $L$ that allows an integer solution to $(\square\square)$ is $L=20$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =450359963$, which is of $29$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii variable-length specialized}$ is $L=20$, and in this case $m=\left\lceil \frac{2^{L}p}{q} + \frac{2^{L}(q-1)}{n_{\min}q} \right \rceil =450359963$, which is of $29$-bits.
