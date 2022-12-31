@@ -120,7 +120,7 @@ $$
 
 if we want. For convenience, we will just use the notation $w$ to mean either of the above two, and use the notation $n$ to denote the significand part of it, i.e., either $2f_{c}$ or $2f_{c}+1$.
 
-Also, we will always assume that $w$ is strictly positive since once positive case is done then the other cases, zero, negative, infinities, or NaN, can be done easily.
+Also, we will always assume that $w$ is strictly positive since once positive case is done then the other cases, zero, negative, infinities, or NaN's, can be done easily.
 
 So what does it mean by obtaining decimal digits from $w$? By *the* $k$*th decimal digit of $w$*, we mean the number
 
@@ -227,15 +227,15 @@ $$\label{eq:core inequality}
   \end{cases}
 $$
 
-holds. Thanks to a wonderful theory of [continued fractions](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/), we can efficiently compute the right-hand side of the above inequality for any given $x$ and $n_{\max}$, which allows us to find the smallest $Q$ that satisfies the inequality.
+holds. Thanks to the wonderful theory of [continued fractions](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/), we can efficiently compute the right-hand side of the above inequality for any given $x$ and $n_{\max}$, allowing us to find the smallest $Q$ that satisfies the inequality.
 
-This leads us to the following strategy for computing $\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D$:
+This leads us to the following strategy for computing $\left(\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D\right)$:
 
-1. For all values of $x$ that we care about, find the smallest $Q$ satisfying the inequality $\eqref{eq:core inequality}$, and store the lowest $Q$-bits of $m = \left\lceil\frac{2^{Q}x}{D}\right\rceil$ and $Q$ to a cache table. This is done only once, before the runtime.
+1. For all values of $x$ that we care about, find the smallest $Q$ satisfying the inequality $\eqref{eq:core inequality}$, and store the lowest $Q$-bits of $m = \left\lceil\frac{2^{Q}x}{D}\right\rceil$ and $Q$ in a cache table. This is done only once, before runtime.
 
-2. During the runtime, for the given $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$. Then for given $n$, we can compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$ using the formula $\eqref{eq:core formula}$, which only requires some multipilcations and bit manipulations.
+2. During runtime, for a given value of $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$ from the cache table. Then using the formula $\eqref{eq:core formula}$, which only requires some multipilcations and bit manipulations, we can compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$ for any given $n$.
 
-In practice, however, this strategy is not directly applicable to our situation, because there is too much information that needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in [a later section](#which--pairs-are-relevant)), one can figure out that there are about $540$ thousands pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$-bits when $\eta=1$, while it is even larger for larger $\eta$. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all we need, since we need to store $Q$ in addition to it. This is not acceptable.
+In practice, however, this strategy is not directly applicable to our situation, because too much information needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in [a later section](#which--pairs-are-relevant)), one can figure out that there are about $540,000$ pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$ when $\eta=1$, and it is even larger for larger values of $\eta$. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all we need, and we need to store $Q$ in addition to it. This is not acceptable.
 
 Now the art is on how far we can compress this down. Indeed, there are several interesting features of the formula $\eqref{eq:core formula}$ we derived which together allow us to compactify this ridiculously large data into something much smaller. Let's dig into them one by one.
 
@@ -254,11 +254,11 @@ given $x = 2^{e+k-1}\cdot 5^{k}$ and $D=10^{\eta}$. Let's for a while ignore the
 |:--:|
 | Figure 1 - Bits of $5^{k-\eta}$ is shown in a row; bits in the window (red box) are the bits consisting of $m$. The example shown is when $Q+e+k-\eta-1>0$. For the other case, the window will be on the left to the blue vertical line.|
 
-Those are of course bits of $5^{k-\eta}$, starting (MSB) from the $(e+k-\eta)$-th bit, ending (LSB) at the $(Q+e+k-\eta-1)$-th bit. So for a fixed $k$, a different choice of $e$ corresponds to a different choice of the window (the red box in the figure). In particular, they share a lot of bits. Hence, we do not need to store $m$ for each pair of $e$ and $k$. Rather, for each $k$, we just store sufficiently many bits of $5^{k-\eta}$, just enough to cover all possible windows corresponding to different $e$'s. In other words, for all $e$'s such that the pair $(e,k)$ is "relevant", we take the union of all the windows corresponding to those $e$'s to get a large single window, and then we store the bits inside that large window.
+Those are of course bits of $5^{k-\eta}$, starting (MSB) from the $(e+k-\eta)$-th bit, ending (LSB) at the $(Q+e+k-\eta-1)$-th bit. So for a fixed $k$, a different choice of $e$ corresponds to a different choice of the window (the red box in the figure). The starting (the left-most) position of the window is determined by $e$ (once $k$ and $\eta$ are fixed), and the size of the window is determined by $Q$. Note that those windows corresponding to $e$'s have a lot of intersection between them. This means that we do not need to store $m$ for each pair of $e$ and $k$. Rather, for each $k$, we just store sufficiently many bits of $5^{k-\eta}$, just enough to cover all possible windows we may need to look at. In other words, for all $e$'s such that the pair $(e,k)$ is *relevant* (that is, *can appear*), we take the union of all the windows corresponding to those $e$'s to get a single large window, and then we store the bits inside that window.
 
-Often, the resulting large window may contain some leading zeros, so we can cut those zeros to reduce the amount of information we need to store even more. This means that, when we are to load the necessary bits from the cache table in runtime, then the window corresponding to the given $e$ may go beyond the range of bits we actually have in the table. But we can simply fill those missing bits with zeros.
+Often, the resulting large window may contain some leading zeros, which we can remove to further reduce the amount of information that needs to be stored. This means that when we load the necessary bits from the cache table at runtime, the window corresponding to the given $e$ may go beyond the range of bits we actually have in the table. But in this case we can simply fill in those missing bits with zeros.
 
-Now, let's not forget that we need the ceiling rather than the floor, but that's not a tremendous issue because we can easily compute the ceiling from the floor just by checking if $2^{Q+e+k-\eta-1}\cdot 5^{k-\eta}$ is an integer, which is just a matter of inspecting the inequalities
+Now, let's not forget that we need the ceiling rather than the floor, but this is not a tremendous issue because we can easily compute the ceiling from the floor just by checking if $2^{Q+e+k-\eta-1}\cdot 5^{k-\eta}$ is an integer, which is just a matter of inspecting the inequalities
 
 $$
   Q+e+k-\eta-1 \geq 0\quad\textrm{and}\quad k-\eta \geq 0.
@@ -266,19 +266,19 @@ $$
 
 ## (b) We need only one $k$ per $\eta$-many $k$'s.
 
-Since we work with segments consisting of $\eta$-many digits rather than individual digits, we do not need to consider all $k$'s. Rather, we choose a small enough $k_{\min}$ and a large enough $k_{\max}$, and then only consider $k_{\min}$, $k_{\min} + \eta$, $k_{\min} + 2\eta$, $\cdots$, up to the smallest $k_{\min} + s\eta$ that is bigger than or equal to $k_{\max}$. Hence, roughly speaking, choosing a big $\eta$ can result in the reduction of the size of the table by the factor of $\eta$.
+Since we work with segments consisting of $\eta$ digits rather than individual digits, we do not need to consider all $k$'s. Instead, we choose a small enough $k_{\min}$ and only consider $k_{\min}$, $k_{\min} + \eta$, $k_{\min} + 2\eta$, $\cdots$, up to a large enough $k_{\min} + s\eta$. Hence, roughly speaking, choosing a big $\eta$ can result in a reduction in the size of the table by a factor of $\eta$.
 
 ## (c) We don't need to remember the smallest $Q$.
 
-Recall that we not only need to store $m$ but also $Q$, and this adds a non-negligible amount of static data. However, we do not really need to precisely know the smallest $Q$ that does the job. More specifically, the $Q$ we used for computing the $m$ we store in the table does not need to match the actual $Q$ we use in the runtime, *as long as the actual $Q$ we use is greater than or equal to the smallest $Q$ that satisfies the condition*.
+Recall that we not only need to store $m$ but also $Q$, which adds a non-negligible amount of static data. However, we do not actually need to precisely know the smallest $Q$ that does the job. More specifically, the $Q$ we use to compute the $m$ that we store in the table does not need to match the actual $Q$ we use at runtime, *as long as the actual $Q$ we use at runtime is greater than or equal to the $Q$ we use for building the table*.
 
-What I mean is this. When we compute $m$ which is to be stored in the table, we want to find the minimum possible $Q$ that works, so that the window we get will be of the smallest possible size. However, it is okay to use a larger window in the runtime if we want. To see why, note that using a larger $Q$ does **not** change the starting (the left-most) position of the window. It just changes the size of the window. More precisely, let $Q$ be the one that we used when computing the table, and let $Q'$ be any integer with $Q'\geq Q$. Let $m'$ be what we will end up with if we try to load $Q'$-bits from the table instead of $Q$-bits, then we have
+What I mean is this. When we compute $m$ stored in the table, we want to find the minimum possible $Q$ that works, so that the window we get will be of the smallest possible size. However, it is okay to use a larger window at runtime if we want. To see why, recall that the left-most position of the window is not dependent on $Q$. Using a different $Q$ just changes the size of the window. Now, let $Q$ be the one that we used for building the table, and let $Q'$ be any integer with $Q'\geq Q$. Let $m'$ be what we will end up with if we try to load $Q'$-bits from the table instead of $Q$-bits, then we have
 
 $$
   m' = \left\lceil\frac{2^{Q''}x}{D}\right\rceil 2^{Q'-Q''}
 $$
 
-for some $Q\leq Q''\leq Q'$. Here we are assuming that, if the window of size $Q'$ goes beyond the right limit of the stored bits (which happens since $Q'$ is bigger than $Q$), then the remaining bits are filled with zeros, and we perform ceiling at the last bit we loaded from the cache. This is why we get yet another $Q''$. Note that, however, this $Q''$ is guaranteed to be in between $Q$ and $Q'$ because of the construction of the cache table. Then the corresponding $\xi'$ is now given as
+for some $$Q\leq Q''\leq Q'$$. Here we are assuming that, if the window of size $Q'$ goes beyond the right limit of the stored bits (which can occur since $Q'$ is chosen to be bigger than $Q$), then we fill in the missing bits with zeros, and also we perform the ceiling at the last bit we loaded from the cache. This is why we get this additional $Q''$. Note that, however, this $Q''$ is guaranteed to be between $Q$ and $Q'$ due to the construction of the cache table. Then the corresponding $\xi'$ is now given as
 
 $$
   \xi' = \frac{m'D}{2^{Q'}} = \frac{\left\lceil 2^{Q''}x/D \right\rceil}{2^{Q''}}.
@@ -306,24 +306,24 @@ $$
 
 is still valid.
 
-This analysis gives us two strategies for reducing the number of bits we need for storing $Q$'s:
+This analysis leads us to two strategies for reducing the number of bits we need to store the values of $Q$:
 
-1. Find the maximum among all the smallest $Q$'s for relevant $(e,k)$-pairs. Then in the runtime, we will use this maximum $Q$ for all $(e,k)$. Then there is no need to store $Q$'s at all since it is a constant.
+1. Find the maximum among all the smallest $Q$'s for relevant $(e,k)$-pairs. Then at runtime, we will use this maximum $Q$ for all $(e,k)$. In this case, we do not need to store $Q$'s at all since it is a constant.
 
-2. Or, partition the set of $(e,k)$-pairs into groups which share a single $Q$, which is the largest of all the smallest $Q$'s for each group member. One way to make such a partition is to fix a positive integer $\ell$ (which I call *the collapse factor*), and group all $(e,k)$-pairs which share the same $k$ and the same quotient $\left\lfloor (e-e_{\min})/\ell \right\rfloor$. In this way, we can reduce the required number of bits for $Q$'s roughly by the factor of $\ell$. In addition to that, we may store $\left\lceil Q/64 \right\rceil$ instead of $Q$, because (assuming a $64$-bit platform) it is the number of $64$-bit blocks, rather than the number of bits, which determines the amount of computation we need to perform. In other words, there is no benefit of choosing $Q=125$ over choosing $Q=128$, for example. This then also reduces the required number of bits by a certain factor.
+2. Alternatively, we can partition the set of $(e,k)$-pairs into groups which share a single $Q$, which is the largest of all the smallest $Q$'s for each member of the group. One way to make such a partition is to fix a positive integer $\ell$ (which we will refer as *the collapse factor*), and group all $(e,k)$-pairs that share the same $k$ and the same quotient $\left\lfloor (e-e_{\min})/\ell \right\rfloor$. In this way, we can the number of bits needed to store $Q$'s roughly by a factor of $\ell$. In addition to that, we may store $\left\lceil Q/64 \right\rceil$ instead of $Q$ and use $\left\lceil Q/64\right\rceil\cdot 64$ instead of $Q$, because (assuming a $64$-bit platform) it is the number of $64$-bit blocks, rather than the number of bits, which determines the amount of computation we need to perform. For example, there is no benefit of choosing $Q=125$ over choosing $Q=128$, so we just use $Q=128$ in that case. This then also reduces the required number of bits by a certain factor.
 
-In practice, having $Q$ as a fixed constant seems to allow the compiler to do many aggressive optimizations, so the advantage of the second strategy is only visible when the variation of $Q$'s for different $x$'s is wild.
+In practice, having $Q$ as a fixed constant seems to allow the compiler to perform many aggressive optimizations, so the advantage of the second strategy is only apparent when the values of $Q$ for different $x$'s vary significantly.
 
 # Decimal digit generation
 
-In the last section, we have discussed how to allow one to use the formula
+In the last section, we have discussed when it is allowed to use the formula $\eqref{eq:core formula}$:
 
 $$
   \left(\left\lfloor nx \right\rfloor \ \mathrm{mod}\ D\right)
   = \left\lfloor \frac{\left(n(m\ \mathrm{mod}\ 2^{Q})\ \mathrm{mod}\ 2^{Q}\right)D}{2^{Q}} \right\rfloor.
 $$
 
-In this section, we will discuss how to actually leverage this formula to quickly compute decimal digits of $w = n\cdot 2^{e-1}$. For convenience, we will have some abuse of notation and just write $m$ to really denote $(m\ \mathrm{mod}\ 2^{Q})$.
+In this section, we will discuss how to actually leverage this formula to quickly compute decimal digits of $w = n\cdot 2^{e-1}$. For convenience, we will use the notation $m$ to really mean $(m\ \mathrm{mod}\ 2^{Q})$ in this section.
 
 Let us recall what operations we need to do for computing the above.
 
@@ -331,13 +331,13 @@ Let us recall what operations we need to do for computing the above.
 
 2. Next, we multiply the resulting $Q$-bit number with $D=10^{\eta}$. $D$ fits in $64$-bits if $\eta\leq 19$. In this case, we discard the lowest $Q$-bits and only take the higher bits.
 
-Note that since $Q$ can be bigger than $64$, this inevitably involves some form of big integer arithmetic. Obviously, the required bit-width of this big integer arithmetic increases (which means that the computation will take more time) as $Q$ grows. As we have pointed out in a previous section, if $\eta$ increases, then $Q$ increases as well. Since taking a large $\eta$ makes the size of the table smaller, we have a space-time trade-off here.
+Note that since $Q$ can be bigger than $64$, this inevitably involves some form of big integer arithmetic. Obviously, the required bit-width of this big integer arithmetic increases (which means that the computation will take more time) as $Q$ grows. In general, if we choose a larger $\eta$, then $Q$ gets bigger as well. Thus we have a space-time trade off here, because taking a large $\eta$ makes the size of the table smaller.
 
-When $\eta=1$, the maximum of all $Q$'s lies in between $65$ and $128$, which means that the multiplications involved are between a $128$-bit integer and a $64$-bit integer. When $2\leq\eta\leq 19$, the maximum of all $Q$'s lies in between $129$ and $192$, which means that we need multiplications of a $192$-bit integer and a $64$-bit integer.
+When $\eta=1$, the maximum of all $Q$'s is about $120$, which means that the multiplications involved are between a $128$-bit integer and a $64$-bit integer. When $2\leq\eta\leq 19$, the maximum of all $Q$'s lies in between $129$ and $192$, which means that we need multiplications of a $192$-bit integer and a $64$-bit integer.
 
 We will not seriously consider $\eta=1$ case, because it not only requires ridiculously big table size ($70$ KB, even after all the compression schemes explained in the last section) but also has terrible performance, as we have to perform two $128$-bit $\times$ $64$-bit multiplications for each single digit.
 
-When $20\leq \eta\leq 22$, $Q$ is still at most $192$, but now $D=10^{\eta}$ cannot fit inside $64$-bits. Thus one may think that probably $\eta=19$ is the best choice. However, it turns out that taking $20\leq \eta\leq 22$ does not increase the number of needed multiplications that much. In fact, there is an elegant way of doing this computation which basically works regardless of how big $D$ is: *we don't compute it at once, rather, we extract a smaller sequence of decimal digits iteratively, from left to right.*
+When $20\leq \eta\leq 22$, $Q$ is still at most $192$, but now $D=10^{\eta}$ cannot fit inside $64$-bits. Thus one may think that probably $\eta=19$ is the best choice. However, it turns out that $20\leq \eta\leq 22$ is also quite a sensible choice as well, because there is an elegant way of extracting the digits from $\eqref{eq:core formula}$, which basically works for any $\eta$: *we don't compute all of the digits at once, rather, we extract a smaller sequence of digits iteratively, from left to right.*
 
 What happens here is really no different from what [James Anhalt's algorithm](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/) does. If we want to know the first $\gamma_{1}<\eta$ decimal digits of
 $$
@@ -347,7 +347,7 @@ then we compute
 $$
   \left\lfloor \frac{(nm\ \mathrm{mod}\ 2^{Q})d_{1}}{2^{Q}} \right\rfloor
 $$
-where $d_{1} = 10^{\gamma_{1}}$. If we want to know the next $\gamma_{2}$ digits, then compute
+with $d_{1} = 10^{\gamma_{1}}$. If we want to know the next $\gamma_{2}$ digits, then compute
 $$
   \left\lfloor \frac{(nmd_{1}\ \mathrm{mod}\ 2^{Q})d_{2}}{2^{Q}} \right\rfloor
 $$
@@ -357,25 +357,30 @@ $$
 $$
 with $d_{3} = 10^{\gamma_{3}}$, and so on, until we exhaust all $\eta$ digits. And this procedure can be nicely iterated: at each iteration, we have a $Q$-bit number stored in a buffer, and we multiply $d=10^{\gamma}$ to it. The right-most $Q$ bits of the result will be stored back into the buffer for the next iteration, and the remaining left-most bits are the output of the current iteration.
 
-This scheme of extracting digits is quite efficient in terms of the required number of multiplications. As an illustration, let us compare the required number of multiplications for the case $\eta=22$, $Q=192$ to Ryū-printf. Following the terminology I used in my Dragonbox paper, let us call $64$-bit $\times$ $64$-bit $\to 128$-bit multiplication as *the full multiplication*, and $64$-bit $\times$ $64$-bit $\to 64$-bit multiplication (i.e., taking only the lower half of the result) as *the half multiplication*. The point of distinguishing these two is that they have quite different performance characteristics in typical x64 machines. Or, in other machines often there is no direct instruction for doing the full multiplication, and we have to emulate it with multiple half multiplications. So generally full multiplications tend to be slower than half multiplications. Now let us analyze the number of full/half multiplications we need to perform.
+This iteration approach allows for quite efficient computation of decimal digits in terms of the required number of multiplications. As an illustration, let us compare the required number of multiplications for the case $\eta=22$, $Q=192$ with the case of Ryū-printf. As in my Dragonbox paper, let us call $64$-bit $\times$ $64$-bit $\to 128$-bit multiplication as *the full multiplication*, and $64$-bit $\times$ $64$-bit $\to 64$-bit multiplication (i.e., taking only the lower half of the result) as *the half multiplication*. The point of distinguishing these two is that they have quite different performance characteristics in typical x64 machines. Or, in other machines often there is no direct instruction for doing the full multiplication, and we have to emulate it with multiple half multiplications. So generally full multiplications tend to be slower than half multiplications. Now let us analyze the number of full/half multiplications we need to perform.
 
-For our scheme, first we have to prepare the $Q$-bit number $(nm\ \mathrm{mod}\ 2^{Q})$, which is a multiplication of a $64$-bit integer $n$ with a $192$-bit integer $m$, where we only take the lowest $192$-bits from the result. This requires $2$ full multiplications and $1$ half multiplication. Next, we extract $16$ decimal digits (as a $64$-bit integer) from the segment by multiplying $10^{16}$. This requires $3$ full multiplications. And then, we may divide this into two $8$-digits chunks (so that each of them fits in $32$-bits), which means that we divide it by $10^{8}$ and take the quotient and the remainder. This requires $1$ full multiplication and $1$ half multiplication, by applying the usual trick of turning a constant division into a multiplication followed by a shift. Finally, we extract the remaining $6$ digits (as a $32$-bit integer) from our $22$ digits segment, which again requires $3$ full multiplications. In total, we need to perform $9$ full multiplications and $2$ half multiplications, and we will get three $32$-bit chunks (which I call *subsegments*) each consisting of $8$, $8$, and $6$ digits.
+In our iteration scheme, first we have to prepare the $Q$-bit number $(nm\ \mathrm{mod}\ 2^{Q})$, which means we multiply a $64$-bit integer $n$ with a $192$-bit integer $m$, where we only take the lowest $192$-bits from the result. This requires $2$ full multiplications and $1$ half multiplication. Next, we extract $16$ decimal digits (as a $64$-bit integer) from the segment by multiplying $10^{16}$. This requires $3$ full multiplications. And then, we divide this into two $8$-digits chunks (so that each of them fits in $32$-bits), which means that we divide it by $10^{8}$ and take the quotient and the remainder. This requires $1$ full multiplication and $1$ half multiplication, by applying the usual trick of turning a constant division into a multiplication followed by a shift. Next, we extract the remaining $6$ digits (as a $32$-bit integer) from our $22$-digits segment, which again requires $3$ full multiplications. At this point, we performed $9$ full multiplications and $2$ half multiplications to get three $32$-bit chunks (which I call *subsegments*) each consisting of $8$, $8$, and $6$ digits. Then, using [James Anhalt's algorithm](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/), we need $4+4+3=11$ half multiplications for printing out all of them. Thus in total, we need $9$ full multiplications and $13$ half multiplications.
 
-On the other hand, in Ryū-printf, we multiply a $64$-bit integer to a $192$-bit cache entry, extract the upper $128$-bits from the result, shift it by certain amount, divide it by $10^{9}$ and then take the remainder, to get a segment consisting of $9$ decimal digits. The first step of multiplying a $64$-bit integer and a $192$-bit integer requires $3$ full multiplications. Applying the usual trick, we can turn the division by $10^{9}$ into a multiplication, and in this case since the dividend is of $128$-bits, the magic number we multiply to the dividend is also of $128$-bits. More precisely, we need to multiply two $128$-bit integers, and then take the second $64$-bit block from the resulting $256$-bit integer. This requires $3$ full multiplications and $1$ half multiplication. Finally, to compute the remainder from the quotient, we need $1$ half multiplication (but in $32$-bits). In total, we need to perform $6$ full multiplications and $2$ half multiplications, to get a $32$-bit chunk consisting of $9$ digits.
+On the other hand, in Ryū-printf, we first multiply a $64$-bit integer to a $192$-bit cache entry, extract the upper $128$-bits from the result, shift it by a certain amount, divide it by $10^{9}$ and then take the remainder, to get a segment consisting of $9$ decimal digits. The first step of multiplying a $64$-bit integer and a $192$-bit integer requires $3$ full multiplications. Applying the usual trick, we can turn the division by $10^{9}$ into a multiplication, and in this case since the dividend is of $128$-bits, the magic number we use for multiplication is also of $128$-bits. More precisely, we need to multiply two $128$-bit integers, and then take the second $64$-bit block from the resulting $256$-bit integer. This requires $3$ full multiplications and $1$ half multiplication. Next, to compute the remainder from the quotient, we need $1$ half multiplication (in $32$-bits). So we need to perform $6$ full multiplications and $2$ half multiplications to get a $32$-bit chunk consisting of $9$ digits. Then, again using James Anhalt's algorithm, we need $5$ half multiplication for printing these $9$ digits out. Therefore, we need $6$ full multiplications and $7$ half multiplications in total.
 
-Hence, in average, our scheme requires $9/22\approx 0.4$ full multiplications and $3/22\approx 0.1$ half multiplications per a digit, while Ryū-printf requires $6/9\approx 0.7$ full multiplications and $2/9\approx 0.2$ half multiplications per a digit, which means that our scheme has almost two times better throughput compared to Ryū-printf, in terms of the required number of multiplications.
+Hence, in average, our scheme requires $9/22\approx 0.4$ full multiplications and $13/22\approx 0.6$ half multiplications per a digit, while Ryū-printf requires $6/9\approx 0.7$ full multiplications and $7/9\approx 0.8$ half multiplications per a digit, which means that our scheme is like $60$ % better throughput compared to Ryū-printf, in terms of the required number of full multiplications, and $30$ % better in terms of half multiplications.
+
+The throughput for $\eta=18$, $Q=192$ is even better. Preparation of $(nm\ \mathrm{mod}\ 2^{Q})$ again requires $2$ full multiplications and $1$ half multiplication, and we extract all of $18$ digits at once (as a $64$-bit integer) by performing $3$ full multiplication. Splitting it into two $9$-digits subsegments requires $1$ full multiplication and $1$ half multiplication, and printing them out requires $5+5=10$ half multiplications. So in total, we need $6$ full multiplications and $12$ half multiplications, or $6/18\approx 0.3$ full multiplications and $12/18\approx 0.7$ half multiplications per a digit.
 
 # Which $(e,k)$-pairs are relevant?
 
-So far, we haven't really talk about which $(e,k)$-pairs are really relevant for us. We will talk about that in this section. Especially, let us talk about what should be the first $k$ that we ever need to look at, given $e$.
+So far, we have mentioned "a relevant $(e,k)$-pair" (or alike) a lot but not really precisely defined what it means. So let's talk about it.
 
-First of all, let's recap some obvious things. Note that since $10$ has $2$ as a divisor, every binary floating-point number has a finitely long decimal representation. Hence, if $k$ is a large enough positive number, then $w\cdot 10^{k}$ will always become an integer and once it's an integer we no longer need to consider larger $k$'s at all because the remaining digits are certainly all zero. So, $k$ has an upper bound. Conversely, if $k$ is a large enough negative number, then $w\cdot 10^{k}$ will always be strictly smaller than $1$, thus flooring it will give us zero. That's the lower bound for $k$.
+Recall that we are trying to compute decimal digits of $w=n\cdot 2^{e-1}$. The way we do it is to compute $\left(\left\lfloor w\cdot 10^{k}\right\rfloor\ \mathrm{mod}\ D\right)$ with $D=10^{\eta}$. Note that, if $k$ is too large, then $w\cdot 10^{k}$ will always be an integer multiple of $D=10^{\eta}$, because $2$ is a divisor of $10$. Then we always get $\left(\left\lfloor w\cdot 10^{k}\right\rfloor\ \mathrm{mod}\ D\right)=0$, which means that we do not ever need to consider such a large $k$. Specifically, for given $e$, this always happens regardless of $n$ if:
 
-For each $e$, the upper bound for $k$ is quite obvious. Since our $w$ is given as $w=n\cdot 2^{e-1}$, the upper bound is $k=0$ if $e-1\geq 0$, and it is $k=-e+1$ if $e-1<0$. (Note that the possibility of $n$ being a multiple of $2$ or $5$ is irrelevant here, because we want to find the set of *all* relevant $(e,k)$-pairs.)
+- $k\geq \eta$ when $e-1\geq0$, and
+- $k\geq \eta-e+1$ when $e-1<0$.
 
-The lower bound is a little bit trickier, because the range of the significand $n$ can affect the precise value. However, we will not actually work with the precise lower bound. Note that, it is already proved in [the Dragonbox paper](https://github.com/jk-jeon/dragonbox) that we can reliably compute $\lfloor w\cdot 10^{k}\rfloor$ for $k=\kappa - \left\lfloor e\log_{10}2\right\rfloor$ for $\kappa=2$ (or $\kappa=1$ for IEEE-754 binary32) by extracting the highest $64$-bits from the $192$-bit result of multiplying the precomputed $128$-bits of $5^{k}$ (counting from the first nonzero bit) with an appropriately left-shifted binary significand of $w$, viewed as a $64$-bit integer. We are not taking $\mathrm{mod}\ D$ or anything like that here, so what we get here is really the first several nonzero decimal digits of $w$. So... let's just use it!
+Hence, for given $k$, the pair $(e,k)$ is "relevant" only when $k\leq \eta-1$ if $e-1\geq 0$ and $k\leq\eta-e$ when $e-1<0$. In particular, we never need to consider a $k$ such that $k\geq \eta - e_{\min} + 1$ where $e_{\min}=-1074$.
 
-Let us call the number obtained ($\left\lfloor w\cdot 10^{k}\right\rfloor$) *the first segment*. The construction of $k$ guarntees that this integer is always nonzero. Indeed, it must contain at least $3$ decimal digits, because
+How about the other side? Given $e$, finding the smallest $k$ such that $(e,k)$ is relevant means to find the position of the first nonzero decimal digit of $w = n\cdot 2^{e-1}$, for the range of $n$ given. In fact, we already know how to do it. In [the Dragonbox paper](https://github.com/jk-jeon/dragonbox), we showed that it is possible to reliably compute $\lfloor w\cdot 10^{k}\rfloor$ for $k=\kappa - \left\lfloor e\log_{10}2\right\rfloor$ for $\kappa=2$ (or $\kappa=1$ for IEEE-754 binary32) by multiplying (an appropriate shift of) $n$ to the $k$-th table entry of the Dragonbox algorithm. Here, we are not taking $\mathrm{mod}\ D$, so there is no further digit we can extract by considering a smaller $k$. Therefore, this $\left\lfloor w\cdot 10^{k}\right\rfloor$ is *the first segment* that we ever need to look at.
+
+The choice $k = \kappa - \left\lfloor e\log_{10}2\right\rfloor$ guarantees that this first segment is always nonzero. Indeed, it must contain at least $3$ decimal digits, because
 
 $$
   \begin{align*}
@@ -409,34 +414,64 @@ $$
 
 so $\left\lfloor w\cdot 10^{k}\right\rfloor$ must be of at most $19$-digits.
 
-So this $64$-bit integer $\left\lfloor w\cdot 10^{k}\right\rfloor$ already gives us pretty large number of digits of $w$, except for the subnormal case, which means that we already have solved *the common case*, which is the small precision case.
+So, (with the exception of the case of subnormal numbers) this $64$-bit integer $\left\lfloor w\cdot 10^{k}\right\rfloor$ already gives us a pretty large number of digits of $w$, which means that we have already solved *the common case*, i.e., the small precision case, of our problem at hand.
 
-(Note that it is also possible to extract $18\sim 19$ digits even from subnormal numbers by *normalizing* $w$, that is, by multiplying an appropriate power of $2$ to $n$ and subtract the corresponding power from $e$. But that requires a bit more cache entries than the ones we used for Dragonbox. Whether or not this is a good thing to do is not clear to me at this point, and the current implementation does not do this trick.)
+(Note that it is also possible to always extract $18\sim 19$ digits even from subnormal numbers by *normalizing* $w$, that is, by multiplying an appropriate power of $2$ to $n$ and subtracting the corresponding power from $e$. That requires a bit more table entries than the ones we used for Dragonbox though. Whether or not this is a good thing to do is not very clear to me at this point. The [current implementation](#actual-implementation) does not do normalization.)
 
-Therefore, we only need a way to compute *further digits* that cannot be obtained in this manner. Hence, the pair $(e,k)$ is "relevant" only when
-
-- When $e-1\geq 0$, $k\in [\kappa - \left\lfloor e\log_{10}2\right\rfloor+1, 0]$, and
-- When $e-1<0$, $k\in [\kappa - \left\lfloor e\log_{10}2\right\rfloor+1, -e+1]$,
-
-in the sense that all other nonzero digits can be obtained by computing $\left\lfloor w\cdot 10^{k}\right\rfloor$ with $k = \kappa - \left\lfloor e\log_{10}2\right\rfloor$.
-
-In fact, since we obtain $\eta$-digits at once by computing $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$ with $D=10^{\eta}$, so we just need to guarantee that the $(\kappa-\left\lfloor e\log_{10}2\right\rfloor+1)$-th digit is contained in this $\eta$-digits number. Thus in fact, the minimum $k$ that we ever need to consider can be as large as $\kappa - \left\lfloor e\log_{10}2\right\rfloor+\eta$.
-
-Now, we want to restrict any $k$ that is ever needed is of the form
+Therefore, the pair $(e,k)$ is "relevant" only when $k$ is large enough so that computing
 
 $$
-  k = k_{\min} + s\eta
+  \left(\left\lfloor w\cdot 10^{k}\right\rfloor\ \mathrm{mod}\ D\right)
+  = \left(\left\lfloor n\cdot 2^{e+k-1}\cdot 5^{k}\right\rfloor\ \mathrm{mod}\ D\right)
 $$
 
-for some integers $k_{\min}$ and $s\in[0,s_{\max}]$. Let us call this $s$ *the multiplier index*. Clearly, the lower bound on $k$ is the smallest when $e$ is the greatest, so we may choose
+can produce at least one digit that is not contained in the first segment, which means that
 
 $$
-  k_{\min} = \kappa - \left\lfloor e_{\max}\log_{10}2\right\rfloor + \eta
+  k \geq \kappa - \left\lfloor e\log_{10}2\right\rfloor + 1
 $$
 
-where $e_{\max} = 971$. Or, we can choose whatever number that is less than or equal to the above. (It turns out that for $\eta=22$, it is better to take $k_{\min}$ to be the above minus one.)
+holds.
 
-Then for given $e$, we find the first $s$ such that
+Therefore, for given $k$,
+
+- When $0\leq e-1\leq e_{\max}-1 = 970$, $(e,k)$ is relevant if and only if
+
+    $$
+      \kappa - \left\lfloor e\log_{10}2\right\rfloor + 1 \leq k \leq \eta-1.
+    $$
+
+- When $-1075 = e_{\min}-1 \leq e-1<0$, $(e,k)$ is relevant if and only if
+
+    $$
+      \kappa - \left\lfloor e\log_{10}2\right\rfloor + 1 \leq k \leq \eta-e.
+    $$
+
+Recall that we will only consider $k$'s of the form $k = k_{\min} + s\eta$. Let us call the integer $s=0,1,2,\ \cdots\ $ *the multiplier index*. Once $k_{\min}$ has been chosen, the greatest multiplier index $s_{\max}$ can be figured out by finding the smallest $s_{\max}$ satisfying the inequality
+
+$$
+  k_{\min} + s_{\max}\eta \geq \eta - e_{\min}
+$$
+
+with $e_{\min}=-1074$, or equivalently,
+
+$$
+  s_{\max} = \left\lceil \frac{\eta - e_{\min} - k_{\min}}{\eta}\right\rceil.
+$$
+
+To choose $k_{\min}$, note that it is enough to chose $k_{\min}$ such that when $e=e_{\max}$, $\left(\left\lfloor w\cdot 10^{k_{\min}}\right\rfloor\ \mathrm{mod}\ D\right)$ contains the first digit that cannot be obtained from the first segment. Since we extract $\eta$-digits at once, this means that
+
+$$
+  k_{\min} \leq \kappa - \left\lfloor e_{\max}\log_{10}2\right\rfloor + \eta
+$$
+
+with $e_{\max} = 971$ is satisfied. No smaller $k$ ever needs to be considered.
+
+In general, choosing a smaller $k_{\min}$ gives larger $s_{\max}$ so more powers of $5$ to be stored in the table, so we would want take the largest possible $k_{\min}$, that is $k_{\min} = \kappa - \left\lfloor e_{\max}\log_{10}2\right\rfloor + \eta$. However, it turns out that choosing a little bit smaller $k_{\min}$ can actually make the table a little bit smaller. In [the implementation](#actual-implementation), I did some trial-and-error type experiments to find the optimal $k_{\min}$ that minimizes the table size.
+
+In this way, we can determine for which $k$ the bits of $5^{k-\eta}$ need to be stored in the cache table.
+
+For given $e$, the first multiplier index, which gives the first digit that cannot be obtained from the first segment, can be obtained by finding the smallest $s$ satisfying
 
 $$
   k = k_{\min} + s\eta \geq \kappa - \left\lfloor e\log_{10}2\right\rfloor + 1,
@@ -449,46 +484,43 @@ $$
   = \left\lfloor \frac{(\kappa - \left\lfloor e\log_{10}2\right\rfloor) - k_{\min} + \eta}{\eta} \right\rfloor.
 $$
 
-This is *the first multiplier index*.
-
-Simiilarly, *the last multiplier index* is determined to be:
-
-- When $e-1\geq 0$, the first $s$ such that $k = k_{\min}+s\eta \geq 0$,
-- When $e-1< 0$, the first $s$ such that $k = k_{\min}+s\eta \geq -e+1$.
-
-In particular, when $e=e_{\min}=-1074$, we get the largest multiplier index $s_{\max}$.
-
-In this way, we can find the set of all relevant $(e,k)$-pairs.
-
 # The cache table
 
-At this point, almost all of the whole algorithm has been explained. In this section, I collected some missing pieces that are needed to actually build the cache table.
+At this point, almost all of the whole algorithm has been explained. In this section, I collected some missing details that are needed to actually build the cache table.
 
 ## (a) How do we arrange the computed bits of $5^{k-\eta}$ in the memory?
 
-For each multiplier index $s=0,\ \cdots\ ,s_{\max}$, we find all the necessary bits of $5^{k-\eta}$ with $k=k_{\min}+s\eta$. After cutting all leading and trailing zeros, we simply stitch all of these bits together and store them in an array of $64$-bit integers. In theory, the first and the last bits for each $k$ in this case will be always $1$ so we can even remove those bits, but let's not do that as it will complicate the implementation a lot for a marginal benefit.
+For each multiplier index $s=0,\ \cdots\ ,s_{\max}$, we find all the necessary bits of $5^{k-\eta}$ with $k=k_{\min}+s\eta$. After cutting off all leading zeros, we simply stitch all of these bits together and store them in an array of $64$-bit integers. In theory, the first bit for each $k$ in this case will always be $1$, so we can even remove those bits, but let's not do that as it will complicate the implementation a lot for a marginal benefit.
 
 ## (b) How to locate the necessary bits from the table, for given $e$ and $k$?
 
-For each multiplier index $s$, we store needed metadata. There are three different kinds of information in this metadata. The first one is the position of the first stored bit of $5^{k-\eta}$ in the main cache table. The second one is the offset value which, when added with the exponent $e$, yields the position of the first actually needed bit of $5^{k-\eta}$ from the table. Since the starting position of the window shifts by $1$ if we increase $e$ by $1$ (for a fixed $k$), this is enough for determining the starting position of the window. Finally, the third metadata is the offset for the $Q$-table, similarly defined to be the unique value which, when added with the exponent $e$ (after subtracting $e_{\min}$ and divided by the collapse factor), yields the index in the $Q$-table. Of course this third information is not needed if we use a fixed constant $Q$.
+For each multiplier index $s$, we store needed metadata. There are three different kinds of information in this metadata.
+
+1. First, we store the position of the first stored bit of $5^{k-\eta}$ in the main cache table.
+
+2. Second, we store the offset value which, when added with the exponent $e$, yields the position of the first needed bit of $5^{k-\eta}$ from the table for given $e$, or in other words, the starting position of the window. Since the window shifts to right by $1$ if we increase $e$ by $1$, such an offset value is enough for determining the position. Note that this starting position of the window can go further to the left limit of the stored bits because we removed all the leading zeros.
+
+    (This in particular means that the offset value can be negative. In [the implementation](#actual-implementation), thus I shifted all of these offset values by some amount to make everything nonnegative. My intention was that by doing so we can possibly use a smaller unsigned integer type for storing those offsets. In the end the size of the integer type wasn't affected but I left it as it is.)
+
+3. Finally, we also need a similar offset for the $Q$-table, defined to be the unique value which, when added with $\left\lfloor \frac{e-e_{\min}}{\ell}\right\rfloor$ yields the index in the $Q$-table. This information is only needed when we use the collapse factor $\ell$ for compressing $Q$'s, and is not needed if we use a fixed constant $Q$.
 
 # Summary of how it works
 
 Here is how the algorithm works in a nutshell:
 
-1. Precompute powers of $5$ up to necessary precision and store them.
+1. Precompute powers of $5$ up to the necessary precision and store them.
 
-2. Convert the given floating-point number into a "fixed-point form", by multiplying appropriate bits from those precomputed powers of $5$ into the significand of the input.
+2. Convert the given floating-point number into a "fixed-point form" by multiplying appropriate bits loaded from those precomputed powers of $5$ into the significand of the input.
 
-3. Extract the digits from the computed fixed-point form, just like James Anhalt's algorithm.
+3. Iteratively extract the digits from the computed fixed-point form, just like James Anhalt's algorithm.
 
 And here is a little bit more detailed version of the summary:
 
-1. Given a floating point number $w = n\cdot 2^{e-1}$, our goal is to compute $\left\lfloor w\cdot 10^{k} \right\rfloor\ \mathrm{mod}\ 10^{\eta}$ for some $k$'s.
+1. Given a floating point number $w = n\cdot 2^{e-1}$, we want to compute $\left(\left\lfloor w\cdot 10^{k} \right\rfloor\ \mathrm{mod}\ 10^{\eta}\right)$ for some $k$'s.
 
-2. For the first several digits, we can just invoke a simplified version of Dragonbox or other similar algorithms.
+2. For the first several digits, we can just multiply an appropirate entry from the Dragonbox table, or anything like that will work.
 
-3. For the case when that does not yield sufficient number of digits, we find $Q$ that makes the equality
+3. To prepare for the case when that will not yield sufficiently many digits, we find $Q$ that makes the equality
 $$\begin{align*}
   \left(\left\lfloor w\cdot 10^{k} \right\rfloor\ \mathrm{mod}\ 10^{\eta}\right)
   &= \left(\left\lfloor n\cdot (2^{e+k-1}\cdot 5^{k}) \right\rfloor
@@ -499,7 +531,7 @@ $$\begin{align*}
   \right\rfloor
 \end{align*}$$
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-to hold for all $n$ using **Theorem 4.2**, for all pairs of $(e,k)$ necessary to us.
+to hold for all $n$ using **Theorem 4.2**, for all relevant $(e,k)$-pairs.
 
 4. For each $k$, find the range of bits of $5^{k-\eta}$ that appears in
 $$
@@ -507,41 +539,42 @@ $$
   \ \mathrm{mod}\ 2^{Q}
 $$
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-where $e$ is any one appearing in one of the $(e,k)$ pairs we are considering.
+for all $e$ such that $(e,k)$ is one of the pairs considered in the previous step.
 
-5. Compute those bits and store them in a static data table, along with $Q$'s.
+5. Compute those bits and store them in a static data table, possibly along with $Q$'s.
 
-6. In the runtime, for given $e$ and $k$ we choose the needed bits from the table and compute
+6. At runtime, for given $e$ and $k$ we choose the needed bits from the table and compute
 $$
   \left(n\left(\left\lceil 2^{Q+e+k-\eta-1}\cdot 5^{k-\eta} \right\rceil
     \ \mathrm{mod}\ 2^{Q}\right)\ \mathrm{mod}\ 2^{Q}\right).
 $$
 
-7. By iteratively multiplying a power of $10$ and taking the upper bits, we can compute the digits of $\left\lfloor w\cdot 10^{k} \right\rfloor\ \mathrm{mod}\ 10^{\eta}$, left to right.
+7. By iteratively multiplying a power of $10$ and taking the upper bits, we can compute the digits of $\left(\left\lfloor w\cdot 10^{k} \right\rfloor\ \mathrm{mod}\ 10^{\eta}\right)$ from left to right.
 
 # Rounding
 
-After generating the number of digits requested, we have to perform rounding. This is an incredibly complicated issue, though sounds very simple. The main source of the complication is the deep hierarchy of digits, which is basically the root reason why there are many ramifications of different rounding cases that all need different treatments. However, fortunately, most of those cases can be categorized into two cases which we will explore in this section.
+After generating the requested number of digits, we have to perform rounding. It sounds simple, but it is in fact an incredibly complicated issue. The root cause of the difficulty is the many ramifications of different cases that all need different handling. However, fortunately, most of those cases can be categorized into two which we will explore in this section.
 
 ## Rounding inside a subsegment
 
 A segment, which consists of $\eta$-digits, is divided into several *subsegments* that are small enough to fit inside $32$-bits. The most common case of rounding is when it happens inside a subsegment.
 
-Let's say we have a $9$-digit subsegment, and we need to round after printing $t$-digits for some $1\leq t\leq 8$. So there are at least one digit left in the subsegment that will not be printed. In this case, the rounding happens when the following conditions are met, assuming the default rounding rule:
+Let's say we have a $9$-digit subsegment, and we need to round at the $t$-th digit of the subsegment for some $1\leq t\leq 8$. So there are at least one digit left in the subsegment that will not be printed. In this case, the rounding happens when the following conditions are met, assuming the default rounding rule:
 
-1. If the remaining $(9-t)$-digits consist a number that is strictly bigger than $10^{9-t}/2$, then we have to do round-up.
+1. If the remaining $(9-t)$-digits consist a number that is strictly bigger than $10^{9-t}/2$, then round-up.
 
-2. If that number is strictly smaller than $10^{9-t}/2$, then we should not do round-up.
+2. If that number is strictly smaller than $10^{9-t}/2$, then round-down.
 
-3. When that number is exactly $10^{9-t}/2$, then:  
-    - If there are further nonzero digits after the current subsegment, then we have to do round-up.
-    - If the currently printed number is odd, then we have to do round-up regardless of if there are further digits or not.
+3. When that number is exactly $10^{9-t}/2$, then:
+    - If the currently printed number is odd, then round-up.
+    - If there are further nonzero digits after the current subsegment, then round-up.
+    - Otherwise, round-down.
 
-The problem is that $t$ is in general a runtime variable, not a constant. So it sounds like we have to have the number consisting of the remaining $(9-t)$-digits, and also the threshold $10^{9-t}/2$ in our hands, right? It turns out, actually we can check these conditions without really computing those numbers.
+The problem is that $t$ is in general a runtime variable, not a constant. So it sounds like we have to compute this $(9-t)$-digits number at runtime. But it turns out, we can still do this check without computing it.
 
 The idea is again based on the "fixed-point fractions trick" I learned from [James Anhalt's algorithm](https://jk-jeon.github.io/posts/2022/02/jeaiii-algorithm/). It goes as follows.
 
-1. Let's say we have a $9$-digit subsegment. Let's call it $n$ here, though we already have used $n$ to denote something completely different. In order to print $n$, we find a good approximation of the rational number $n/10^{8}$ as a $64$-bit fixed-point fractional number, where the upper $32$-bits represent the integer part and the lower $32$-bits represent the fractional part. More precisely, we find a $64$-bit integer $y$ such that
+1. Let's say we have a $9$-digit subsegment. Let's call it $n$ (this $n$ has nothing to do with the $n$ we have been using in previous sections). In order to print $n$, we find a good approximation of the rational number $n/10^{8}$ as a $64$-bit fixed-point fractional number, where the upper $32$-bits represent the integer part and the lower $32$-bits represent the fractional part. More precisely, we find a $64$-bit integer $y$ such that
 
     $$
       \frac{2^{32}n}{10^{8}} \leq y < \frac{2^{32}(n+1)}{10^{8}}.
@@ -551,59 +584,59 @@ The idea is again based on the "fixed-point fractions trick" I learned from [Jam
 
 2. The first digit of $n$ can then be obtained as $\left\lfloor\frac{y}{2^{32}}\right\rfloor$. Also the next $(t-1)$-digits can be obtained by multiplying $10^{t-1}$ to the lower $32$-bits of $y$ and extracting the upper $32$-bits from the result. We assume that we already have done this to print $t$-digits from $n$. Let us call the remaining lower half of the result $y_{1}$.
 
-3. Now, the remaining $(9-t)$-digits can be obtained from $y_{1}$ by multiplying $10^{9-t}$ to it and then extracting the upper $32$-bits. But the thing is, we don't need to precisely know these digits. All we want to do is to compare those digits with $10^{9-t}/2$. Note that, with $k=9-t$,
+3. Then the remaining $(9-t)$-digits can be obtained from $y_{1}$ by multiplying $10^{9-t}$ to it and then extracting the upper $32$-bits. But the thing is, we don't need to precisely know these digits. All we want to do is to compare those digits with $10^{9-t}/2$. Note that, with $k=9-t$,
 
     $$
       \left\lfloor \frac{y_{1}\cdot 10^{k}}{2^{32}}\right\rfloor
       \geq 10^{k}/2
     $$
 
-    holds if and only if $y_{1} \geq 2^{31}$, if and only if the MSB of $y_{1}$ is $1$. Hence, we should not do the rounding if the MSB is $0$.
+    holds if and only if $y_{1} \geq 2^{31}$, if and only if the MSB of $y_{1}$ is $1$. Hence, we round-down if the MSB is $0$.
 
-4. However, we cannot be sure if the MSB is $1$, because that can mean either the equality or the strict inequality. To distinguish those two cases, we have to inspect the inequality
+4. However, we cannot be sure what to do if the MSB is $1$, because that can mean either the equality or the strict inequality. To distinguish those two cases, we have to inspect the inequality
   
     $$
       \left\lfloor \frac{y_{1}\cdot 10^{k}}{2^{32}}\right\rfloor
       \geq \frac{10^{k}}{2} + 1,
     $$
-    
+
     which is equivalent to
-    
+
     $$
       y_{1} \geq 2^{31} + \frac{2^{32}}{10^{k}},
       \quad\textrm{or}\quad
       y_{1} \geq \left\lceil 2^{31} + \frac{2^{32}}{10^{k}}\right\rceil.
     $$
 
-    Now, although $k$ is a runtime variable, we can simply store all possible values of the right-hand side in a precomputed static table and then index it with $k-1$ (note that $k$ cannot be zero).
+    The right-hand side is not a constant since $k$ is a runtime variable, but we can simply store all possible values of it in yet another precomputed static table and then index it with $k-1$ (note that $k$ cannot be zero).
 
-5. Still, we may need to check if there will be further nonzero digits. I will not go into details of this since it is a sort of a massive case-by-case thing, but overall the idea is that this is just the matter of doing the integer-check of a number of the form $n\cdot 2^{e+k-e_{0}}\cdot 5^{k-k_{0}}$, which then is just the matter of counting factors of $2$ and $5$ inside $n$.
-    
-In this way, we can check the rounding condition without actually computing the $(9-t)$-digits number nor the threshold $10^{9-t}/2$.
+5. Still, we may need to check if there are further nonzero digits left after ths current subsegment. I will not go into details of this since it is a sort of a massive case-by-case thing, but overall the idea is that this is just the matter of doing the integer-check of a number of the form $n\cdot 2^{e+k-e_{0}}\cdot 5^{k-k_{0}}$ (this $n$ is the $n$ from previous sections), which then is just the matter of counting factors of $2$ and $5$ inside $n$.
 
 ## Rounding at the subsegment boundary
 
-The above doesn't work for $t=9$ since there is no more digit at all to inspect. We simply have to look at the next subsegment. However, often fully computing the next subsegment can be a too complex job. The resolution here is to compute one more bit upfront when we first evaluate the subsegment. Assuming that this is possible, the rounding conditions can be checked as follows:
+The above doesn't work for $t=9$ since there is no more digit at all to inspect. To obtain further digits we have to look at the next subsegment. But that is not strictly needed: we only need to know just one more bit. Suppose that the current subsegment is equal to $\left(\left\lfloor w\cdot 10^{k}\right\rfloor\ \mathrm{mod}\ 10^{9}\right)$ for some $k$ (this $k$ is a different $k$ from previous sections because $k-k_{\min}$ in this case does not need to be a multiple of $\eta$), then this means that we need to know the first fractional bit of the rational number $w\cdot 10^{k}$. Assume that we were able to get this bit upfront. Then the rounding conditions can be checked as follows:
 
-1. If the next bit is $0$, then we should not do round-up.
+1. If the next bit is $0$, then round-down.
 
-2. If the next bit is $1$ and there will be at least one nonzero bit after that, then we should round-up.
+2. If the next bit is $1$ and the last digit printed is odd, then round-up.
 
-3. If the next bit is $1$ and the last digit printed so far is odd, then we should round-up regardless of if there are more nonzero bits.
+3. If the next bit is $1$ and if there is at least one nonzero fractional bit of $w\cdot 10^{k}$ after that, then round-up.
 
-Checking if there are further nonzero bits is again the matter of counting factors of $2$ and $5$, so let us focus on the "compute one more bit" part. I will not go into all the details, but the core idea is this. Recall that we are computing the number
+4. Otherwise, round-down.
+
+Checking if there are further nonzero bits is again the matter of counting factors of $2$ and $5$, so let us focus on how to get this one more additional bit. I will not go into all the details, but the core idea is this. Recall that we are computing the number
 
 $$
   \left\lfloor nx \right\rfloor\ \mathrm{mod}\ D.
 $$
 
-Suppose that we want to compute one more bit than this, which means to compute
+If we want to compute one more bit than this, then what we do is to compute
 
 $$
   \left\lfloor 2nx \right\rfloor\ \mathrm{mod}\ 2D
 $$
 
-instead. Indeed, let $b$ be the first fractional bit of $nx$, then $\left\lfloor 2nx\right\rfloor = 2\left\lfloor nx\right\rfloor + b$, so
+instead. Indeed, if $b$ is the first fractional bit of $nx$, then $\left\lfloor 2nx\right\rfloor = 2\left\lfloor nx\right\rfloor + b$, so
 
 $$\begin{aligned}
   2\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right) + b
@@ -613,6 +646,8 @@ $$\begin{aligned}
   &= \left\lfloor 2nx\right\rfloor - \left\lfloor\frac{\left\lfloor 2nx\right\rfloor }{2D}\right\rfloor 2D\\
   &= \left(\left\lfloor 2nx \right\rfloor\ \mathrm{mod}\ 2D\right).
 \end{aligned}$$
+
+Thus, $b$ can be obtained by inspecting the last bit of the right-hand side, and the remaining bits precisely consist the value of $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$.
 
 Now, suppose that $2\xi = \frac{2mD}{2^{Q}}$ is a good enough approximation of $2x$ in the sense that the conditions of **Theorem 4.2**, when $x$ is replaced by $2x$ and $\xi$ is replaced by $2\xi$, are satisfied, then we obtain
 
@@ -644,9 +679,9 @@ $$
   \end{cases}
 $$
 
-where things with $\tilde{\cdot}$ denote the ones we obtain by replacing $x$ by $2x$. This in general is a little bit more stringent condition to have, so in fact we need to use this condition instead for computing $m$'s and $Q$'s. Roughly speaking, the precision $Q$ needs to be increased by $1$ overall, but fortunately this does not change the picture any radically.
+instead of $\eqref{eq:core inequality}$, where things with $\tilde{\cdot}$ denote what we obtain from the corresponding things without $\tilde{\cdot}$ when we replace $x$ by $2x$. The above inequality in general is a little bit stricter than $\eqref{eq:core inequality}$, so in fact we have to use this instead of $\eqref{eq:core inequality}$ for computing $m$'s and $Q$'s if we want to ensure correct rounding.. Roughly speaking, replacing $\eqref{eq:core inequality} by the above increases $Q$ by $1$ overall, but fortunately this does not radically change any discussion we have done so far.
 
-Now, suppose we are guaranteed to have
+Now, suppose we have
 
 $$
   \left(\left\lfloor 2nx \right\rfloor \ \mathrm{mod}\ 2D\right)
@@ -659,35 +694,36 @@ $$
   (nmd_{1}\ \mathrm{mod}\ 2^{Q})
 $$
 
-as the iteration state where $d_{1} = 10^{\gamma_{1}}$, and our current subsegment is of $\gamma_{2}$-digits, which means that it can be obtained as
+as the iteration state where $d_{1} = 10^{\gamma_{1}}$, and our current subsegment is the next $\gamma_{2}$-digits, which means that it can be obtained as
 
 $$
   \left\lfloor \frac{(nmd_{1}\ \mathrm{mod}\ 2^{Q})d_{2}}{2^{Q}} \right\rfloor
 $$
 
-where $d_{2}=10^{\gamma_{2}}$. Then, to obtain one more bit, we simply compute
+with $d_{2}=10^{\gamma_{2}}$. Then, to obtain one more bit, we simply compute
 
 $$
   \left\lfloor \frac{(nmd_{1}\ \mathrm{mod}\ 2^{Q})2d_{2}}{2^{Q}} \right\rfloor
 $$
 
-instead. The actual subsegment can be obtained from the above by shifting it to right by $1$-bit, and this last $1$-bit is the the desired rounding bit.
+instead. The needed bit is then the last bit of the above, while the remaining bits consist the actual subsegment.
 
 
 # Actual implementation
 
-[Here](https://github.com/jk-jeon/floff) is an actual implementation.
+[Here](https://github.com/jk-jeon/floff) is an actual implementation. You can have some quick experiment with it [here](https://godbolt.org/z/5948en1zo).
 
-In the implementation, there are several different cache table prepared. I call the tables used for the first few digits as *the main cache table*, which are consisting of the same entries as in Dragonbox. The ones that are the main targets of this post, which are for the digits that can not be obtained from the main cache table, are called *the extended cache table*. The implementation allows the users to choose which specific tables for those two.
+In the implementation, several different cache tables are prepared. The table used for computing the first segment is called *the main cache table*, which is consisting of the same entries as in Dragonbox. The one used for further digits is called *the extended cache table*. The implementation allows the users to choose which specific tables for each of those two.
 
 There are two main cache tables, just like [the Dragonbox implementation](https://github.com/jk-jeon/dragonbox), *the full table* and *the compressed table*, each consisting of $9904$ bytes and $584$ bytes.
 
 There are three extended cache tables:
-- *the long extended cache table*, consisting of $3688$ bytes, generated with $\eta=22$ and with the constant $Q=192$,
 
-- *the compact extended cache table*, consisting of $1220$ bytes, generated with $\eta=76$ and with the collapse factor of $64$, and
+- *the long extended cache table*, consisting of $3688$ bytes, generated with the segment length $\eta=22$ assuming constant $Q=192$,
 
-- *the super-compact extended cache table*, consisting of $596$ bytes, generated with $\eta=248$ and with the collapse factor of $128$.
+- *the compact extended cache table*, consisting of $1212$ bytes, generated with the segment length $\eta=80$ and the collapse factor $\ell=64$, and
+
+- *the super-compact extended cache table*, consisting of $580$ bytes, generated with the segment length $\eta=252$ and the collapse factor $\ell=128$.
 
 The implementation currently **does not support** the compact table.
 
@@ -698,21 +734,21 @@ And here is how it performs:
 | Figure 2 - Performance benchmark.|
 
 - **Red**: Proposed algorithm with the full ($9904$ bytes) cache table and the long ($3688$ bytes) extended cache table.
-- **Green**: Proposed algorithm with the compressed ($584$ bytes) cache table and the super-compact ($596$ bytes) extended cache table.
+- **Green**: Proposed algorithm with the compressed ($584$ bytes) cache table and the super-compact ($580$ bytes) extended cache table.
 - **Blue**: Ryū-printf (reference implementation).
-- **Purple**: `fmtlib`.
+- **Purple**: `fmtlib` (a variant of [Grisu3](https://www.cs.tufts.edu/~nr/cs257/archive/florian-loitsch/printf.pdf) with [Dragon4](https://lists.nongnu.org/archive/html/gcl-devel/2012-10/pdfkieTlklRzN.pdf) fallback).
 
 So, the proposed algorithm performs:
 
 - Better than Ryū-printf for the small digits case, which is mostly covered by the main cache table,
 - Comparable to Ryū-printf for the large digits case, when supplied with the long extended cache,
-- Worse than Ryū-printf but significantly faster than `fmtlib` for the large digits case, when supplied with the super-compact extended cache.
+- Worse than Ryū-printf but significantly faster than `fmtlib` (Dragon4) for the large digits case, when supplied with the super-compact extended cache.
 
 >***WARNING***
 >
-> The implementation has **NEVER** been polished for real-world usage. Especially, I have **NOT** done any fair amount of formal testing of this implementation. Furthermore, the code is ultra-messy and is almost impossible to maintain without doing a fair amount of refactoring, which ensures that there will be bugs.
+> The implementation has **NEVER** been polished for real-world usage. Especially, I have **NOT** done any fair amount of formal testing of this implementation. Furthermore, the code is ultra-messy and is full of almost-same-but-slightly-different copies of same code blocks, which is a perfect recipe for bugs.
 >
-> I'm pretty confident about the correctness of the algorithm itself though. I believe that any error (if any) is likely due to some careless mistakes rather than due to some fundamental errors in the algorithm.
+> I'm pretty confident about the correctness of the algorithm itself though. I believe that any error is likely due to some careless mistakes rather than some fundamental issue in the algorithm.
 
 
 # Possible performance issues of the algorithm
