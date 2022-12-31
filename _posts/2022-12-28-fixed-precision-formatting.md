@@ -496,7 +496,7 @@ For each multiplier index $s=0,\ \cdots\ ,s_{\max}$, we find all the necessary b
 
 For each multiplier index $s$, we store needed metadata. There are three different kinds of information in this metadata.
 
-1. First, we store the position of the first stored bit of $5^{k-\eta}$ in the main cache table.
+1. First, we store the position of the first stored bit of $5^{k-\eta}$ in the cache table.
 
 2. Second, we store the offset value which, when added with the exponent $e$, yields the position of the first needed bit of $5^{k-\eta}$ from the table for given $e$, or in other words, the starting position of the window. Since the window shifts to right by $1$ if we increase $e$ by $1$, such an offset value is enough for determining the position. Note that this starting position of the window can go further to the left limit of the stored bits because we removed all the leading zeros.
 
