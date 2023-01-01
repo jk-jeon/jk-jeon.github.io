@@ -52,7 +52,7 @@ Historically, fixed-precision methods came first. For example, functions like `p
 
 A typical scenario when fixed-precision formatting is desired, rather than the shortest roundtrip, is when your output window is too small for typical outputs from the latter. Indeed, fixed-precision formatting is the natural choice for this case. One might still use the shortest roundtrip formatting for this case and then cut the results at a certain precision, but that would be considered double-rounding, which should be actively avoided. This is a very common and valid usage of fixed-precision formatting, but note that we never need things like `printf("%.100e", x)` in this case.
 
-A funny thing about fixed-precision formatting is that it is a **hard** problem, in my opinion a **way harder** problem than shortest roundtrip formatting, contrary to its simpler look. And the reason is precisely because the precision requested by the user can be arbitrarily large. This lengthy blog post would not have been needed at all if we could only care about the small digits case. But if dealing with the large digits case requires too much effort while it is not something anyone really needs, then what's the point of working on it?
+A funny thing about fixed-precision formatting is that it is a **hard** problem, in my opinion a **way harder** problem than shortest roundtrip formatting, contrary to its simpler look. And the reason is precisely because the precision requested by the user can be arbitrarily large. This lengthy blog post would not have been needed at all if we could only care about the small digits case. If dealing with the large digits case requires too much effort while it is not something anyone really needs, then should we really need to care about it?
 
 The thing is, someone still needs to implement it even though nobody really needs it in practice because, in my limited understanding, it is required by someone else for whatever reason, regardless of whether it is due to a sane engineering rationale or not. Seriously! Like, the C/C++ standards say it's allowed to do `printf("%.100e", x)`, so C/C++ standard library implementers have no choice but to make it work correctly. (To be honest, I'm not a language lawyer and not 100% sure if this claim is completely correct. But apparently, it seems the only restrictions on the precision field in the format string are that (1) negative numbers are ignored, and (2) the number should be representable as an `int`. So yes, even crazier things like `printf("%.2000000000e", x)` are technically allowed!)
 
@@ -86,11 +86,9 @@ So here is the second revision of our goal:
 
 > For a given binary floating-point number $w$ and a positive integer $d$, how to quickly print $d$ many decimal digits of $w$ with rounding, counting from the first nonzero digit, with reasonably-sized big integer arithmetic only, possibly avoiding divisions, and also with reasonably-sized precomputed cache data, preferably with a generic method of trading the performance with the data size? Also the performance when $d$ is small is more important than the performance when $d$ is large.
 
-As a spoiler, this is what I concluded: *for IEEE-754 binary64, it is possible to compute an arbitrary number of digits using only computations involving integers no longer than $256$-bits, with precomputed data that is only $\mathbf{3.6}$ **KB** in size, also requiring a fewer number of $64$-bit integer multiplications than Ryū-printf*.
+As a spoiler, this is what I concluded. Assuming IEEE-754 binary64, the exact same table from Dragonbox (of size $9.7$ KB, or $584$ bytes with a little bit of performance cost) is mostly enough when $d$ is small, and the heaviest arithmetic operation we need is $128$-bit $\times$ $64$-bit multiplication. For any other cases not covered by this table, we only need an additional table of size $\mathbf{3.6}$ **KB**, and the heaviest arithmetic operation we need is $192$-bit $\times$ $64$-bit multiplication.
 
-(Actually, this is a lie; this $3.6$ KB table is *in addition to* the Dragonbox table, which is of $9.7$ KB. But the combined size of the two tables is still much smaller than Ryū-printf's, and as I pointed out, it is easy to compress the Dragonbox table down to $584$ bytes.)
-
-Additionally, it is possible to flexibly trade the maximum required bit-width of integers (thus the required number of multiplications) for the size of precomputed data. For example, it is possible to reduce the size of data to $\mathbf{580}$ **bytes**, at the cost of allowing integers of uo to $1024$-bits to appear during computation.
+Furthermore, it is possible to flexibly trade a larger maximum size of operand to multiplications for a smaller size of this additional table, without compromising the performance of the cases covered by the Dragonbox table. For instance, it is possible to reduce the size of the additional table to $\mathbf{580}$ **bytes** at the cost of requiring $960$-bit $\times$ $64$-bit multiplications instead of $192$-bit $\times$ $64$-bit multiplications.
 
 # Acknowledgement
 
@@ -138,7 +136,7 @@ $$
   \ \mathrm{mod}\ 10^{\eta}\right)
 $$
 
-for some positive integer $\eta$. Note that once we get the above which is an integer of (at most) $\eta$-many decimal digits, we can leverage fast integer formatting algorithms (like [the one](https://github.com/jeaiii/itoa) by James Edward Anhalt III) to extract decimal digits out of it. Considering $\eta>1$ essentially means that we work with a block of multiple decimal digits at once, rather than with individual digits. I will call this block of digits a *segment*. Of course, to really leverage fast integer formatting algorithms, we may need to choose $\eta$ to be not very big. Maybe the largest value for $\eta$ we can think of is $9$ because $10^{9}$ is the highest power of $10$ that fits in $32$-bits, or maybe $19$ if we consider $64$-bits instead. However, it turns out, we can in fact take $\eta$ even larger than that, which is a crucial factor in the flexible trade-off we have talked about. We will discuss this later.
+for some positive integer $\eta$. Note that once we get the above which is an integer of (at most) $\eta$-many decimal digits, we can leverage fast integer formatting algorithms (like [the one](https://github.com/jeaiii/itoa) by James Edward Anhalt III) to extract decimal digits out of it. Considering $\eta>1$ essentially means that we work with a block of multiple decimal digits at once, rather than with individual digits. I will call this block of digits a *segment*. Of course, to really leverage fast integer formatting algorithms, we may need to choose $\eta$ to be not very big. Maybe the largest value for $\eta$ we can think of is $9$ because $10^{9}$ is the highest power of $10$ that fits in $32$-bits, or maybe $19$ if we consider $64$-bits instead. However, it turns out, we can in fact take $\eta$ even larger than that, which is a crucial factor for the space-time trade off we are aiming for. We will discuss this later.
 
 Abstractly speaking, what we want to do is to compute
 
@@ -152,7 +150,7 @@ As I mentioned in the previous section, we want to avoid big integer arithmetic 
 
 (In fact, by performing big integer multiplications in *decimal*, that is, using [this](https://en.wikipedia.org/wiki/Binary-coded_decimal) or a slight extension of it, we can avoid doing divisions by big integers. The idea, which I learned from Shengdun Wang, is that we can always turn the denominator of $x$ into a power of $10$ by adjusting the numerator accordingly, and in decimal, dividing by a power of $10$ is just a matter of cutting off some digits. The cost to pay is that multiplication of integers in decimal involves a lot of divisions by constant powers of $10$ (but fortunately of small dividends). Some cool things about this trick are that it generalizes trivially to any binary floating-point formats, and also that we can store precomputed powers of $5$ and $2$ if needed, while the total size of the table can be quite easily tuned according to any given requirements. This is all good, but I think the method that will be explained below is probably way faster.)
 
-The following theorem from [the paper on Dragonbox](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf) again proves itself to be very useful for computing $\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D$:
+The following theorem from [the paper on Dragonbox](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf) again proves itself to be very useful for computing $\left(\left\lfloor nx \right\rfloor\ \mathrm{mod}\ D\right)$:
 
 >**Theorem 4.2**.
 >
@@ -414,7 +412,7 @@ $$
 
 so $\left\lfloor w\cdot 10^{k}\right\rfloor$ must be of at most $19$-digits.
 
-So, (with the exception of the case of subnormal numbers) this $64$-bit integer $\left\lfloor w\cdot 10^{k}\right\rfloor$ already gives us a pretty large number of digits of $w$, which means that we have already solved *the common case*, i.e., the small precision case, of our problem at hand.
+So, (with the exception of the case of subnormal numbers) this $64$-bit integer $\left\lfloor w\cdot 10^{k}\right\rfloor$ already gives us a pretty large number of digits of $w$, which means that we have already (mostly) solved *the common case*, i.e., the small precision case, of our problem at hand.
 
 (Note that it is also possible to always extract $18\sim 19$ digits even from subnormal numbers by *normalizing* $w$, that is, by multiplying an appropriate power of $2$ to $n$ and subtracting the corresponding power from $e$. That requires a bit more table entries than the ones we used for Dragonbox though. Whether or not this is a good thing to do is not very clear to me at this point. The [current implementation](#actual-implementation) does not do normalization.)
 
