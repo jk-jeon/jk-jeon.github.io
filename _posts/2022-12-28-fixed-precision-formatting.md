@@ -717,7 +717,7 @@ There are two main cache tables, just like [the Dragonbox implementation](https:
 
 There are three extended cache tables:
 
-- *the long extended cache table*, consisting of $3688$ bytes, generated with the segment length $\eta=22$ assuming constant $Q=192$,
+- *the long extended cache table*, consisting of $3680$ bytes, generated with the segment length $\eta=22$ assuming constant $Q=192$,
 
 - *the compact extended cache table*, consisting of $1212$ bytes, generated with the segment length $\eta=80$ and the collapse factor $\ell=64$, and
 
@@ -731,7 +731,7 @@ And here is how it performs:
 |:--:|
 | Figure 2 - Performance benchmark.|
 
-- **Red**: Proposed algorithm with the full ($9904$ bytes) cache table and the long ($3688$ bytes) extended cache table.
+- **Red**: Proposed algorithm with the full ($9904$ bytes) cache table and the long ($3680$ bytes) extended cache table.
 - **Green**: Proposed algorithm with the compressed ($584$ bytes) cache table and the super-compact ($580$ bytes) extended cache table.
 - **Blue**: Ryū-printf (reference implementation).
 - **Purple**: `fmtlib` (a variant of [Grisu3](https://www.cs.tufts.edu/~nr/cs257/archive/florian-loitsch/printf.pdf) with [Dragon4](https://lists.nongnu.org/archive/html/gcl-devel/2012-10/pdfkieTlklRzN.pdf) fallback).
