@@ -445,16 +445,16 @@ Therefore, for given $k$,
       \kappa - \left\lfloor e\log_{10}2\right\rfloor + 1 \leq k \leq \eta-e.
     $$
 
-Recall that we will only consider $k$'s of the form $k = k_{\min} + s\eta$. Let us call the integer $s=0,1,2,\ \cdots\ $ *the multiplier index*. Once $k_{\min}$ has been chosen, the greatest multiplier index $s_{\max}$ can be figured out by finding the smallest $s_{\max}$ satisfying the inequality
+Recall that we will only consider $k$'s of the form $k = k_{\min} + s\eta$. Let us call the integer $s=0,1,2,\ \cdots\ $ *the multiplier index*. Once $k_{\min}$ has been chosen, the greatest multiplier index $s_{\max}$ can be figured out by finding the largest $s_{\max}$ satisfying the inequality
 
 $$
-  k_{\min} + s_{\max}\eta \geq \eta - e_{\min}
+  k_{\min} + s_{\max}\eta \leq \eta - e_{\min}
 $$
 
 with $e_{\min}=-1074$, or equivalently,
 
 $$
-  s_{\max} = \left\lceil \frac{\eta - e_{\min} - k_{\min}}{\eta}\right\rceil.
+  s_{\max} = \left\lfloor \frac{\eta - e_{\min} - k_{\min}}{\eta}\right\rfloor.
 $$
 
 To choose $k_{\min}$, note that it is enough to chose $k_{\min}$ such that when $e=e_{\max}$, $\left(\left\lfloor w\cdot 10^{k_{\min}}\right\rfloor\ \mathrm{mod}\ D\right)$ contains the first digit that cannot be obtained from the first segment. Since we extract $\eta$-digits at once, this means that
