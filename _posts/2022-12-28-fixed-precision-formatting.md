@@ -677,7 +677,7 @@ $$
   \end{cases}
 $$
 
-instead of $\eqref{eq:core inequality}$, where things with $\tilde{\cdot}$ denote what we obtain from the corresponding things without $\tilde{\cdot}$ when we replace $x$ by $2x$. The above inequality in general is a little bit stricter than $\eqref{eq:core inequality}$, so in fact we have to use this instead of $\eqref{eq:core inequality}$ for computing $m$'s and $Q$'s if we want to ensure correct rounding.. Roughly speaking, replacing $\eqref{eq:core inequality} by the above increases $Q$ by $1$ overall, but fortunately this does not radically change any discussion we have done so far.
+instead of $\eqref{eq:core inequality}$, where things with $\tilde{\cdot}$ denote what we obtain from the corresponding things without $\tilde{\cdot}$ when we replace $x$ by $2x$. The above inequality in general is a little bit stricter than $\eqref{eq:core inequality}$, so in fact we have to use this instead of $\eqref{eq:core inequality}$ for computing $m$'s and $Q$'s if we want to ensure correct rounding.. Roughly speaking, replacing $\eqref{eq:core inequality}$ by the above increases $Q$ by $1$ overall, but fortunately this does not radically change any discussion we have done so far.
 
 Now, suppose we have
 
