@@ -777,7 +777,7 @@ Using two separate tables, one for first several digits and another for further 
 
 ## Having to load/store
 
-If we choose $Q$ to vary, then it somewhat mandates the access to the stored blocks in the digit generation procedure to be through the stack rather than registers. This is because there is usually no concept of "arrays" of registers, and it is not possible to dynamically index the registers. In theory, it should be possible to load the memory into the register only once and use it indefinitely because the maximum size of the array is fixed (and often small, say $3 = 192/64$). This means that the dynamic indexing could be converted into constant indexing plus some branching. However, this is complex enough that there may be benefit in doing so, and no actual compiler seems to do something like this. This is why I chose a fixed constant $Q$ for $\eta=22$ in the implementation.
+If we choose $Q$ to vary, then it somewhat mandates the access to the stored blocks in the digit generation procedure to be through the stack rather than registers. This is because there is usually no concept of "arrays" of registers, and it is not possible to dynamically index the registers. In theory, it should be possible to load the memory into the register only once and use it indefinitely because the maximum size of the array is fixed (and often small, say $3 = 192/64$). This means that the dynamic indexing could be converted into constant indexing plus some branching. However, this is complex enough that there may be no benefit in doing so, and no actual compiler seems to do something like this. This is why I chose a fixed constant $Q$ for $\eta=22$ in the implementation.
 
 # Conclusion
 
