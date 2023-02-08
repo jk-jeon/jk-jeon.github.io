@@ -759,7 +759,9 @@ $$
   = 1441151881
 $$
 
-do the job. In fact, an exhasutive check shows that we can even take $L = 24$ and $m = 720575941$.
+do the job. ~~In fact, an exhasutive check shows that we can even take $L = 24$ and $m = 720575941$.~~
+
+EDIT: Actually, $L=24$ with $m = 720575941$ doesn't work for large numbers. See [here](https://jk-jeon.github.io/posts/2022/12/fixed-precision-formatting/#appendix:-fixed-poinit-fraction-trick-revisited) for a better analysis.
 
 
 # Concluding remarks
