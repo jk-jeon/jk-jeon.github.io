@@ -3,9 +3,9 @@ title: "On evolution of corner-like gSQG patches"
 collection: publications
 permalink: /publication/2022-09-corner-convex
 date: 2022-09-21
-venue: 'arXiv preprint'
-paperurl: 'https://arxiv.org/pdf/2209.10140.pdf'
-link: 'https://arxiv.org/abs/2209.10140'
-pubtype: 'preprint'
-citation: 'Junekey Jeon and In-Jee Jeong. <i>arXiv preprint</i>'
+venue: 'J. Math. Fluid Mech. 25, 35 (2023)'
+paperurl: 'https://doi.org/10.1007/s00021-023-00774-y'
+link: 'https://link.springer.com/article/10.1007/s00021-023-00774-y'
+pubtype: 'journal'
+citation: 'Jeon, J., Jeong, IJ. On Evolution of Corner-Like gSQG Patches. <i>J. Math. Fluid Mech.</i> 25, 35 (2023)'
 ---
