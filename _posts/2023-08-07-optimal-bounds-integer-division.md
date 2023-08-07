@@ -1,6 +1,6 @@
 ---
 title: "On the Optimal Bounds for Integer Division by Constants"
-date: 2022-02-16
+date: 2023-08-07
 permalink: /posts/2022/08/optimal-bounds-integer-division/
 tags:
   - programming
