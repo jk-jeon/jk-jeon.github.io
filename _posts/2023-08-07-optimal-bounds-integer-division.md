@@ -125,10 +125,10 @@ Actually, during the development of [Dragonbox](https://github.com/jk-jeon/drago
 
 >**Theorem 2 (From [this paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf)).**
 >
-> Let $x$ be a positive real number and $n_{\max}$ a positive integer. Then for a positive real number $\xi$, we have the followings.
+>Let $x$ be a positive real number and $n_{\max}$ a positive integer. Then for a positive real number $\xi$, we have the followings.
 >
 >  1. If $x=\frac{p}{q}$ is a rational number with $q\leq n_{\max}$, then we have $\left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor$ for all $n=1,\ \cdots\ ,n_{\max}$ if and only if $x \leq \xi < x + \frac{1}{vq}$  holds, where $v$ is the greatest integer such that $vp\equiv -1\ (\mathrm{mod}\ q)$ and $v\leq n_{\max}$.
->
+>  
 >  2. If $x$ is either irrational or a rational number with the denominator strictly greater than $n_{\max}$, then we have $\left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor$ for all $n=1,\ \cdots\ ,n_{\max}$ if and only if $$\frac{p_{*}}{q_{*}} \leq \xi < \frac{p^{*}}{q^{*}}$$ holds, where $$\frac{p_{*}}{q_{*}}$$, $$\frac{p^{*}}{q^{*}}$$ are the best rational approximations of $x$ from below and above, respectively, with the largest denominators $$q_{*},q^{*}\leq n_{\max}$$.
 
 Note that $\left\lfloor nx \right\rfloor$ is supposed to be the one we actually want to compute, while $\xi$ is supposed to be the chosen approximation of $x$. For the special case when $x = \frac{1}{d}$, $n_{\max} = 2^{N}-1$, and $\xi = \frac{m}{2^{N+k}}$, we obtain the setting of Granlund-Montgomery.
@@ -371,17 +371,17 @@ holds for all such $n$. (Note that in general $\left\lfloor x+y\right\rfloor$ is
 
 >**Definition 3** (Best rational approximations from below/above)**.**
 >
-> Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (in its reduced form, which is always assumed if not specified otherwise) is a **best rational approximation from below (above, resp.)** if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $\frac{p}{q}\leq\frac{a}{b}\leq x$ ($\frac{p}{q}\geq\frac{a}{b}\geq x$, resp.), we always have $q\leq b$.
+>Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (in its reduced form, which is always assumed if not specified otherwise) is a **best rational approximation from below (above, resp.)** if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $\frac{p}{q}\leq\frac{a}{b}\leq x$ ($\frac{p}{q}\geq\frac{a}{b}\geq x$, resp.), we always have $q\leq b$.
 
 In other words, $\frac{p}{q}$ is a best rational approximation of $x$ if any better rational approximation must have larger denominator.
 
-> **Remark.** Note that the terminology **best rational approximation** is pretty standard in pure mathematics, but it usually disregards the direction of approximation, from below or above. For example, $\frac{1}{3}$ is a best rational approximation from below of $\frac{3}{7}$, but it is **not** a best rational approximation in the usual, **non-directional** sense, because $\frac{1}{2}$ is a better approximation with a strictly less denominator. But this concept of non-directional best rational approximation is quite irrelevant to our application, so any usage of the term **best rational approximation** in this post always means the directional ones, either from below or above.
+>**Remark.** Note that the terminology **best rational approximation** is pretty standard in pure mathematics, but it usually disregards the direction of approximation, from below or above. For example, $\frac{1}{3}$ is a best rational approximation from below of $\frac{3}{7}$, but it is **not** a best rational approximation in the usual, **non-directional** sense, because $\frac{1}{2}$ is a better approximation with a strictly less denominator. But this concept of non-directional best rational approximation is quite irrelevant to our application, so any usage of the term **best rational approximation** in this post always means the directional ones, either from below or above.
 
 The definition provided above is the one *in the weak sense*, although it is not explicitly written so. The corresponding one in the strong sense is given below:
 
 >**Definition 4** (Best rational approximations from below/above in the strong sense)**.**
 >
-> Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (again, in its reduced form) is a **best rational approximation from below (above, resp.) in the strong sense**, if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $qx - p\geq bx - a\geq 0$ ($p - qx\geq a - bx \geq 0$, resp.), we always have $q\leq b$.
+>Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (again, in its reduced form) is a **best rational approximation from below (above, resp.) in the strong sense**, if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $qx - p\geq bx - a\geq 0$ ($p - qx\geq a - bx \geq 0$, resp.), we always have $q\leq b$.
 
 As the name suggests, if $\frac{p}{q}$ is a best rational approximation from below (above, resp.) in the strong sense, then it is a best rational approximation from below (above, resp.) in the weak sense. To see why, take any rational number $\frac{a}{b}$ such that $\frac{p}{q}\leq\frac{a}{b}\leq x$ holds, then it is enough to show that $q\leq b$ must hold. (We are only considering the "from below" case, and the "from above" case can be done in the same way.) This is indeed quite easy to show: since $x - \frac{p}{q} \geq x - \frac{a}{b}$ holds, multiplying $q$ on both sides yields
 
@@ -578,25 +578,25 @@ $$
 
 Hence, we finally arrive at the following iterative algorithm for computing the maximizer of $\frac{\left\lfloor nx\right\rfloor - \zeta}{n}$:
 
-> **Algorithm 5** (Computing the lower bound)**.**
+>**Algorithm 5** (Computing the lower bound)**.**
 >
-> Input: $x\in\mathbb{R}$, $n_{\max}\in\mathbb{Z}_{>0}$, $\zeta\geq 0$.
+>Input: $x\in\mathbb{R}$, $n_{\max}\in\mathbb{Z}_{>0}$, $\zeta\geq 0$.
 >
-> Output: the largest maximizer of $\frac{\left\lfloor nx\right\rfloor - \zeta}{n}$ for $n=1,\ \cdots\ ,n_{\max}$.
+>Output: the largest maximizer of $\frac{\left\lfloor nx\right\rfloor - \zeta}{n}$ for $n=1,\ \cdots\ ,n_{\max}$.
 >
-> 1. Find the largest $n=1,\ \cdots\ ,n_{\max}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{0}$.
-> 2. If $n_{0} = n_{\max}$, then $n_{0}$ is the largest maximizer; return.
-> 3. Otherwise, set $n_{\max}\leftarrow n_{\max} - n_{0}$.
-> 4. Find the largest $n=1,\ \cdots\ ,n_{\max}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{1}$.
-> 5. Inspect the inequality
->
-> $$
->   \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
->   \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.
-> $$
->
-> 6. If the inequality does not hold, then $n_{0}$ is the largest maximizer; return.
-> 7. If the inequality does hold, then set $n_{0}\leftarrow n_{0} + n_{1}$ and go to Step 2.
+>1. Find the largest $n=1,\ \cdots\ ,n_{\max}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{0}$.
+>2. If $n_{0} = n_{\max}$, then $n_{0}$ is the largest maximizer; return.
+>3. Otherwise, set $n_{\max}\leftarrow n_{\max} - n_{0}$.
+>4. Find the largest $n=1,\ \cdots\ ,n_{\max}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{1}$.
+>5. Inspect the inequality
+>  
+>  $$
+>    \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
+>    \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.
+>  $$
+>  
+>6. If the inequality does not hold, then $n_{0}$ is the largest maximizer; return.
+>7. If the inequality does hold, then set $n_{0}\leftarrow n_{0} + n_{1}$ and go to Step 2.
 
 *Remark*. In the above, we blackboxed the operation of finding the largest maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$. Actually, this is precisely how we obtain **Theorem 2**. If $x$ is a rational number whose denominator is at most $n_{\max}$, then obviously the largest maximizer is the largest multiple of $q$ not strictly bigger than $n_{\max}$. Otherwise, we just compute the best rational approximation from below of $x$ with the largest denominator $$q_{*}\leq n_{\max}$$, where the theory of continued fractions allows us to compute this very efficiently. In particular, if $x$ is a rational number, this is really just the extended Euclid algorithm. Once we get the best rational approximation $$\frac{p_{*}}{q_{*}}$$ (which must be in its reduced form), we find the largest multiple $$kq_{*}$$ of $$q_{*}$$ that is still at most $n_{\max}$. Then since $$\frac{p_{*}}{q_{*}}$$ is the maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$ for $n=1,\ \cdots\ ,n_{\max}$, it follows that $$\left\lfloor kq_{*}x\right\rfloor$$ must be equal to $$kp_{*}$$ and $$kq_{*}$$ is the largest maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$.
 
@@ -846,3 +846,82 @@ and repeating this procedure gives us the smallest minimizer of $\frac{\left\lfl
 > 7. If the inequality does hold, then set $n_{0}\leftarrow n_{0} - n_{1}$ and go to Step 2.
 
 *Remark*. Similarly to the case of lower bound, we blackboxed the operation of finding the smallest minimizer of $\frac{\left\lfloor nx\right\rfloor}{n}$, which again is precisely how we obtain **Theorem 2**. If $x=\frac{p}{q}$ is a rational number with $q\leq n_{\max}$, then the minimizer is unique and is the largest $v\leq n_{\max}$ such that $vp\equiv -1\ (\mathrm{mod}\ q)$. Otherwise, we just compute the best rational approximation from above of $x$ with the largest denominator $$q_{*}\leq n_{\max}$$, where the theory of continued fractions allows us to compute this very efficiently. The resulting $$\frac{p_{*}}{q_{*}}$$ must be in its reduced form, so $$q_{*}$$ is the smallest minimizer of $\frac{\left\lfloor nx\right\rfloor + 1}{n}$.
+
+## Finding feasible values of $\xi$ and $\zeta$
+
+Note that our purpose of introducing $\zeta$ was to increase the gap between the lower and the upper bounds of $\xi=\frac{m}{2^{k}}$ when the required bit-width of the constant $m$ is too large. Thus, $\zeta$ is not something give, rather is something we want to figure out. In this sense, **Algorithm 5** and **Algorithm 6** might seem pretty useless because they work only when the value of $\zeta$ is already given.
+
+Nevertheless, the way those algorithms work for a fixed $\zeta$ is in fact quite special in that it allows us to figure out a good $\zeta$ fitting into our purpose of widening the gap between two bounds. The important point here is that, *$\zeta$ only appears in deciding when to stop the iteration, and all other details of the actual iteration steps do not depend on $\zeta$ at all*.
+
+Hence, our strategy is as follows. First, set the initial search range of $\zeta$ to be the interval $[0,1)$ (otherwise $\left\lfloor nx\right\rfloor = \left\lfloor n\xi+\zeta\right\rfloor$ fails to hold for $n=0$). Then we can partition the interval $[0,1)$ into subintervals of the form $[\zeta_{\min},\zeta_{\max})$ where the numbers of iterations that **Algorithm 5** and **Algorithm 6** will take remain constant. Then we look at these subintervals one by one, from left to right, while proceeding the iterations of **Algorithm 5** and **Algorithm 6** if needed whenever we move into the next subinterval.
+
+Now, take a subinterval $[\zeta_{\min},\zeta_{\max})$. If there is at least one feasible choice of $\xi$ for some $\zeta\in[\zeta_{\min},\zeta_{\max})$, then such $\xi$ must lie in the interval
+
+$$
+  I:= \left(\frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}, \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}\right),
+$$
+
+where $n_{L,0}$ and $n_{U,0}$ mean $n_{0}$ for **Algorithm 5** and **Algorithm 6**, respectively.
+
+Next, we will take a loop over all candidates for $\xi$ in the interval and check one by one if that candidate is really a possible choice of $\xi$. Let $N$ be the maximum allowed bit-width for the magic constants. Let $\Delta$ be the size of the interval above, that is,
+
+$$
+  \Delta := \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}
+  - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}.
+$$
+
+Define $k_{0}:=\left\lfloor\log_{2}\frac{1}{\Delta}\right\rfloor + 1$, then we have
+
+$$
+  1 < 2^{k_{0}}\Delta \leq 2,
+$$
+
+and this means that there are at least one and at most two integers in the interval $2^{k_{0}}I$.
+
+If there is an even integer in $2^{k_{0}}I$, then call it $2^{b}t$ for some odd number  $t$, then our first candidate $\xi$ is
+
+$$
+  \xi = \frac{t}{2^{k_{0} - b}}.
+$$
+
+This $t$ is the smallest possible value of the magic constant $m$ in the current subinterval. Since we want to take $\xi$ and $\zeta$ to share the same denominator, we may need to increase the exponent $k_{0}-b$ in order to allow a feasible value of $\zeta$. This of course requires the numerator $t$ to be multiplied by the same power of $2$, and we want the resulting number to be strictly less than $2^{N}$. This gives us the range of $k$'s we need to consider.
+
+Next, suppose that $k$ is given in that range and the numerator $m$ of $\xi = \frac{m}{2^{k}}$ is taken accordingly. Then we first find the smallest $\zeta$ that allows the above $\xi$ to be at least $\frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta}{n_{L,0}}$; that is, take
+
+$$
+  \zeta_{0} := \left\lfloor n_{L,0}x \right\rfloor - n_{L,0}\xi
+  = \frac{2^{k}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}m}{2^{k}}.
+$$
+
+This $\zeta_{0}$ may be not feasible since it can be smaller than $\zeta_{\min}$, so we find the smallest integer which when added to the numerator of $\zeta_{0}$, it becomes at least $\zeta_{\min}$. Then we call the resulting number $\zeta$. If the numerator of $\zeta$ is strictly smaller than $2^{N}$, then we finally compute the true upper bound
+
+$$
+  \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta}{n_{U,0}}
+$$
+
+for $\xi$ using this $\zeta$ and see if $\xi$ is strictly less than the above. If either of them is not the case, then we increase $k$ and retry. If we run out of all possible values of $k$, then we conclude $\xi$ is not feasible.
+
+(Or, we may reduce the range of $k$ in advance by looking at the smallest possible numerator of $\zeta_{0}$, which is $2^{k_{0}-b}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t$. Then the maximum $k$ we have to consider is decided by the larger one between this and $t$.)
+
+If there is no even integer in $2^{k_{0}}I$ or there is one but is determined to be not feasible, then we look at the unique odd integer $t$ in $2^{k_{0}}I$. Then we now try with the candidate
+
+$$
+  \xi = \frac{t}{2^{k_{0}}}.
+$$
+
+We do the same thing; figure out the range of $k$, and for each $k$ find the smallest $\zeta$ and see if $\xi$ lies in the interval dictated by $\zeta$.
+
+If we still have no feasible choice of $\xi$ and $\zeta$ so far, then we now look at the interval $2^{k_{0}+1}I$ and repeat the same procedure with candidate $\xi$'s in that interval. Note that this time we only need to consider those with odd numerators, because those with even numerators are already checked. If there still is no feasible choice of $\xi$ and $\zeta$, then we double the interval again and try candidate $\xi$'s there with odd numerators. We stop and conclude failure if the smallest candidate $\xi$ in the interval already has the numerator greater than or equal to $2^{N}$, in which case we should move into the next subinterval of $\zeta$.
+
+Writing this out formally, we arrive at the following algorithm.
+
+>**Algorithm 7** (Finding feasible values of $\xi$ and $\zeta$)**.**
+>
+>Input: $x\in\mathbb{R}$, $n_{\max}\in\mathbb{Z}_{>0}$, $N\in\mathbb{Z}_{>0}$.
+>
+>Output: $k$, $m$, and $s$, where $\xi = \frac{m}{2^{k}}$ and $\zeta = \frac{s}{2^{k}}$, so that we have $\left\lfloor nx\right\rfloor = \left\lfloor \frac{nm + s}{2^{k}}\right\rfloor$ for all $n=1,\ \cdots\ ,n_{\max}$.
+>
+>1. Set $\zeta_{\min} \leftarrow 0$, $\zeta_{L,\max} \leftarrow 1$, $\zeta_{U,\max} \leftarrow 1$, $n_{L,\max}\leftarrow n_{\max}$, $n_{U,\max}\leftarrow n_{\max}$.
+>2. Find the largest $n=1,\ \cdots\ ,n_{\max}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{L,0}$.
+>3. Find the smallest $n=1,\ \cdots\ ,n_{\max}$ that minimizes $\frac{\left\lfloor nx\right\rfloor + 1}{n}$ and call it $n_{U,0}$.
+>4. 
