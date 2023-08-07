@@ -15,7 +15,7 @@ Rather, this post is about some of the common optimization techniques for circum
 
 Note that by *integer division*, we specifically mean computing the quotient and/or the remainder, not evaluating the result as a real number. More specifically, throughout this whole post, it will always mean taking the quotient unless specified otherwise. Also, I will confine myself into divisions of positive integers, though that of negative integers is also of practical importance. Finally, all assemblies shown here are for x86-64 architecture.
 
-## Turning an integer division into a multiply-and-shift
+# Turning an integer division into a multiply-and-shift
 
 One of the most widely used techniques is converting division into a multiplication if the divisor is a constant (or it remains mostly unchanged). The idea is quite simple: for example, dividing by $4$ is equivalent to multiplying by $0.25$, which can be further represented as multiplying by $25$ and then dividing by $100$, where dividing by $100$ is simply a matter of moving the decimal dot into left by two positions. Since we are only interested in taking the quotient, this means throwing away the last two digits.
 
@@ -119,7 +119,7 @@ div(unsigned long):
 
 My gripe with this is that it generated a shift instruction `shr` which is in fact not necessary. The compiler thinks that $k$ must be at least $67$ (which is why it shifted by $3$-bits, after throwing away the $64$-bit lower half), but actually $k=64$ is fine with the magic number $m=1844674407370955162$ thanks to the bound on $n$, in which case we do not need this additional shifting.
 
-## Turning multiplication by a real number into a multiply-and-shift
+# Turning multiplication by a real number into a multiply-and-shift
 
 Actually, during the development of [Dragonbox](https://github.com/jk-jeon/dragonbox), I was interested in a more general problem of multiplying a rational number to $n$ and then finding out the integer part of the resulting rational number. In other words, my problem was not just about division, rather about multiplication followed by a division. This presence of multiplier certainly makes the situation a little bit more complicated, but I was anyway able to derive the optimal bound, which generalizes the results mentioned in the previous section. (I would not claim to be the first who proved this, and I am sure an equivalent result could be found elsewhere, though I am not aware of any.)
 
@@ -178,9 +178,9 @@ Now, since $v$ divided by $q$ has the remainder $q-1$, the left-hand side and th
 
 When $x=\frac{p}{q}$ and $p\neq 1$, it is harder to be convinced at once that the remainder $r$, in this case the remainder of $np$ divided by $q$, must be $q-1$ in order to minimize $\frac{\left\lfloor nx\right\rfloor + 1}{n}$, because the way $r$ changes as $n$ changes looks pretty random. But essentially the same logic as above just works also in this case. The full proof can be found in the paper mentioned, or [one](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/) of my previous posts.
 
-### Some applications
+## Some applications
 
-#### Finding the first error case
+### Finding the first error case
 
 In the beginning of the previous section, I claimed that
 
@@ -197,7 +197,7 @@ $$
 
 holds if and only if $v < 166667$. Thus, $n=166669$ is the first counterexample.
 
-#### Coming up with a better magic number than Granlund-Montgomery
+### Coming up with a better magic number than Granlund-Montgomery
 
 We can also see now why a better magic number worked in the example from the previous section. Let me repeat it here with the notation of **Theorem 2**: we have $x=1/102807$ and $n_{\max}=2^{32}-1$, so we have
 
@@ -222,7 +222,7 @@ $$
 
 The smallest $k$ that allows an integer solution to the above inequality is $k=48$, in which case the unique solution is $m=2737896999$.
 
-#### A textbook example for the case when there is a non-unit multiplier
+### A textbook example for the case when there is a non-unit multiplier
 
 Suppose that we want to convert the temperature from Fahrenheit to Celsius. Obviously, representing such values only using integers is a funny idea, but let us pretend that we are completely serious (and hey, in 2023, *Fahrenheit itself* is a funny joke from the first place😂... except that I am currently living in an interesting country🤮). Or, if one *desperately* wants to make a really serious example, we can maybe think about doing the same thing with fixed-point fractional numbers. But whatever.
 
@@ -240,7 +240,7 @@ $$
   \left\lfloor \frac{569(n-32)}{2^{10}} \right\rfloor.
 $$
 
-#### Will this be potentially useful for compiler-writers?
+### Will this be potentially useful for compiler-writers?
 
 Might be, but there is a caveat. Note that a general pattern that **Theorem 2** can be handy is an expression of the form `n * p / q`. However, in general the compiler is not allowed to optimize this into `(n * m) >> k`, because `n * p` can overflow and in that case dividing by `q` will give a weird answer. To be more specific, for unsigned integer types, C/C++ standards say that any overflows should wrap around, so the expression `n * p / q` is not really supposed to compute $\left\lfloor \frac{np}{q}\right\rfloor$, rather it is supposed to compute $\left\lfloor \frac{(np\ \mathrm{mod}\ 2^{N})}{q}\right\rfloor$ where $N$ is the bit-width. On the other hand, for signed integer types, (a signed-equivalent of) **Theorem 2** might be applicable, because signed overflows are specifically [defined to be undefined](https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows). But presumably there are lots of code out there relying on the wrong assumption that signed overflows will wrap around, so maybe compiler-writers do not want to do this kind of optimizations.
 
@@ -248,7 +248,7 @@ Nevertheless, there are situations where doing this kind of optimizations is per
 
 It seems that currently both clang and GCC [do not do this](https://godbolt.org/z/KhM14oqbE), so if they want to do so in a future, then **Theorem 2** might be useful. But how many code can benefit from such an optimization? Will it be really worth implementing? Maybe not, I do not know.
 
-## When the magic number is too big
+# When the magic number is too big
 
 Even with the optimal bound, there exist situations where the smallest possible magic number does not fit into the word size. For example, consider the case $n_{\max} = 2^{64}-1$ and $x = 1/10961$. In this case, our $v$ is
 
@@ -315,7 +315,7 @@ instead of $\left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor$. Th
 
 Here is a small remark before getting into the next section: this trick of having $\zeta$ is probably useful for $32$-bit divisions, but not so much for $64$-bit divisions. The reason is because addition is no longer a trivial operation since the result of the multiplication $mn$ spans two $64$-bit blocks. We need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. I did not do a benchmark, but I am guessing that it probably yields worse performance. For the $32$-bit case, things can be done inside $64$-bits so presumably it is better than the method explained in this section, but it [seems](https://godbolt.org/z/rxzY6raE4) compilers do not do so anyway. I do not know if this is because it actually performs worse, or because they just did not bother to implement it.
 
-## Multiply-add-and-shift rather than multiply-shift
+# Multiply-add-and-shift rather than multiply-shift
 
 >**WARNING**: The contents of this section is **substantially** more complicated and math-heavy than previous sections.
 
@@ -337,7 +337,7 @@ $$
 
 so the question is how to find the maximum and the minimum on the left-hand side and on the right-hand side, respectively.
 
-### The lower bound
+## The lower bound
 
 Since $\zeta\geq 0$ is supposed to be just a small constant, it sounds reasonable to believe that the maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$ is probably quite close to be the maximizer of $\frac{\left\lfloor nx\right\rfloor - \zeta}{n}$ as well. So let us start there, let $n_{0}$ be the largest among all maximizers. Now, what should happen if $n_{0}$ were not the maximizer of $\frac{\left\lfloor nx\right\rfloor - \zeta}{n}$? Say, what can we say about $n$'s such that
 
@@ -600,7 +600,7 @@ Hence, we finally arrive at the following iterative algorithm for computing the 
 
 *Remark*. In the above, we blackboxed the operation of finding the largest maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$. Actually, this is precisely how we obtain **Theorem 2**. If $x$ is a rational number whose denominator is at most $n_{\max}$, then obviously the largest maximizer is the largest multiple of $q$ not strictly bigger than $n_{\max}$. Otherwise, we just compute the best rational approximation from below of $x$ with the largest denominator $$q_{*}\leq n_{\max}$$, where the theory of continued fractions allows us to compute this very efficiently. In particular, if $x$ is a rational number, this is really just the extended Euclid algorithm. Once we get the best rational approximation $$\frac{p_{*}}{q_{*}}$$ (which must be in its reduced form), we find the largest multiple $$kq_{*}$$ of $$q_{*}$$ that is still at most $n_{\max}$. Then since $$\frac{p_{*}}{q_{*}}$$ is the maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$ for $n=1,\ \cdots\ ,n_{\max}$, it follows that $$\left\lfloor kq_{*}x\right\rfloor$$ must be equal to $$kp_{*}$$ and $$kq_{*}$$ is the largest maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$.
 
-### The upper bound
+## The upper bound
 
 The computation of the upper bound, that is, solving the minimization problem
 
