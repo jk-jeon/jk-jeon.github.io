@@ -271,7 +271,7 @@ div(unsigned long):
 ([Check it out!](https://godbolt.org/z/fa3bM8TMx))
 
 This is definitely a little bit more complicated than the happy case, but if we think about this carefully, then we can realize that this is still computing $\left\lfloor \frac{nm}{2^{k}}\right \rfloor$:
-- The magic number $m'\coloneqq 9126602783662703989$ is precisely $m - 2^{64}$.
+- The magic number $m'=9126602783662703989$ is precisely $m - 2^{64}$.
 - In the third line, we multiply this magic number with the input. Let us call the upper half of the result as $u$ (which is stored in `rdx`), and the lower half as $\ell$ (which is stored in `rax`, and we do not care about the lower half anyway).
 - We subtract the upper half $u$ from the input $n$ (the `sub` line), divide the result by 2 (the `shr` line), add the result back to $u$ (the `lea` line), and then store the end result into `rax`. Now this looks a bit puzzling, but what it really does is nothing but to compute $\left\lfloor (n + u)/2 \right\rfloor = \left\lfloor nm / 2^{65}\right\rfloor$. The reason why it first subtract $u$ from $n$ is to avoid overflow. And in case anyone is curious, the subtraction is totally fine as there can be no underflow, because $u = \left\lfloor nm'/2^{64}\right\rfloor$ is at most $n$, as $m'$ is less than $2^{64}$.
 - Recall that our $k = 78$, so we want to compute $\left\lfloor nm/2^{78} \right\rfloor$. Since we got $\left\lfloor nm / 2^{65}\right\rfloor$ from the previous step, we just need to shift this further by $13$-bits.
@@ -475,7 +475,7 @@ $$\begin{aligned}
 
 Note that by definition of $n_{1}$, the right-hand side is always nonnegative, because $\frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}$ is not only a best rational approximation from below of $x$ in the weak sense but also in the strong sense. Therefore, we must have $n\geq n_{1}$ to satisfy the above inequality, as claimed.
 
-As a result, we can reformulate our optimization problem again in the following way: define $N_{1}\coloneqq n_{0}+n_{1}$, then we are to find $n=0,\ \cdots\ ,n_{\max} - N_{1}$ which maximizes
+As a result, we can reformulate our optimization problem again in the following way: define $N_{1}=n_{0}+n_{1}$, then we are to find $n=0,\ \cdots\ ,n_{\max} - N_{1}$ which maximizes
 $$
   \frac{\left\lfloor (N_{1}+n)x\right\rfloor - \zeta}{N_{1}+n}.
 $$
@@ -671,7 +671,7 @@ $$\begin{aligned}
 \end{aligned}$$
 Since $n(n_{0}-n_{1})>0$, this implies that $\frac{\left\lfloor nx\right\rfloor}{n}$ is a strictly better approximation of $x$ than $\frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}$, which contradicts to the definition of $n_{1}$. Therefore, we must have $n\geq n_{1}$.
 
-As a result, we can reformulate our optimization problem in the following way: define $N_{1}\coloneqq n_{0}-n_{1}$, then we are to find $n=0,\ \cdots\ ,N_{1}-1$ which minimizes
+As a result, we can reformulate our optimization problem in the following way: define $N_{1}=n_{0}-n_{1}$, then we are to find $n=0,\ \cdots\ ,N_{1}-1$ which minimizes
 $$
   \frac{\left\lfloor (N_{1}-n)x\right\rfloor + 1 - \zeta}{N_{1}-n}.
 $$
