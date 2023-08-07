@@ -43,14 +43,14 @@ Obviously, we are gonna apply this idea for computers, so the denominators of th
 
 Here, $d$ is the given divisor and we are supposed to approximate $\frac{1}{d}$ by $\frac{m}{2^{N+k}}$. An assumption here is that we want to perform the division $n/d$ for all $n$ from $0$ to $2^{N}-1$, where $N$ is supposed to be the bit-width of the integer type we are dealing with. In this setting, this theorem gives a sufficient condition where we can compute the quotient of $n/d$ by first multiplying $m$ to $n$ and then shifting the result to the right by $(N+k)$-bits. A premise here is that we will need more than $N$-bits because our dividend is of $N$-bits, so maybe the result of the multiplication $mn$ will need to be stored in $2N$-bits. Since we are shifting by $(N+k)$-bits, the lower half of the result is actually not needed, and we just take the upper half and shift it by $k$-bits.
 
-We will not talk about the proof of this theorem because a much more general theorem will be presented in the next section. But let us see how results like this can be applied in the wild. For example, consider the following C++ code:
+We will not talk about the proof of this theorem because a much more general theorem will be presented in the next section. But let us see how results like this is being applied in the wild. For example, consider the following C++ code:
 ```cpp
 std::uint64_t div(std::uint64_t n) noexcept {
     return n / 17;
 }
 ```
 
-My compiler (clang) is fortunately aware of this Granlund-Montgomery-style trick, so it translated this code into the following lines of assemblies:
+Compilers these days are well-aware of this Granlund-Montgomery-style division tricks. Indeed, my compiler (clang) leveraged such a trick and translated the above code into the following lines of assemblies:
 ```asm
 div(unsigned long):
         mov     rax, rdi
@@ -179,6 +179,8 @@ When $x=\frac{p}{q}$ and $p\neq 1$, it is somewhat harder to be convinced at onc
 
 ## Some applications
 
+Here I collected some applications of the presented theorem.
+
 ### Finding the first error case
 
 In the beginning of the previous section, I claimed that
@@ -239,9 +241,9 @@ $$
   \left\lfloor \frac{569(n-32)}{2^{10}} \right\rfloor.
 $$
 
-### Will this be potentially useful for compiler-writers?
+### Will the case $p\neq 1$ be potentially relevant for compiler-writers?
 
-Might be, but there is a caveat. Note that a general pattern that **Theorem 2** can be handy is an expression of the form `n * p / q`. However, in general the compiler is not allowed to optimize this into `(n * m) >> k`, because `n * p` can overflow and in that case dividing by `q` will give a weird answer. To be more specific, for unsigned integer types, C/C++ standards say that any overflows should wrap around, so the expression `n * p / q` is not really supposed to compute $\left\lfloor \frac{np}{q}\right\rfloor$, rather it is supposed to compute $\left\lfloor \frac{(np\ \mathrm{mod}\ 2^{N})}{q}\right\rfloor$ where $N$ is the bit-width. On the other hand, for signed integer types, (a signed-equivalent of) **Theorem 2** might be applicable, because signed overflows are specifically [defined to be undefined](https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows). But presumably there are lots of code out there relying on the wrong assumption that signed overflows will wrap around, so maybe compiler-writers do not want to do this kind of optimizations.
+Might be, but there is a caveat: in general, the compiler is not allowed to optimize an expression `n * p / q` into `(n * m) >> k`, because `n * p` can overflow and in that case dividing by `q` will give a weird answer. To be more specific, for unsigned integer types, C/C++ standards say that any overflows should wrap around, so the expression `n * p / q` is not really supposed to compute $\left\lfloor \frac{np}{q}\right\rfloor$, rather it is supposed to compute $\left\lfloor \frac{(np\ \mathrm{mod}\ 2^{N})}{q}\right\rfloor$ where $N$ is the bit-width. On the other hand, for signed integer types, (a signed-equivalent of) **Theorem 2** might be applicable, because signed overflows are specifically [defined to be undefined](https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows). But presumably there are lots of code out there relying on the wrong assumption that signed overflows will wrap around, so maybe compiler-writers do not want to do this kind of optimizations.
 
 Nevertheless, there are situations where doing this kind of optimizations is perfectly legal. For example, suppose `n`, `p`, `q` are all of type `std::uint32_t` and the code is written like `static_cast<std::uint32_t>((static_cast<std::uint64_t>(n) * p) / q)` to intentionally avoid this overflow issue. Then the compiler might recognize such a pattern and do this kind of optimizations. Or more generally, with the new `assume` attribute (or some other equivalent compiler-specific mechanisms), the user might give some assumptions that ensure no overflow.
 
