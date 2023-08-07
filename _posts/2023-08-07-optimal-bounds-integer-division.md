@@ -47,7 +47,7 @@ std::uint64_t div(std::uint64_t n) noexcept {
 ```
 
 My compiler (clang) is fortunately aware of this Granlund-Montgomery style conversion style, so it translated this code into the following lines of assemblies:
-```assembly
+```asm
 div(unsigned long):
         mov     rax, rdi
         movabs  rcx, -1085102592571150095
@@ -57,7 +57,7 @@ div(unsigned long):
         ret
 ```
 
-(Check it out: https://godbolt.org/z/vfGjsnE8P)
+([Check it out!](https://godbolt.org/z/vfGjsnE8P))
 
 Note that we have $N=64$ and $d=17$ in this case, and the magic constant $-1085102592571150095$ you can see in the second line, interpreted as an unsigned value $17361641481138401521$, is the $m$ appearing in the theorem. You can also see in the fifth line that $k$ in this case is equal to $4$. What the assembly code is doing is as follows:
 - Load the $64$-bit input $n$ into the $64$-bit `rax` register.
@@ -100,7 +100,7 @@ std::uint64_t div(std::uint64_t n)
 ```
 
 Here we are relying on C++23 attribute `assume`. Clang does not seem to be aware of this new language feature so is irrelevant in this discussion, and GCC generated the following lines of assemblies:
-```assembly
+```asm
 div(unsigned long):
         movabs  rax, -3689348814741910323
         mul     rdi
@@ -109,7 +109,7 @@ div(unsigned long):
         ret
 ```
 
-(Check it out: https://godbolt.org/z/4zvYYv8q6)
+([Check it out!](https://godbolt.org/z/4zvYYv8q6))
 
 My gripe with this is that it generated a shift instruction `shr` which is in fact not necessary. The compiler thinks that $k$ must be at least $67$ (which is why it shifted by $3$-bits, after throwing away the $64$-bit lower half), but actually $k=64$ is fine with the magic number $m=1844674407370955162$ thanks to the bound on $n$, in which case we do not need this additional shifting.
 
@@ -257,7 +257,7 @@ std::uint64_t div(std::uint64_t n) {
 }
 ```
 My compiler (clang, again) generated the following lines of assemblies:
-```assembly
+```asm
 div(unsigned long):
         movabs  rcx, 9126602783662703989
         mov     rax, rdi
@@ -268,7 +268,7 @@ div(unsigned long):
         shr     rax, 13
         ret
 ```
-(Check it out: https://godbolt.org/z/fa3bM8TMx)
+([Check it out!](https://godbolt.org/z/fa3bM8TMx))
 
 This is definitely a little bit more complicated than the happy case, but if we think about this carefully, then we can realize that this is still computing $\left\lfloor \frac{nm}{2^{k}}\right \rfloor$:
 - The magic number $m'\coloneqq 9126602783662703989$ is precisely $m - 2^{64}$.
