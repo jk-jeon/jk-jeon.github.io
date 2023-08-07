@@ -27,7 +27,7 @@ $$
 
 so presumably something like $\frac{142858}{1000000}$ would be a good enough approximation of $\frac{1}{7}$. Taking that as our approximation means that we may want to compute $n/7$ by multiplying $142858$ to $n$ and then throwing away the last $6$ digits. (Note that we are taking $142858$ instead of $142857$ because the latter already fails when $n=7$. In general, we must do ceiling, not floor nor half-up rounding.)
 
-This indeed gives the right answer for all $n=1,\ \cdots\ ,166668$, but it starts to produce a wrong answer when $n=166669$; in this case the correct answer is $23809$ but our method returns $23810$. And of course this is expected! We are using an approximation with a nonzero error, so when numbers are large enough, it will surely show up at some point. But the question is, *can we estimate how far it will go?* Or, *can we choose a good enough approximation when there is a limit on how big our $n$ can be?*
+This indeed gives the right answer for all $n=1,\ \cdots\ ,166668$, but it starts to produce a wrong answer when $n=166669$; in this case the correct answer is $23809$ but our method returns $23810$. And of course such a failure is expected. We are using an approximation with a nonzero error, and surely the error will eventually show up when the dividend is large enough. But the question is, *can we estimate how far it will go?* Or, *can we choose a good enough approximation when there is a limit on how big our $n$ can be?*
 
 Obviously, we are gonna apply this idea for computers, so the denominators of the approximations will be powers of $2$, not $10$: just like that for humans dividing by $10^{k}$ is just throwing away $k$-digits, for computers, dividing by $2^{k}$ is just the right-shift by $k$-bits. So, for a given positive integer $d$, our goal is to find a good enough approximation of $\frac{1}{d}$ of the form $\frac{m}{2^{k}}$. Probably the most widely known formal result regarding this is the following theorem by Granlund-Montgomery:
 
@@ -43,14 +43,14 @@ Obviously, we are gonna apply this idea for computers, so the denominators of th
 
 Here, $d$ is the given divisor and we are supposed to approximate $\frac{1}{d}$ by $\frac{m}{2^{N+k}}$. An assumption here is that we want to perform the division $n/d$ for all $n$ from $0$ to $2^{N}-1$, where $N$ is supposed to be the bit-width of the integer type we are dealing with. In this setting, this theorem gives a sufficient condition where we can compute the quotient of $n/d$ by first multiplying $m$ to $n$ and then shifting the result to the right by $(N+k)$-bits. A premise here is that we will need more than $N$-bits because our dividend is of $N$-bits, so maybe the result of the multiplication $mn$ will need to be stored in $2N$-bits. Since we are shifting by $(N+k)$-bits, the lower half of the result is actually not needed, and we just take the upper half and shift it by $k$-bits.
 
-We will not talk about the proof of this theorem because a much more general theorem will be introduced in the next section. But let us see how results like this can be applied in the wild. For example, consider the following C++ code:
+We will not talk about the proof of this theorem because a much more general theorem will be presented in the next section. But let us see how results like this can be applied in the wild. For example, consider the following C++ code:
 ```cpp
 std::uint64_t div(std::uint64_t n) noexcept {
     return n / 17;
 }
 ```
 
-My compiler (clang) is fortunately aware of this Granlund-Montgomery style conversion style, so it translated this code into the following lines of assemblies:
+My compiler (clang) is fortunately aware of this Granlund-Montgomery-style trick, so it translated this code into the following lines of assemblies:
 ```asm
 div(unsigned long):
         mov     rax, rdi
@@ -80,7 +80,7 @@ $$\begin{aligned}
   &= 295147905179352825872.
 \end{aligned}$$
 
-We have not seen how to actually find $m$ and $k$ using the theorem, but before discussing that, let us ask: *"is this condition on $m$ and $k$ the best possible one?"*
+We have not yet seen how to actually find $m$ and $k$ using a result like the theorem above, but before asking such a question, let us instead ask: *"is this condition on $m$ and $k$ the best possible one?"*
 
 And the answer is: **No**.
 
@@ -98,8 +98,7 @@ Then what is the best possible condition? I am not sure who was the first for fi
 
 Here is one remark before getting into the next section. The aforementioned results on the optimal bound work for $n$ from the range $$\left\{1,\ \cdots\ ,n_{\max}\right\}$$ where $n_{\max}$ is *not necessarily of the form* $2^{N}-1$. However, it seems that even recent compilers do not seem to leverage this fact. For example, let us look at the following code:
 ```cpp
-std::uint64_t div(std::uint64_t n)
-{
+std::uint64_t div(std::uint64_t n) {
     [[assume(n < 10000000000)]];
     return n / 10;
 }
@@ -115,17 +114,17 @@ div(unsigned long):
         ret
 ```
 
-([Check it out!](https://godbolt.org/z/4zvYYv8q6))
+([Check it out!](https://godbolt.org/z/Pr48e7Kja))
 
 My gripe with this is that it generated a shift instruction `shr` which is in fact not necessary. The compiler thinks that $k$ must be at least $67$ (which is why it shifted by $3$-bits, after throwing away the $64$-bit lower half), but actually $k=64$ is fine with the magic number $m=1844674407370955162$ thanks to the bound on $n$, in which case we do not need this additional shifting.
 
 # Turning multiplication by a real number into a multiply-and-shift
 
-Actually, during the development of [Dragonbox](https://github.com/jk-jeon/dragonbox), I was interested in a more general problem of multiplying a rational number to $n$ and then finding out the integer part of the resulting rational number. In other words, my problem was not just about division, rather about multiplication followed by a division. This presence of multiplier certainly makes the situation a little bit more complicated, but I was anyway able to derive the optimal bound, which generalizes the results mentioned in the previous section. (I would not claim to be the first who proved this, and I am sure an equivalent result could be found elsewhere, though I am not aware of any.)
+Actually, during the development of [Dragonbox](https://github.com/jk-jeon/dragonbox), I was interested in a more general problem of multiplying a rational number to $n$ and then finding out the integer part of the resulting rational number. In other words, my problem was not just about division, rather about multiplication followed by a division. This presence of multiplier certainly makes the situation a little bit more complicated, but it is anyway possible to derive the optimal bound in a similar way, which generalizes the results mentioned in the previous section. *(Disclaimer: I am definitely not claiming to be the first who proved this, and I am sure an equivalent result could be found elsewhere, though I am not aware of any.)*
 
 >**Theorem 2 (From [this paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf)).**
 >
->Let $x$ be a positive real number and $n_{\max}$ a positive integer. Then for a positive real number $\xi$, we have the followings.
+>Let $x$ be a real number and $n_{\max}$ a positive integer. Then for a real number $\xi$, we have the followings.
 >
 >  1. If $x=\frac{p}{q}$ is a rational number with $q\leq n_{\max}$, then we have $\left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor$ for all $n=1,\ \cdots\ ,n_{\max}$ if and only if $x \leq \xi < x + \frac{1}{vq}$  holds, where $v$ is the greatest integer such that $vp\equiv -1\ (\mathrm{mod}\ q)$ and $v\leq n_{\max}$.
 >  
@@ -137,7 +136,7 @@ So I said rational number in the beginning of this section, but actually it does
 
 Since I was working on floating-point conversion problems when I derived this theorem, for me the more relevant case was the second case, that is, when $x$ is "effectively irrational", because the numerator and the denominator of $x$ I was considering were some high powers of $2$ and $5$. But the first case is more relevant in the main theme of this post, i.e., integer division, so let us forget about these jargons like *best rational approximations* and such. (**Spoiler**: they will show up again in the next section!)
 
-Now let us look at the first case. First of all, note that if $p=1$, that is, when $x = \frac{1}{q}$, then $v$ has a simpler description: it is the last multiple of $q$ in the range $1,\ \cdots\ ,n_{\max}+1$ minus one. If you are curious enough, you can check the aforementioned paper by [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) to see that their **Theorem 1** exactly says this. In fact, in this special case it is rather easy to see why the best bound should be something like that.
+So let us focus on the first case. First of all, note that if $p=1$, that is, when $x = \frac{1}{q}$, then $v$ has a simpler description: it is the last multiple of $q$ in the range $1,\ \cdots\ ,n_{\max}+1$ minus one. If you are curious enough, you can check the aforementioned paper by [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) to see that their **Theorem 1** exactly says this. In fact, in this special case it is rather easy to see why the best bound should be something like that.
 
 Indeed, note that having the equality
 
@@ -167,7 +166,7 @@ $$
   = \frac{1}{q} + \frac{q-r}{qn}.
 $$
 
-Therefore, minimizing the above is equivalent to minimizing $\frac{q-r}{n}$. Now, it seems reasonable to believe that the minimizer $n$ must have the largest possible remainder $r=q-1$, because for example if we take $r=q-2$ instead, then the numerator gets doubled, so we need to take an $n$ more than two times larger than the previous $n$ to compensate that increment. Also, among $n$'s with $r=q-1$, obviously the largest $n$ yields the smallest value of $\frac{q-r}{n}$, so it sounds rational to say that probably the greatest $n$ with $r=q-1$ is the minimizer of $\frac{q-r}{n}$. Indeed, this is quite easy to prove: suppose we call such $n$ as $v$, and suppose that there is $n$ which is even better than $v$:
+Therefore, minimizing the above is equivalent to minimizing $\frac{q-r}{n}$. Now, it seems reasonable to believe that the minimizer $n$ must have the largest possible remainder $r=q-1$, because for example if we take $r=q-2$ instead, then the numerator gets doubled, so we need to take an $n$ more than two times larger to compensate that increment. Also, among $n$'s with $r=q-1$, obviously the largest $n$ yields the smallest value of $\frac{q-r}{n}$, so it sounds rational to say that probably the greatest $n$ with $r=q-1$ is the minimizer of $\frac{q-r}{n}$. Indeed, this is quite easy to prove: suppose we call such $n$ as $v$, and suppose that there is $n$ which is even better than $v$:
 
 $$
   \frac{q-r}{n} \leq \frac{1}{v},
@@ -176,7 +175,7 @@ $$
 
 Now, since $v$ divided by $q$ has the remainder $q-1$, the left-hand side and the right-hand side have the same remainder when divided by $q$. Therefore, the difference between the two must be either zero or at least $q$. But since $v$ is the *largest* one with the remainder $q-1$, it must be at least $n_{\max} - q + 1$, thus $n$ cannot be larger than $v$ by $q$. Thus the only possible case is $n=v$.
 
-When $x=\frac{p}{q}$ and $p\neq 1$, it is harder to be convinced at once that the remainder $r$, in this case the remainder of $np$ divided by $q$, must be $q-1$ in order to minimize $\frac{\left\lfloor nx\right\rfloor + 1}{n}$, because the way $r$ changes as $n$ changes looks pretty random. But essentially the same logic as above just works also in this case. The full proof can be found in the paper mentioned, or [one](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/) of my previous posts.
+When $x=\frac{p}{q}$ and $p\neq 1$, it is somewhat harder to be convinced at once, that still the minimizer of $\frac{\left\lfloor nx\right\rfloor + 1}{n}$ should be such that the remainder $r$ of $np/q$ is equal to $q-1$, because the way $r$ changes as $n$ changes looks pretty random. But essentially the same logic as above just works also in this case. The full proof can be found in the paper mentioned, or [one](https://jk-jeon.github.io/posts/2021/12/continued-fraction-floor-mult/) of my previous posts.
 
 ## Some applications
 
