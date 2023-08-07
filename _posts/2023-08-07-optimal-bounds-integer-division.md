@@ -317,7 +317,7 @@ Here is a small remark before getting into the next section: this trick of havin
 
 ## Multiply-add-and-shift rather than multiply-shift
 
->**WARNING**: The contents of this section is *substantially* more complicated and math-heavy than previous sections.
+>**WARNING**: The contents of this section is **substantially** more complicated and math-heavy than previous sections.
 
 As said in the last section, we will explore the condition for having
 
@@ -362,26 +362,26 @@ $$
 
 Now, we claim that
 
-$$\begin{aligned}\label{eq:floor splits; lower bound}
+$$\label{eq:floor splits; lower bound}
   \left\lfloor (n_{0}+n)x \right\rfloor
   = \left\lfloor nx \right\rfloor + \left\lfloor n_{0}x \right\rfloor
-\end{aligned}$$
+$$
 
 holds for all such $n$. (Note that in general $\left\lfloor x+y\right\rfloor$ is equal to either $\left\lfloor x\right\rfloor + \left\lfloor y\right\rfloor$ or $\left\lfloor x\right\rfloor + \left\lfloor y\right\rfloor + 1$.) This follows from the fact that $\frac{\left\lfloor n_{0}x\right\rfloor}{n_{0}}$ is not only the best rational approximation from below *in the weak sense*, but also *in the strong sense*. Okay, so at this point there is no way to get around these jargons anymore, so let us define them formally.
 
 >**Definition 3** (Best rational approximations from below/above)**.**
 >
-> Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (in its reduced form, which is always assumed if not specified otherwise) is a *best rational approximation from below (above, resp.)* if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $\frac{p}{q}\leq\frac{a}{b}\leq x$ ($\frac{p}{q}\geq\frac{a}{b}\geq x$, resp.), we always have $q\leq b$.
+> Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (in its reduced form, which is always assumed if not specified otherwise) is a **best rational approximation from below (above, resp.)** if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $\frac{p}{q}\leq\frac{a}{b}\leq x$ ($\frac{p}{q}\geq\frac{a}{b}\geq x$, resp.), we always have $q\leq b$.
 
 In other words, $\frac{p}{q}$ is a best rational approximation of $x$ if any better rational approximation must have larger denominator.
 
-> **Remark.** Note that the terminology *best rational approximation* is pretty standard in pure mathematics, but it usually disregards the direction of approximation, from below or above. For example, $\frac{1}{3}$ is a best rational approximation from below of $\frac{3}{7}$, but it is **not** a best rational approximation in the usual, *non-directional* sense, because $\frac{1}{2}$ is a better approximation with a strictly less denominator. But this concept of non-directional best rational approximation is quite irrelevant to our application, so any usage of the term *best rational approximation* in this post always means the directional ones, either from below or above.
+> **Remark.** Note that the terminology **best rational approximation** is pretty standard in pure mathematics, but it usually disregards the direction of approximation, from below or above. For example, $\frac{1}{3}$ is a best rational approximation from below of $\frac{3}{7}$, but it is **not** a best rational approximation in the usual, **non-directional** sense, because $\frac{1}{2}$ is a better approximation with a strictly less denominator. But this concept of non-directional best rational approximation is quite irrelevant to our application, so any usage of the term **best rational approximation** in this post always means the directional ones, either from below or above.
 
 The definition provided above is the one *in the weak sense*, although it is not explicitly written so. The corresponding one in the strong sense is given below:
 
 >**Definition 4** (Best rational approximations from below/above in the strong sense)**.**
 >
-> Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (again, in its reduced form) is a *best rational approximation from below (above, resp.) in the strong sense*, if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $qx - p\geq bx - a\geq 0$ ($p - qx\geq a - bx \geq 0$, resp.), we always have $q\leq b$.
+> Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (again, in its reduced form) is a **best rational approximation from below (above, resp.) in the strong sense**, if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $qx - p\geq bx - a\geq 0$ ($p - qx\geq a - bx \geq 0$, resp.), we always have $q\leq b$.
 
 As the name suggests, if $\frac{p}{q}$ is a best rational approximation from below (above, resp.) in the strong sense, then it is a best rational approximation from below (above, resp.) in the weak sense. To see why, take any rational number $\frac{a}{b}$ such that $\frac{p}{q}\leq\frac{a}{b}\leq x$ holds, then it is enough to show that $q\leq b$ must hold. (We are only considering the "from below" case, and the "from above" case can be done in the same way.) This is indeed quite easy to show: since $x - \frac{p}{q} \geq x - \frac{a}{b}$ holds, multiplying $q$ on both sides yields
 
