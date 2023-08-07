@@ -47,7 +47,7 @@ std::uint64_t div(std::uint64_t n) noexcept {
 ```
 
 My compiler (clang) is fortunately aware of this Granlund-Montgomery style conversion style, so it translated this code into the following lines of assemblies:
-```asm
+```assembly
 div(unsigned long):
         mov     rax, rdi
         movabs  rcx, -1085102592571150095
@@ -90,7 +90,7 @@ It [seems](https://godbolt.org/z/b3jcs9vMK) that even the most recent version of
 
 Then what is the best possible condition? I am not sure who was the first for finding the optimal bound, but at least it seems to be written down in the famous book *Hacker's Delight* by H. S. Warren Jr. Also, recently (in 2021), [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) showed the optimality of an equivalent bound. I will not write down the optimal bounds obtained by these authors, because I will present a more general result proved by myself in the next section.
 
-Here is one remark before getting into the next section. The aforementioned results on the optimal bound work for $n$ from the range $\left\{1,\ \cdots\ ,n_{\max}\right\}$ where $n_{\max}$ is *not necessarily of the form* $2^{N}-1$. However, it seems that even recent compilers do not seem to leverage this fact. For example, let us look at the following code:
+Here is one remark before getting into the next section. The aforementioned results on the optimal bound work for $n$ from the range $$\left\{1,\ \cdots\ ,n_{\max}\right\}$$ where $n_{\max}$ is *not necessarily of the form* $2^{N}-1$. However, it seems that even recent compilers do not seem to leverage this fact. For example, let us look at the following code:
 ```cpp
 std::uint64_t div(std::uint64_t n)
 {
@@ -100,7 +100,7 @@ std::uint64_t div(std::uint64_t n)
 ```
 
 Here we are relying on C++23 attribute `assume`. Clang does not seem to be aware of this new language feature so is irrelevant in this discussion, and GCC generated the following lines of assemblies:
-```asm
+```assembly
 div(unsigned long):
         movabs  rax, -3689348814741910323
         mul     rdi
@@ -187,7 +187,7 @@ $$
   \left\lfloor \frac{n}{7} \right\rfloor
   = \left\lfloor \frac{n\cdot 142858}{1000000} \right\rfloor
 $$
-holds for all $n=1,\ \cdots\ ,166668$ but not for $n=166669$. Now we can see how did I get this. Note that $166669\equiv 6\ (\mathrm{mod}\ 7)$, so the range $\left\{1,\ \cdots\ ,166668\right\}$ and the range $\left\{1,\ \cdots\ ,166669\right\}$ have different $v$'s: it is $166662$ for the former, while it is $166669$ for the latter. And this makes the difference, because the inequality
+holds for all $n=1,\ \cdots\ ,166668$ but not for $n=166669$. Now we can see how did I get this. Note that $166669\equiv 6\ (\mathrm{mod}\ 7)$, so the range $$\left\{1,\ \cdots\ ,166668\right\}$$ and the range $$\left\{1,\ \cdots\ ,166669\right\}$$ have different $v$'s: it is $166662$ for the former, while it is $166669$ for the latter. And this makes the difference, because the inequality
 $$
   \frac{142858}{1000000} < \frac{1}{7} + \frac{1}{7v}
 $$
@@ -257,7 +257,7 @@ std::uint64_t div(std::uint64_t n) {
 }
 ```
 My compiler (clang, again) generated the following lines of assemblies:
-```asm
+```assembly
 div(unsigned long):
         movabs  rcx, 9126602783662703989
         mov     rax, rdi
