@@ -223,7 +223,7 @@ $$
 
 The smallest $k$ that allows an integer solution to the above inequality is $k=48$, in which case the unique solution is $m=2737896999$.
 
-### A textbook example for the case when there is a non-unit multiplier
+### A textbook example for the case $p\neq 1$
 
 Suppose that we want to convert the temperature from Fahrenheit to Celsius. Obviously, representing such values only using integers is a funny idea, but let us pretend that we are completely serious (and hey, in 2023, *Fahrenheit itself* is a funny joke from the first place😂... except that I am currently living in an interesting country🤮). Or, if one *desperately* wants to make a really serious example, we can maybe think about doing the same thing with fixed-point fractional numbers. But whatever.
 
@@ -243,11 +243,11 @@ $$
 
 ### Will the case $p\neq 1$ be potentially relevant for compiler-writers?
 
-Might be, but there is a caveat: in general, the compiler is not allowed to optimize an expression `n * p / q` into `(n * m) >> k`, because `n * p` can overflow and in that case dividing by `q` will give a weird answer. To be more specific, for unsigned integer types, C/C++ standards say that any overflows should wrap around, so the expression `n * p / q` is not really supposed to compute $\left\lfloor \frac{np}{q}\right\rfloor$, rather it is supposed to compute $\left\lfloor \frac{(np\ \mathrm{mod}\ 2^{N})}{q}\right\rfloor$ where $N$ is the bit-width. On the other hand, for signed integer types, (a signed-equivalent of) **Theorem 2** might be applicable, because signed overflows are specifically [defined to be undefined](https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows). But presumably there are lots of code out there relying on the wrong assumption that signed overflows will wrap around, so maybe compiler-writers do not want to do this kind of optimizations.
+Might be, but there is a caveat: in general, the compiler is not allowed to optimize an expression `n * p / q` into `(n * m) >> k`, because `n * p` can overflow and in that case dividing by `q` will give a weird answer. To be more specific, for unsigned integer types, C/C++ standards say that any overflows should wrap around, so the expression `n * p / q` is not really supposed to compute $\left\lfloor \frac{np}{q}\right\rfloor$, rather it is supposed to compute $\left\lfloor \frac{(np\ \mathrm{mod}\ 2^{N})}{q}\right\rfloor$ where $N$ is the bit-width, even though it is quite likely that the one who wrote the code actually wanted the former. On the other hand, for signed integer types, (a signed-equivalent of) **Theorem 2** might be applicable, because signed overflows are specifically [defined to be undefined](https://en.cppreference.com/w/cpp/language/operator_arithmetic#Overflows). But presumably there are lots of code out there relying on the wrong assumption that signed overflows will wrap around, so maybe compiler-writers do not want to do this kind of optimizations.
 
-Nevertheless, there are situations where doing this kind of optimizations is perfectly legal. For example, suppose `n`, `p`, `q` are all of type `std::uint32_t` and the code is written like `static_cast<std::uint32_t>((static_cast<std::uint64_t>(n) * p) / q)` to intentionally avoid this overflow issue. Then the compiler might recognize such a pattern and do this kind of optimizations. Or more generally, with the new `assume` attribute (or some other equivalent compiler-specific mechanisms), the user might give some assumptions that ensure no overflow.
+Nevertheless, there are situations where doing this is perfectly legal. For example, suppose `n`, `p`, `q` are all of type `std::uint32_t` and the code is written like `static_cast<std::uint32_t>((static_cast<std::uint64_t>(n) * p) / q)` to intentionally avoid this overflow issue. Then the compiler might recognize such a pattern and do this kind of optimizations. Or more generally, with the new `assume` attribute (or some other equivalent compiler-specific mechanisms), the user might give some assumptions that ensure no overflow.
 
-It seems that currently both clang and GCC [do not do this](https://godbolt.org/z/KhM14oqbE), so if they want to do so in a future, then **Theorem 2** might be useful. But how many code can benefit from such an optimization? Will it be really worth implementing? Maybe not, I do not know.
+It seems that currently both clang and GCC [do not do this](https://godbolt.org/z/KhM14oqbE), so if they want to do so in a future, then **Theorem 2** might be useful. But how many code can benefit from such an optimization? Will it be really worth implementing? I do not know, but maybe not.
 
 # When the magic number is too big
 
@@ -288,15 +288,15 @@ div(unsigned long):
 ```
 ([Check it out!](https://godbolt.org/z/fa3bM8TMx))
 
-This is definitely a little bit more complicated than the happy case, but if we think about this carefully, then we can realize that this is still computing $\left\lfloor \frac{nm}{2^{k}}\right \rfloor$:
+This is definitely a little bit more complicated than the happy case, but if we think carefully, we can realize that this is still just computing $\left\lfloor \frac{nm}{2^{k}}\right \rfloor$:
 - The magic number $m'=9126602783662703989$ is precisely $m - 2^{64}$.
 - In the third line, we multiply this magic number with the input. Let us call the upper half of the result as $u$ (which is stored in `rdx`), and the lower half as $\ell$ (which is stored in `rax`, and we do not care about the lower half anyway).
 - We subtract the upper half $u$ from the input $n$ (the `sub` line), divide the result by 2 (the `shr` line), add the result back to $u$ (the `lea` line), and then store the end result into `rax`. Now this looks a bit puzzling, but what it really does is nothing but to compute $\left\lfloor (n + u)/2 \right\rfloor = \left\lfloor nm / 2^{65}\right\rfloor$. The reason why it first subtract $u$ from $n$ is to avoid overflow. And in case anyone is curious, the subtraction is totally fine as there can be no underflow, because $u = \left\lfloor nm'/2^{64}\right\rfloor$ is at most $n$, as $m'$ is less than $2^{64}$.
 - Recall that our $k = 78$, so we want to compute $\left\lfloor nm/2^{78} \right\rfloor$. Since we got $\left\lfloor nm / 2^{65}\right\rfloor$ from the previous step, we just need to shift this further by $13$-bits.
 
-This is not so bad, we just have two more trivial instructions compared to the happy case. But this is largely due to that the magic number is just one bit larger than $64$-bits. Well, can it be even larger than that?
+This is not so bad, we just have two more trivial instructions compared to the happy case. But the reason why the above works is largely due to that the magic number is just one bit larger than $64$-bits. Well, can it be even larger than that?
 
-The answer is: **No**, the magic number being just one bit larger than the word size is the worst case.
+The answer is: **No**, fortunately, the magic number being just one bit larger than the word size is the worst case.
 
 To see why, note that the size of the interval where $\xi=\frac{m}{2^{k}}$ can possibly live is precisely $1/vq$. Therefore, if $k$ is large enough so that $2^{k}\geq vq$, then the interval between the endpoints of the inequality
 
@@ -306,15 +306,15 @@ $$
 
 has the length at least $1$, so it must admit an integer solution. Now, we are interested in the bit-width of $\left\lceil\frac{2^{k}}{q}\right\rceil$, which must be the smallest possible magic number if $k$ admits at least one solution. Since the smallest admissible $k$ is at most the smallest $k$ satisfying $2^{k}\geq vq$, thus we must have $vq>2^{k-1}$, so $\frac{2^{k}}{q} < 2v$. And the right-hand side is of at most one bit larger than the word size.
 
-Actually, there is an alternative way of dealing with the case of too large magic number, which is to consider a slightly different formula: instead of just doing a multiplication and then a shift, add another magic number after the multiplication and before the shift. Using the notations from **Theorem 2**, what this describes is to come up with some $\zeta$ so that we leverage the identity
+Actually, there is an alternative way of dealing with the case of too large magic number, which is to consider a slightly different formula: instead of just doing a multiplication and then a shift, perform an addition by another magic number between those two operations. Using the notations from **Theorem 2**, what this means is that we have some $\zeta$ satisfying the equality
 
 $$
   \left\lfloor nx \right\rfloor = \left\lfloor n\xi + \zeta \right\rfloor
 $$
 
-instead of $\left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor$. The presence of this $\zeta$ might allow us to have a smaller magic number so that it fits into a word. The topic of the next section is about the condition for having the above identity.
+instead of $\left\lfloor nx \right\rfloor = \left\lfloor n\xi \right\rfloor$. The presence of this $\zeta$ might allow us to have a smaller magic number so that it fits into a word. The topic of the next section is about the condition for having the above equality.
 
-Here is a small remark before getting into the next section: this trick of having $\zeta$ is probably useful for $32$-bit divisions, but not so much for $64$-bit divisions. The reason is because addition is no longer a trivial operation since the result of the multiplication $mn$ spans two $64$-bit blocks. We need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. I did not do a benchmark, but I am guessing that it probably yields worse performance. For the $32$-bit case, things can be done inside $64$-bits so presumably it is better than the method explained in this section, but it [seems](https://godbolt.org/z/rxzY6raE4) compilers do not do so anyway. I do not know if this is because it actually performs worse, or because they just did not bother to implement it.
+Here is a small remark before getting into the next section: this trick of having $\zeta$ is probably not so useful for $64$-bit divisions, because addition is no longer a trivial operation since the result of the multiplication $mn$ spans two $64$-bit blocks. We need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. I did not do a benchmark, but I am guessing that it probably yields worse performance. Presumably, this trick however might give a better performance than the method explained in this section for the $32$-bit case, as every operation be done inside $64$-bits. But it [seems](https://godbolt.org/z/rxzY6raE4) compilers do not do so anyway. I do not know if this is because it actually performs worse, or because they just did not bother to implement it.
 
 # Multiply-add-and-shift rather than multiply-shift
 
@@ -326,7 +326,7 @@ $$
   \left\lfloor nx \right\rfloor = \left\lfloor n\xi + \zeta \right\rfloor
 $$
 
-for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an if and only if condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they did not bother to write down the proof. I have not read their paper thoroughly so I do not know if this claim is indeed the case, but at least for the general case I am dealing here, the presence of $\zeta$ (and having no condition on it other than being nonnegative) actually **does** complicate things a lot.
+for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. However, for the general case I am dealing here, the presence of $\zeta$ together with $x$ being not restricted to reciprocals of integers actually **do** complicate things a lot.
 
 Just like the case $\zeta=0$ (i.e., **Theorem 2**), having the equality for all $n=1,\ \cdots\ ,n_{\max}$ is equivalent to having the inequality
 
