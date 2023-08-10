@@ -7,29 +7,28 @@ tags:
   - C/C++
 ---
 
-# !!! WIP !!!
+It is well-known that the integer division is quite a heavy operation on modern CPU's - so slow, in fact, that it has even become a common wisdom to *avoid doing it at ALL cost* in performance-critical sections of a program. I do not know why division is particularly hard to optimize from the hardware perspective. I am just guessing, maybe (1) every general algorithm is essentially just a minor variation of the good-old long division, (2) which is almost impossible to parallelize. But whatever, that is not the topic of this post.
 
-It is well-known that the integer division is quite a heavy operation on modern CPU's - so slow, in fact, that it has even become a common wisdom to *avoid doing it at ALL cost* in performance-critical parts of the program. I do not know why division is particularly hard to optimize from the hardware perspective. I am just guessing, maybe that is because (1) every general algorithm is effectively just a minor variation of the good old long division, (2) which is almost impossible to parallelize in any way. But whatever, that is not the topic of this post.
+Rather, this post is about some of the common optimization techniques for circumventing 
+integer division. To be more precise, the post can be roughly divided into two parts. The first part discusses the well-known Granlund-Montgomery style multiply-and-shift technique and some associated issues. The second part is about my recent research on a related multiply-add-and-shift technique. In this section, I establish an optimal bound, which perhaps is a novel result. It would be intriguing to see whether modern compilers can take advantage of this new bound.
 
-Rather, this post is about some of the common optimization techniques for circumventing integer division. Also in a later section, I will present an optimal bound for one of such techniques, which seems to be not widely known yet. It would be interesting to see if modern compilers can take advantage of this new bound to better optimize the code.
-
-Note that by *integer division*, we specifically mean computing the quotient and/or the remainder, not evaluating the result as a real number. More specifically, throughout this whole post, it will always mean taking the quotient unless specified otherwise. Also, I will confine myself into divisions of positive integers, though that of negative integers is also of practical importance. Finally, all assemblies shown here are for x86-64 architecture.
+Note that by *integer division*, we specifically mean rgw computation of the quotient and/or the remainder, rather than evaluating the result as a real number. More specifically, throughout this entire post, *integer division* will always mean taking the quotient unless specified otherwise. Also, I will confine myself into divisions of positive integers, even though divisions of negative integers hold practical significance as well. Finally, all assembly code provided herein are for x86-64 architecture.
 
 # Turning an integer division into a multiply-and-shift
 
-One of the most widely used techniques is converting division into a multiplication if the divisor is a constant (or it remains mostly unchanged). The idea is quite simple: for example, dividing by $4$ is equivalent to multiplying by $0.25$, which can be further represented as multiplying by $25$ and then dividing by $100$, where dividing by $100$ is simply a matter of moving the decimal dot into left by two positions. Since we are only interested in taking the quotient, this means throwing away the last two digits.
+One of the most widely used techniques is converting division into a multiplication when the divisor is a known constant (or remains mostly unchanged). The idea behind this approach is quite simple. For instance, dividing by $4$ is equivalent to multiplying by $0.25$, which can be further represented as multiplying by $25$ and then dividing by $100$, where dividing by $100$ is simply a matter of moving the decimal dot into left by two positions. Since we are only interested in taking the quotient, this means throwing away the last two digits.
 
-Of course, in this specific case, $4$ is a divisor of $100$ so we indeed have a fairly short such a representation, but in general the divisor might not divide a power of $10$. Let us take $7$ as an example. In this case, we cannot write $\frac{1}{7}$ as $\frac{m}{10^{k}}$ for some positive integers $m,k$. However, we can still come up with a good *approximation*. Note that
+In this particular instance, $4$ is a divisor of $100$ so we indeed have a fairly concise such a representation, but in general the divisor might not divide a power of $10$. Let us take $7$ as an example. In this case, we cannot write $\frac{1}{7}$ as $\frac{m}{10^{k}}$ for some positive integers $m,k$. However, we can still come up with a good *approximation*. Note that
 
 $$
   \frac{1}{7} = 0.142857142857\cdots,
 $$
 
-so presumably something like $\frac{142858}{1000000}$ would be a good enough approximation of $\frac{1}{7}$. Taking that as our approximation means that we may want to compute $n/7$ by multiplying $142858$ to $n$ and then throwing away the last $6$ digits. (Note that we are taking $142858$ instead of $142857$ because the latter already fails when $n=7$. In general, we must do ceiling, not floor nor half-up rounding.)
+so presumably something like $\frac{142858}{1000000}$ would be a good enough approximation of $\frac{1}{7}$. Taking that as our approximation, we may want to compute $n/7$ by multiplying $142858$ to $n$ and then throwing away the last $6$ digits. (Note that we are taking $142858$ instead of $142857$ because the latter already fails when $n=7$. In general, we must take ceiling, not floor nor half-up rounding.)
 
-This indeed gives the right answer for all $n=1,\ \cdots\ ,166668$, but it starts to produce a wrong answer when $n=166669$; in this case the correct answer is $23809$ but our method returns $23810$. And of course such a failure is expected. We are using an approximation with a nonzero error, and surely the error will eventually show up when the dividend $n$ is large enough. But the question is, *can we estimate how far it will go?* Or, *can we choose a good enough approximation guaranteed to work correctly when there is a given limit on how big our $n$ can be?*
+This indeed gives the right answer for all $n=1,\ \cdots\ ,166668$, but it starts to produce a wrong answer at $n=166669$, where the correct answer is $23809$, whereas our method produces $23810$. And of course such a failure is expected. Given that we are using an approximation with nonzero error, it is inevitable that the error will eventually manifest as the dividend $n$ grows large enough. But, the question at hand is, *can we estimate how far it will go?* Or, *how to choose a good enough approximation guaranteed to work correctly when there is a given limit on how big our $n$ can be?*
 
-Obviously, we are gonna apply this idea for computers, so the denominators of the approximations will be powers of $2$, not $10$: just like that for humans dividing by $10^{k}$ is just throwing away $k$-digits, for computers, dividing by $2^{k}$ is just the right-shift by $k$-bits. So, for a given positive integer $d$, our goal is to find a good enough approximation of $\frac{1}{d}$ of the form $\frac{m}{2^{k}}$. Probably the most widely known formal result regarding this is the following theorem by Granlund-Montgomery:
+Obviously, our intention is to implement this concept in computer program, so the denominators of the approximations will be powers of $2$, not $10$. So, for a given positive integer $d$, our goal is to find a good enough approximation of $\frac{1}{d}$ of the form $\frac{m}{2^{k}}$. Perhaps one of the most widely known formal results in this realm is the following theorem by Granlund-Montgomery:
 
 >**Theorem 1 (Granlund-Montgomery, 1994).**
 >
@@ -41,7 +40,7 @@ Obviously, we are gonna apply this idea for computers, so the denominators of th
 >
 >Then $\left\lfloor n/d \right\rfloor = \left\lfloor mn/2^{N+k} \right\rfloor$ for every integer $n$ with $0\leq n< 2^{N}$.
 
-Here, $d$ is the given divisor and we are supposed to approximate $\frac{1}{d}$ by $\frac{m}{2^{N+k}}$. An assumption here is that we want to perform the division $n/d$ for all $n$ from $0$ to $2^{N}-1$, where $N$ is supposed to be the bit-width of the integer type we are dealing with. In this setting, this theorem gives a sufficient condition where we can compute the quotient of $n/d$ by first multiplying $m$ to $n$ and then shifting the result to the right by $(N+k)$-bits. A premise here is that we will need more than $N$-bits because our dividend is of $N$-bits, so maybe the result of the multiplication $mn$ will need to be stored in $2N$-bits. Since we are shifting by $(N+k)$-bits, the lower half of the result is actually not needed, and we just take the upper half and shift it by $k$-bits.
+Here, $d$ is the given divisor and we are supposed to approximate $\frac{1}{d}$ by $\frac{m}{2^{N+k}}$. An assumption here is that we want to perform the division $n/d$ for all $n$ from $0$ to $2^{N}-1$, where $N$ is supposed to be the bit-width of the integer data type under consideration. In this setting, the mentioned theorem establishes a sufficient condition under which we can calculate the quotient of $n/d$ by first multiplying $n$ by $m$ and subsequently right-shifting the result by $(N+k)$-bits. Note that we will need more than $N$-bits; since our dividend is of $N$-bits, the result of the multiplication $mn$ will need to be stored in $2N$-bits. Since we are shifting by $(N+k)$-bits, the lower half of the result is actually not needed, and we just take the upper half and shift it by $k$-bits.
 
 We will not talk about the proof of this theorem because a much more general theorem will be presented in the next section. But let us see how results like this are being applied in the wild. For example, consider the following C++ code:
 ```cpp
@@ -50,7 +49,7 @@ std::uint64_t div(std::uint64_t n) noexcept {
 }
 ```
 
-Compilers these days are well-aware of these Granlund-Montgomery-style division tricks. Indeed, my compiler (clang) leveraged such a trick and translated the above code into the following lines of assemblies:
+Modern compilers are well-aware of these Granlund-Montgomery-style division tricks. Indeed, my compiler (clang) adeptly harnessed such tactics, as demonstrated by its translation of the code above into the following lines of assembly instructions:
 ```asm
 div(unsigned long):
         mov     rax, rdi
@@ -116,9 +115,9 @@ div(unsigned long):
 
 ([Check it out!](https://godbolt.org/z/Pr48e7Kja))
 
-My gripe with this is that it generated a shift instruction `shr` which is in fact not necessary. GCC thinks that $k$ must be at least $67$ (which is why it shifted by $3$-bits, after throwing away the $64$-bit lower half), but actually $k=64$ is fine with the magic number $m=1844674407370955162$ thanks to the bound on $n$, in which case we do not need this additional shifting.
+My gripe with this is the generation of a superfluous `shr` instruction. GCC seems to think that $k$ must be at least $67$ (which is why it shifted by $3$-bits, after throwing away the $64$-bit lower half), but actually $k=64$ is fine with the magic number $m=1844674407370955162$ thanks to the bound on $n$, in which case we do not need this additional shifting.
 
-How about clang? Clang currently does not seem to understand this new language feature `assume`, but it has an equivalent language extension `__builtin_assume`. So I tried with that:
+How about clang? Unlike GCC, clang currently does not seem to understand this new language feature `assume`. But it has an equivalent language extension `__builtin_assume`, so I tried with that:
 ```cpp
 std::uint64_t div(std::uint64_t n) {
     __builtin_assume(n < 10000000000);
@@ -138,11 +137,11 @@ div(unsigned long):
 
 ([Check it out!](https://godbolt.org/z/7fGzYr8Mh))
 
-No difference😥
+And there is no big difference😥
 
 # Turning multiplication by a real number into a multiply-and-shift
 
-Actually, during the development of [Dragonbox](https://github.com/jk-jeon/dragonbox), I was interested in a more general problem of multiplying a rational number to $n$ and then finding out the integer part of the resulting rational number. In other words, my problem was not just about division, rather about multiplication followed by a division. This presence of multiplier certainly makes the situation a little bit more complicated, but it is anyway possible to derive the optimal bound in a similar way, which leads to the following generalization of the results mentioned in the previous section. *(Disclaimer: I am definitely not claiming to be the first who proved this, and I am sure an equivalent result could be found elsewhere, though I am not aware of any.)*
+Actually, during the development of [Dragonbox](https://github.com/jk-jeon/dragonbox), I was interested in a more general problem of multiplying a rational number to $n$ and then finding out the integer part of the resulting rational number. In other words, my problem was not just about division, rather about multiplication followed by a division. This presence of multiplier certainly makes the situation a little bit more tricky, but it is anyway possible to derive the optimal bound in a similar way, which leads to the following generalization of the results mentioned in the previous section. *(Disclaimer: I am definitely not claiming to be the first who proved this, and I am sure an equivalent result could be found elsewhere, though I am not aware of any.)*
 
 ><b id=floor-computation>Theorem 2</b> (From [this paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf))**.**
 >
@@ -156,7 +155,7 @@ Note that $\left\lfloor nx \right\rfloor$ is supposed to be the one we actually 
 
 So I said rational number in the beginning of this section, but actually our $x$ can be any real number. Note, however, that the result depends on whether $x$ is *"effectively rational"* or not over the domain $n=1,\ \cdots\ ,n_{\max}$, i.e., whether or not there exists a multiplier $n$ which makes $nx$ into an integer.
 
-Since I was working on floating-point conversion problems when I derived this theorem, for me the more relevant case was the second case, that is, when $x$ is "effectively irrational", because the numerator and the denominator of $x$ I was considering were some high powers of $2$ and $5$. But the first case is more relevant in the main theme of this post, i.e., integer division, so let us forget about these jargons like *best rational approximations* and such. (**Spoiler**: they will show up again in the next section!)
+Since I was working on floating-point conversion problems when I derived this theorem, for me the more relevant case was the second case, that is, when $x$ is "effectively irrational", because the numerator and the denominator of $x$ I was considering were some high powers of $2$ and $5$. But the first case is more relevant in the main theme of this post, i.e., integer division, so let us forget about these jargons like *best rational approximations* and such. (**Spoiler**: they will show up again in the next section.)
 
 So let us focus on the first case. First of all, note that if $p=1$, that is, when $x = \frac{1}{q}$, then $v$ has a simpler description: it is the last multiple of $q$ in the range $1,\ \cdots\ ,n_{\max}+1$ minus one. If you care, you can check the aforementioned paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) to see that their **Theorem 1** exactly corresponds to the resulting bound. In fact, in this special case it is rather easy to see why the best bound should be something like that.
 
@@ -188,7 +187,7 @@ $$
   = \frac{1}{q} + \frac{q-r}{qn}.
 $$
 
-Therefore, minimizing the left-hand side is equivalent to minimizing $\frac{q-r}{n}$. Now, it seems reasonable to believe that the minimizer $n$ must have the largest possible remainder $r=q-1$, because for example if we take $r=q-2$ instead, then the numerator gets doubled, so if we want to have a smaller value of $\frac{q-r}{n}$, then we need to take an $n$ more than two times larger to compensate that increment. Also, among $n$'s with $r=q-1$, obviously the largest $n$ yields the smallest value of $\frac{q-r}{n}$, so it sounds rational to say that probably the greatest $n$ with $r=q-1$ is the minimizer of $\frac{q-r}{n}$. Indeed, this is quite easy to prove: suppose we call such $n$ as $v$, and suppose that there is $n$ which is even better than $v$:
+Therefore, the minimization of the left-hand side is equivalent to the minimization of $\frac{q-r}{n}$. Intuitively, it appears reasonable to believe that the minimizer $n$ must have the largest possible remainder $r=q-1$, because for example if $r$ were set to be $q-2$ instead, then the numerator gets doubled, necessitating a proportionally larger $n$ to achieve a diminished value of $\frac{q-r}{n}$. Also, among $n$'s with $r=q-1$, obviously the largest $n$ yields the smallest value of $\frac{q-r}{n}$, so it sounds rational to say that probably the greatest $n$ with $r=q-1$ is the minimizer of $\frac{q-r}{n}$. Indeed, this is quite easy to prove: suppose we call such $n$ as $v$, and suppose that there is $n$ which is even better than $v$:
 
 $$
   \frac{q-r}{n} \leq \frac{1}{v},
@@ -343,9 +342,9 @@ $$
 
 can be computed by performing a multiplication, an addition, and a shift.
 
-The presence of this $\zeta$ might allow us to have a smaller magic number so that it fits into a word. The topic of the next section is about the condition for having the above equality.
+The inclusion of this $\zeta$ might allow us to use a smaller magic number, thereby enabling its accommodation within a single word. The next section is dedicated to the condition for having the above equality.
 
-Here is a small remark before getting into the next section: this trick of having $\zeta$ is probably not so useful for $64$-bit divisions, because addition is no longer a trivial operation since the result of the multiplication $mn$ spans two $64$-bit blocks. We need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. I did not do a benchmark, but I am guessing that it probably yields worse performance. Presumably, this trick however might give a better performance for the $32$-bit case than the method explained in this section, as every operation can be done inside $64$-bits. But it [seems](https://godbolt.org/z/rxzY6raE4) compilers do not do so anyway. I do not know if this is because it actually performs worse, or just because they did not bother to implement it.
+Here is a small remark before we start the (extensive) discussion of the optimal bound for this. Note that this trick of including the $\zeta$ term is probably not so useful for $64$-bit divisions, because addition is not really a trivial operation in this case. This is because the result of the multiplication $mn$ spans two $64$-bit blocks. Hence, we need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. While I have not conducted a benchmark, I speculate that this approach probably result in worse performance. However, this trick might give a better performance for the $32$-bit case than the method explained in this section, as every operation can be done inside $64$-bits. Interestingly, it [seems](https://godbolt.org/z/zqKW3WhEn) modern compilers do not use this trick anyway. In the link provided, the compiler is trying to compute multiplication by $4999244749$ followed by the shift by $49$-bits. However, it turns out, by multiplying $1249811187$, adding $1249811187$, and then shifting to right by $47$-bits, we can do this computation completely within $64$-bits. I do not know whether the reason why the compilers do not leverage this trick is because it does not perform better, or just because they did not bother to implement it.
 
 # Multiply-add-and-shift rather than multiply-shift
 
@@ -357,7 +356,9 @@ $$
   \left\lfloor nx \right\rfloor = \left\lfloor n\xi + \zeta \right\rfloor
 $$
 
-for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. However, for the general case I am dealing here, the presence of $\zeta$ together with $x$ being not restricted to reciprocals of integers actually **do** complicate things a lot.
+for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. I provided a proof of this special case in a later [subsection](#the-result-by-lemire-et-al). The proof I wrote seem to rely on a heavy result proved below, but it can be done without it pretty easily as well.
+
+However, in the general case I am dealing here, i.e., the only restriction I have is $\zeta\geq 0$, the situation is quite more complicated. Nevertheless, even in this generality, it is possible to give a very concrete description of how exactly the presence of $\zeta$ distorts the optimal bound.
 
 Just like the case $\zeta=0$ (i.e., [**Theorem 2**](#floor-computation)), having the equality for all $n=1,\ \cdots\ ,n_{\max}$ is equivalent to having the inequality
 
@@ -1033,11 +1034,13 @@ After filling out some omitted details, we arrive at the following algorithm.
   
 2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, [**Algorithm 7**](#xi-zeta-finding-algorithm) favors the one with the smallest $k$, and among all admissible choices of $(k,m,s)$ with the smallest $k$, it favors the one with the smallest $s$.
 
-## Deducing the result by Lemire et al.
+An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L88).
+
+## The result by Lemire et al.
 
 Consider the special case when $x=\frac{1}{q}$, $q\leq n_{\max}$, and $\xi=\zeta$. In this case, we have the following result:
 
->**Theorem 8 (Lemire et al., 2021).**
+>**Theorem 8 ([Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442), 2021).**
 >
 >We have
 >
@@ -1123,3 +1126,59 @@ We can give an alternative proof of this fact using what we have developed so fa
 >which means nothing but that the remainder of $n$ divided by $q$ is at most $q-1$, which is trivially true. $\quad\blacksquare$
 
 Note the fact that the numerator of $x$ is $1$ is crucially used in this proof.
+
+[Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) also shows that, if $n_{\max} = 2^{N} - 1$ and $q$ is not a power of $2$, then whenever the best magic constant predicted by [**Theorem 2**](#floor-computation) does not fit into a word, the best magic constant predicted by the above theorem should fit into a word. Therefore, these two are enough when $n_{\max} = 2^{N} - 1$, $x=\frac{1}{q}$, and $q\leq n_{\max}$. Then does [**Algorithm 7**](#xi-zeta-finding-algorithm) have any relevance in practice?
+
+## An example usage of [**Algorithm 7**](#xi-zeta-finding-algorithm)
+
+I do not know, I mean, as I pointed out before, I am not sure how important in general is to cover the case $x=\frac{p}{q}$ with $p\neq 1$. But anyway when $p\neq 1$, there certainly are some cases where [**Algorithm 7**](#xi-zeta-finding-algorithm) might be useful. Consider the following example:
+```cpp
+std::uint32_t div(std::uint32_t n) {
+    return (std::uint64_t(n) * 7) / 18;
+}
+```
+Here I provide three different ways of doing this computation:
+```asm
+div1(unsigned int):
+        mov     ecx, edi
+        lea     rax, [8*rcx]
+        sub     rax, rcx
+        movabs  rcx, 1024819115206086201
+        mul     rcx
+        mov     rax, rdx
+        ret
+```
+```asm
+div2(unsigned int):
+        mov     eax, edi
+        movabs  rcx, 7173733806472429568
+        mul     rcx
+        mov     rax, rdx
+        ret
+```
+```asm
+div3(unsigned int):
+        mov     ecx, edi
+        mov     eax, 3340530119
+        imul    rax, rcx
+        add     rax, 477218588
+        shr     rax, 33
+        ret
+```
+([Check it out!](https://godbolt.org/z/hxj1c6b6M))
+
+The first version (`div1`) is what my compiler (clang) generated. It first computes `n * 7` by computing `n * 8 - n`. And then, it computes the division by $18$ using the multiply-and-shift technique. Especially, it deliberately chose the shifting amount to be $64$ so that it can skip the shifting. Clang is indeed quite clever in the sense that it actually leverages the fact that `n` is only a $32$-bit integer, because, the minimum amount of shifting required for the division by $18$ is $68$, if all $64$-bit dividends are considered.
+
+But it is not clever enough to realize that two operations `* 7` and `/ 18` can be merged. The second version `div2` is what one can get by utilizing this fact and do these two computations in one multiply-and-shift. Using [**Theorem 2**](#floor-computation), it can be shown that the minimum amount of shifting for doing this with all $32$-bit dividends is $36$, and in that case the corresponding magic number is $26724240953$. Since the computation cannot be done in $64$-bit anyway, I deliberately multiplied $2^{28}$ to this magic number and got $7173733806472429568$ to make the shifting amount equal to $64$, so that the actual shifting instruction is not needed. And the result is a clear win over `div1`, although `lea` and `sub` are just trivial instructions and the difference is not huge.
+
+Now, if we do this with multiply-add-and-shift, we can indeed complete our computation inside $64$-bit, which is the third version `div3`. Using [**Algorithm 7**](#xi-zeta-finding-algorithm), it turns out $(k,m,s) = (33, 3340530119, 477218588)$ works for all $32$-bit dividend, i.e., we have
+
+$$
+  \left\lfloor \frac{7n}{18}\right\rfloor
+  = \left\lfloor \frac{3340530119\cdot n + 477218588}{2^{33}}\right\rfloor
+$$
+
+for all $n=0,\ \cdots\ ,2^{32}-1$. The maximum possible value of the numerator $3340530119\cdot n + 477218588$ is strictly less than $2^{64}$ in this case. Hence, we get `div3`.
+
+Note that `div3` has one more instructions than `div2`, but it does not invoke the $128$-bit multiplication (the `mul` instruction both found in `div1` and `div2`) which usually performs not so impressively on typical modern x86-64 CPU's, so I think probably `div3` will perform better than `div2` although I have not benchmarked ro confirm this guess.
+
