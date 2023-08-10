@@ -94,7 +94,7 @@ to exist is $k=17$, and in that case the unique $m$ satisfying the above is $547
 
 It [seems](https://godbolt.org/z/b3jcs9vMK) that even the most recent version of GCC (13.2) is still not aware of this, while clang knows that the above $m$ and $k$ works. (In the link provided, GCC is actually trying to compute $\left\lfloor \frac{nm}{2^{N+k}} \right\rfloor$ with the $33$-bit constant $m = 5475793997$. Detailed explanation will be given in a [later section](#when-the-magic-number-is-too-big).)
 
-Then what is the best possible condition? I am not sure who was the first for finding the optimal bound, but at least it seems that such a bound is written in the famous book *Hacker's Delight* by H. S. Warren Jr. Also, recently (in 2021), [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) showed the optimality of an equivalent bound. I will not write down the optimal bounds obtained by these authors, because I will present a more general result proved by myself in the next section.
+Then what is the best possible condition? I am not sure who was the first for finding the optimal bound, but at least it seems that such a bound is written in the famous book *Hacker's Delight* by H. S. Warren Jr. Also, recently (in 2021), [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) showed the optimality of an equivalent bound. I will not write down the optimal bounds obtained by these authors, because I will present a more general result proved by myself in the next section.
 
 Here is one remark before getting into the next section. The aforementioned results on the optimal bound work for $n$ from the range $$\left\{1,\ \cdots\ ,n_{\max}\right\}$$ where $n_{\max}$ is *not necessarily of the form* $2^{N}-1$. However, it seems that even recent compilers do not seem to leverage this fact. For example, let us look at the following code:
 ```cpp
@@ -158,7 +158,7 @@ So I said rational number in the beginning of this section, but actually our $x$
 
 Since I was working on floating-point conversion problems when I derived this theorem, for me the more relevant case was the second case, that is, when $x$ is "effectively irrational", because the numerator and the denominator of $x$ I was considering were some high powers of $2$ and $5$. But the first case is more relevant in the main theme of this post, i.e., integer division, so let us forget about these jargons like *best rational approximations* and such. (**Spoiler**: they will show up again in the next section!)
 
-So let us focus on the first case. First of all, note that if $p=1$, that is, when $x = \frac{1}{q}$, then $v$ has a simpler description: it is the last multiple of $q$ in the range $1,\ \cdots\ ,n_{\max}+1$ minus one. If you care, you can check the aforementioned paper by [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) to see that their **Theorem 1** exactly corresponds to the resulting bound. In fact, in this special case it is rather easy to see why the best bound should be something like that.
+So let us focus on the first case. First of all, note that if $p=1$, that is, when $x = \frac{1}{q}$, then $v$ has a simpler description: it is the last multiple of $q$ in the range $1,\ \cdots\ ,n_{\max}+1$ minus one. If you care, you can check the aforementioned paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) to see that their **Theorem 1** exactly corresponds to the resulting bound. In fact, in this special case it is rather easy to see why the best bound should be something like that.
 
 Indeed, note that having the equality
 
@@ -357,7 +357,7 @@ $$
   \left\lfloor nx \right\rfloor = \left\lfloor n\xi + \zeta \right\rfloor
 $$
 
-for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. However, for the general case I am dealing here, the presence of $\zeta$ together with $x$ being not restricted to reciprocals of integers actually **do** complicate things a lot.
+for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. However, for the general case I am dealing here, the presence of $\zeta$ together with $x$ being not restricted to reciprocals of integers actually **do** complicate things a lot.
 
 Just like the case $\zeta=0$ (i.e., [**Theorem 2**](#floor-computation)), having the equality for all $n=1,\ \cdots\ ,n_{\max}$ is equivalent to having the inequality
 
@@ -653,9 +653,9 @@ Hence, we finally arrive at the following iterative algorithm for computing the 
 >2. If $n_{0} = n_{\max}$, then $n_{0}$ is the largest maximizer; return.
 >3. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max} - n_{0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{1}$.
 >4. Inspect the inequality
->  $$\begin{aligned}
+>  $$\begin{aligned}\\
 >    \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
->    \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.
+>    \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.\\
 >  \end{aligned}$$
 >5. If the inequality does not hold, then $n_{0}$ is the largest maximizer; return.
 >6. If the inequality does hold, then set $n_{0}\leftarrow n_{0} + n_{1}$ and go to Step 2.
@@ -1093,10 +1093,91 @@ After filling out some omitted details, we arrive at the following algorithm.
   
 2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, [**Algorithm 7**](#xi-zeta-finding-algorithm) favors the one with the smallest $k$, and among all admissible choices of $(k,m,s)$ with the smallest $k$, it favors the one with the smallest $s$.
 
-## Deducing the result by Lemire et al
+## Deducing the result by Lemire et al.
 
 Consider the special case when $x=\frac{1}{q}$, $q\leq n_{\max}$, and $\xi=\zeta$. In this case, we have the following result:
 
->**Theorem 8 (Lemire et al, 2021).**
+>**Theorem 8 (Lemire et al., 2021).**
 >
->Suppose $m$, $d$, $k$ are nonnegative integers such that $d\neq 0$ 
+>We have
+>
+>$$
+>  \left\lfloor\frac{n}{q}\right\rfloor
+>  = \left\lfloor (n+1)\xi\right\rfloor
+>$$
+>
+>for all $n=0,\ \cdots\ ,n_{\max}$ if and only if
+>
+>$$
+>  \left(1 - \frac{1}{\left\lfloor n_{\max}/q\right\rfloor q+1}\right)\frac{1}{q}
+>  \leq \xi < \frac{1}{q}.
+>$$
+
+We can give an alternative proof of this fact using what we have developed so far. Essentially, this is due to the fact that [**Algorithm 5**](#lower-bound-algorithm) finishes its iteration at the first step and do not proceed further.
+
+>Proof. $(\Rightarrow)$ Take $n=q-1$, then we have $0 = \left\lfloor q\xi\right\rfloor$, thus $\xi<\frac{1}{q}$ follows. On the other hand, take $n = \left\lfloor\frac{n_{\max}}{q}\right\rfloor q$, then we have
+>
+>$$
+>  \left\lfloor\frac{n_{\max}}{q}\right\rfloor
+>  \leq \left(\left\lfloor\frac{n_{\max}}{q}\right\rfloor q + 1\right)\xi,
+>$$
+>
+>so rearranging this gives the desired lower bound on $\xi$.
+>
+> $(\Leftarrow)$ It is enough to show that $\xi$ satisfies
+>
+>$$
+>  \max_{n=1,\ \cdots\ ,n_{\max}} \frac{\left\lfloor n/q\right\rfloor - \xi}{n}
+>  \leq \xi <
+>  \min_{n=1,\ \cdots\ ,n_{\max}} \frac{\left\lfloor n/q\right\rfloor + 1 - \xi}{n}.
+>$$
+>
+>Following [**Algorithm 5**](#lower-bound-algorithm), let $n_{0}$ be the largest maximizer of $\frac{\left\lfloor n/q\right\rfloor}{n}$, i.e., $n_{0} = \left\lfloor\frac{n_{\max}}{q}\right\rfloor q$. Then we know from [**Algorithm 5**](#lower-bound-algorithm) that $n_{0}$ is the largest maximizer of $\frac{\left\lfloor n/q\right\rfloor - \xi}{n}$ if and only if
+>
+>$$
+>  \frac{\left\lfloor n/q\right\rfloor}{n} <
+>  \frac{\left\lfloor n_{0}/q\right\rfloor - \xi}{n_{0}}
+>  = \frac{1}{q} - \frac{\xi}{\left\lfloor n_{\max}/q\right\rfloor q}
+>$$
+>
+>holds for all $n=1,\ \cdots\ ,n_{\max}-n_{0}$. Pick any such $n$ and let $r$ be the remainder of $n/q$, then we have
+>
+>$$
+>  \frac{\left\lfloor n/q\right\rfloor}{n}
+>  = \frac{(n-r)/q}{n} = \frac{1}{q} - \frac{r}{nq}.
+>$$
+>
+>Hence, we claim that
+>
+>$$
+>  \frac{\xi}{\left\lfloor n_{\max}/q\right\rfloor} < \frac{r}{n}
+>$$
+>
+>holds for all such $n$. This is clear, because $\xi<\frac{1}{q}$ while $n_{\max} - n_{0}$ is at most $q-1$, so the right-hand side is at least $\frac{1}{q-1}$. Therefore, $n_{0}$ is indeed the largest maximizer of $\frac{\left\lfloor n/q\right\rfloor - \xi}{n}$ for $n=1,\ \cdots\ ,n_{\max}$, and the inequality
+>
+>$$
+>  \frac{\left\lfloor n_{0}/q\right\rfloor - \xi}{n_{0}} \leq \xi
+>$$
+>
+>is equivalent to
+>
+>$$
+>  \xi \geq \frac{\left\lfloor n_{0}/q\right\rfloor}{n_{0}+1}
+>  = \frac{1}{q}\left(1 - \frac{1}{n_{0}+1}\right),
+>$$
+>
+>which we already know.
+>
+>For the upper bound, note that it is enough to show that
+>
+>$$
+>  \frac{1}{q} \leq \frac{\left\lfloor n/q\right\rfloor + 1}{n+1}
+>$$
+>
+>holds for all $n=1,\ \cdots\ ,n_{\max}$. We can rewrite this inequality as
+>
+>$$
+>  \frac{n}{q} - \left\lfloor\frac{n}{q}\right\rfloor \leq \frac{q-1}{q},
+>$$
+>
+>which means nothing but that the remainder of $n$ divided by $q$ is at most $q-1$, which is trivially true.
