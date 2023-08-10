@@ -321,7 +321,7 @@ This is not so bad, we just have two more trivial instructions compared to the h
 
 The answer is: **No**, fortunately, the magic number being just one bit larger than the word size is the worst case.
 
-To see why, note that the size of the interval where $\xi=\frac{m}{2^{k}}$ can possibly live is precisely $1/vq$. Therefore, if $k$ is large enough so that $2^{k}\geq vq$, then the difference between the endpoints of the inequality
+<span id="magic-number-size-bound"></span>To see why, note that the size of the interval where $\xi=\frac{m}{2^{k}}$ can possibly live is precisely $1/vq$. Therefore, if $k$ is large enough so that $2^{k}\geq vq$, then the difference between the endpoints of the inequality
 
 $$
   \frac{2^{k}}{q} \leq m < 2^{k}\left(\frac{1}{q} + \frac{1}{vq}\right)
@@ -1040,13 +1040,13 @@ After filling out some omitted details, we arrive at the following algorithm.
 
 An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L88).
 
-## The result by Lemire et al.
+## Results by Lemire et al.
 
 Consider the special case when $x=\frac{1}{q}$, $q\leq n_{\max}$, and $\xi=\zeta$. In this case, we have the following result:
 
->**Theorem 8 ([Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442), 2021).**
+><b id="lemire-special-case">Theorem 8</b> ([Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442), 2021)**.**
 >
->We have
+>For any positive integers $q$ and $n_{\max}$ with $q\leq n_{\max}$, we have
 >
 >$$
 >  \left\lfloor\frac{n}{q}\right\rfloor
@@ -1062,7 +1062,7 @@ Consider the special case when $x=\frac{1}{q}$, $q\leq n_{\max}$, and $\xi=\zeta
 
 We can give an alternative proof of this fact using what we have developed so far. Essentially, this is due to the fact that [**Algorithm 5**](#lower-bound-algorithm) finishes its iteration at the first step and do not proceed further.
 
->Proof. $(\Rightarrow)$ Take $n=q-1$, then we have $0 = \left\lfloor q\xi\right\rfloor$, thus $\xi<\frac{1}{q}$ follows. On the other hand, take $n = \left\lfloor\frac{n_{\max}}{q}\right\rfloor q$, then we have
+>**Proof.** $(\Rightarrow)$ Take $n=q-1$, then we have $0 = \left\lfloor q\xi\right\rfloor$, thus $\xi<\frac{1}{q}$ follows. On the other hand, take $n = \left\lfloor\frac{n_{\max}}{q}\right\rfloor q$, then we have
 >
 >$$
 >  \left\lfloor\frac{n_{\max}}{q}\right\rfloor
@@ -1131,7 +1131,86 @@ We can give an alternative proof of this fact using what we have developed so fa
 
 Note the fact that the numerator of $x$ is $1$ is crucially used in this proof.
 
-[Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) also showed that, if $n_{\max} = 2^{N} - 1$ and $q$ is not a power of $2$, then whenever the best magic constant predicted by [**Theorem 2**](#floor-computation) does not fit into a word, the best magic constant predicted by the above theorem should fit into a word. Therefore, these two are enough when $n_{\max} = 2^{N} - 1$, $x=\frac{1}{q}$, and $q\leq n_{\max}$. Then does [**Algorithm 7**](#xi-zeta-finding-algorithm) have any relevance in practice?
+[Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) also showed that, if $n_{\max} = 2^{N} - 1$ and $q$ is not a power of $2$, then whenever the best magic constant predicted by [**Theorem 2**](#floor-computation) does not fit into a word, the best magic constant predicted by the above theorem should fit into a word. In fact, those assumptions about being power of $2$ or not power of $2$ and such can be removed, as shown below.
+
+>**Theorem 9** (Improves [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442))
+>
+>Let $q,u,v$ be positive integers, and let $k$ be the smallest integer such that the set
+>
+>$$
+>  \left[\frac{2^{k}}{q}, \frac{2^{k}}{q}\left(1 + \frac{1}{v}\right)\right)
+>  \cap \mathbb{Z}
+>$$
+>
+>is not empty. If $\frac{2^{k}}{q} \geq \max\left(u,v\right)$, then the set
+>
+>$$
+>  \left[\frac{2^{k-1}}{q}\left(1-\frac{1}{u}\right), \frac{2^{k-1}}{q}\right)
+>  \cap \mathbb{Z}
+>$$
+>
+>must be nonempty as well.
+
+Thus, if we let $v$ to be the $v$ in [**Theorem 2**](#floor-computation) and $u\coloneqq \left\lfloor \frac{n_{\max}}{q}\right\rfloor q+1$, then whenever the best magic constant $m=\left\lfloor \frac{2^{k}}{q} \right\rfloor$ happens to be greater than or equal to $n_{\max}$, we always have
+
+$$
+  \left\lceil \frac{2^{k-1}}{q}\left(1 - \frac{1}{u}\right)\right\rceil
+  < \frac{2^{k-1}}{q}.
+$$
+
+Recall that we have seen in a [previous section](#magic-number-size-bound) that $\frac{2^{k}}{q} < 2v$ always holds, so the right-hand side of the above is bounded by $v\leq n_{\max}$, so indeed this shows that the best magic constant predicted by [**Theorem 8**](#lemire-special-case) is bounded by $n_{\max}$ in this case.
+
+>**Proof.** By definition of $k$, we must have
+>
+>$$
+>  \left[\frac{2^{k-1}}{q}, \frac{2^{k-1}}{q}\left(1 + \frac{1}{v}\right)\right)
+>  \cap \mathbb{Z} = \emptyset.
+>$$
+>
+>Let
+>
+>$$
+>  \alpha := \left\lceil \frac{2^{k-1}}{q} \right\rceil - \frac{2^{k-1}}{q}
+>  \in [0,1),
+>$$
+>
+>then hence we must have
+>
+>$$
+>  \frac{2^{k-1}}{q} + \alpha \geq \frac{2^{k-1}}{q}\left(1 + \frac{1}{v}\right),
+>$$
+>
+>thus
+>
+>$$\label{eq:bound in the proof of the complementary result}
+>  \alpha \geq \frac{2^{k-1}}{qv}.
+>$$
+>
+>Now, note that
+>
+>$$\begin{aligned}
+>  \frac{2^{k-1}}{q}\left(1-\frac{1}{u}\right)
+>  &= \left\lceil \frac{2^{k-1}}{q} \right\rceil
+>  - \alpha - \frac{2^{k-1}}{qu},
+>\end{aligned}$$
+>
+>so it is enough to show that
+>
+>$$
+>  \alpha + \frac{2^{k-1}}{qu} \geq 1.
+>$$
+>
+>Note that from $\eqref{eq:bound in the proof of the complementary result}$, we know
+>
+>$$
+>  \alpha + \frac{2^{k-1}}{qu}
+>  \geq \frac{2^{k-1}}{qv} + \frac{2^{k-1}}{qu}
+>  \geq \frac{2^{k}}{q\max\left(u,v\right)},
+>$$
+>
+>and the right-hand side is bounded below by $1$ by the assumption, so we are done.
+
+Therefore, [**Theorem 2**](#floor-computation) and [**Theorem 8**](#lemire-special-case) are enough to cover all cases when $x=\frac{1}{q}$ with $q\leq n_{\max}$. Then does [**Algorithm 7**](#xi-zeta-finding-algorithm) have any relevance in practice?
 
 ## An example usage of [**Algorithm 7**](#xi-zeta-finding-algorithm)
 
