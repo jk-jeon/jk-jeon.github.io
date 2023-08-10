@@ -888,12 +888,10 @@ and repeating this procedure gives us the smallest minimizer of $\frac{\left\lfl
 >2. If $n_{0} = 1$, then $n_{0}$ is the smallest minimizer; return.
 >3. Find the largest $n=1,\ \cdots\ ,n_{0} - 1$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{1}$.
 >4. Inspect the inequality
->  
->  $$
->    \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
->    \geq \frac{\left\lfloor n_{0}x\right\rfloor + 1 - \zeta}{n_{0}}.
->  $$
->  
+>\\[
+>  \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
+>  \geq \frac{\left\lfloor n_{0}x\right\rfloor + 1 - \zeta}{n_{0}}.
+>\\]
 >5. If the inequality does not hold, then $n_{0}$ is the smallest minimizer; return.
 >6. If the inequality does hold, then set $n_{0}\leftarrow n_{0} - n_{1}$ and go to Step 2.
 
@@ -978,94 +976,70 @@ After filling out some omitted details, we arrive at the following algorithm.
 >2. Find the smallest $n=1,\ \cdots\ ,n_{\max}$ that minimizes $\frac{\left\lfloor nx\right\rfloor + 1}{n}$ and call it $n_{U,0}$.
 >3. Set $\zeta_{\max} \leftarrow 0$, $\zeta_{L,\max} \leftarrow 0$, $\zeta_{U,\max} \leftarrow 0$, $n_{L,1} \leftarrow 0$, $n_{U,1} \leftarrow 0$.
 >4. Check if $\zeta_{\max} = \zeta_{L,\max}$. If that is the case, then we have to update $\zeta_{L,\max}$. Set $n_{L,0}\leftarrow n_{L,0}+n_{L,1}$. If $n_{L,0}=n_{\max}$, then set $\zeta_{L,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max}-n_{L,0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{L,1}$, and set
->  
->  $$
->    \zeta_{L,\max}\leftarrow
->    \min\left(\frac{n_{L,1}\left\lfloor n_{L,0}x\right\rfloor
->    - n_{L,0}\left\lfloor n_{L,1}x\right\rfloor}{n_{L,1}}, 1\right).
->  $$
->  
+>\\[
+>  \zeta_{L,\max}\leftarrow
+>  \min\left(\frac{n_{L,1}\left\lfloor n_{L,0}x\right\rfloor
+>  - n_{L,0}\left\lfloor n_{L,1}x\right\rfloor}{n_{L,1}}, 1\right).
+>\\]
 >5. Check if $\zeta_{\max} = \zeta_{U,\max}$. If that is the case, then we have to update $\zeta_{U,\max}$. Set $n_{U,0}\leftarrow n_{U,0}-n_{U,1}$. If $n_{U,0}=1$, then set $\zeta_{U,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{U,0}-1$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{U,1}$, and set
->  
->  $$
->    \zeta_{U,\max}\leftarrow
->    \min\left(\frac{n_{U,1}\left(\left\lfloor n_{U,0}x\right\rfloor + 1\right)
->    - n_{U,0}\left\lfloor n_{U,1}x\right\rfloor}{n_{U,1}}, 1\right).
->  $$
->  
+>\\[
+>  \zeta_{U,\max}\leftarrow
+>  \min\left(\frac{n_{U,1}\left(\left\lfloor n_{U,0}x\right\rfloor + 1\right)
+>  - n_{U,0}\left\lfloor n_{U,1}x\right\rfloor}{n_{U,1}}, 1\right).
+>\\]
 >6. Set $\zeta_{\min}\leftarrow \zeta_{\max}$, $\zeta_{\max} \leftarrow \min\left(\zeta_{L,\max},\zeta_{U,\max}\right)$, and
->  
->  $$
->    \Delta \leftarrow
->    \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}
->    - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}.
->  $$
->  
->  If $\Delta\leq 0$, then this means the search interval $I$ is empty. In this case, go to Step 15. Otherwise, proceed to the next step.
->  
+>\\[
+>  \Delta \leftarrow
+>  \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}
+>  - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}.
+>\\]
+>    If $\Delta\leq 0$, then this means the search interval $I$ is empty. In this case, go to Step 15. Otherwise, proceed to the next step.
 >7. Set $k_{0}\leftarrow \left\lfloor\log_{2}\frac{1}{\Delta}\right\rfloor$ and compute
->  
->  $$
->    t \leftarrow \left\lfloor
->      \frac{2^{k_{0}}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
->      {n_{L,0}}
->    \right\rfloor + 1.
->  $$
->  
+>\\[
+>  t \leftarrow \left\lfloor
+>    \frac{2^{k_{0}}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
+>    {n_{L,0}}
+>  \right\rfloor + 1.
+>\\]
 >8. Inspect the inequality
->  
->  $$
->    t < \frac{2^{k_{0}}\left(
->      \left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}
->    \right)}{n_{U,0}}.
->  $$
->  
->  If it does not hold, then set $k_{0}\leftarrow k_{0} + 1$, recompute $t$ accordingly, and set $b\leftarrow 0$. If it does hold, then set $b$ be the greatest integer such that $2^{b}$ divides $t$, and set $t\leftarrow t/2^{b}$.
->  
+>\\[
+>  t < \frac{2^{k_{0}}\left(
+>    \left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}
+>  \right)}{n_{U,0}}.
+>\\]
+>    If it does not hold, then set $k_{0}\leftarrow k_{0} + 1$, recompute $t$ accordingly, and set $b\leftarrow 0$. If it does hold, then set $b$ be the greatest integer such that $2^{b}$ divides $t$, and set $t\leftarrow t/2^{b}$.
 >9. Set
->
->  $$
->    \zeta_{0} \leftarrow \max\left(
->      \frac{2^{k_{0}-b}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}{2^{k_{0}-b}},
->    0\right)
->  $$
->
->  and inspect the inequality $tn_{\max} + 2^{k_{0}-b}\zeta_{0}\leq N_{\max}$. If it does not hold, then this means every candidate we can find in the interval $[\zeta_{\min},\zeta_{\max})$ are too large numbers, so we move onto the next subinterval. In this case, go to Step 18. Otherwise, proceed to the next step.
->  
+>\\[
+>  \zeta_{0} \leftarrow \max\left(
+>    \frac{2^{k_{0}-b}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}{2^{k_{0}-b}},
+>  0\right)
+>\\]
+>    and inspect the inequality $tn_{\max} + 2^{k_{0}-b}\zeta_{0}\leq N_{\max}$. If it does not hold, then this means every candidate we can find in the interval $[\zeta_{\min},\zeta_{\max})$ are too large numbers, so we move onto the next subinterval. In this case, go to Step 18. Otherwise, proceed to the next step.
 >10. If $\zeta_{0}\geq\zeta_{\min}$, then $\zeta_{0}\in[\zeta_{\min},\zeta_{\max})$ and $tn_{\max} + 2^{k_{0}-b}\zeta_{0} \leq N_{\max}$ hold, so it is enough to check the inequality
->  
->  $$
->    \frac{t}{2^{k_{0}-b}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{0}}
->    {n_{U,0}}.
->  $$
->  
->  If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{t}{2^{k_{0}-b}}$ does not yield an admissible answer. In this case, go to Step 16.
->  
+>\\[
+>  \frac{t}{2^{k_{0}-b}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{0}}
+>  {n_{U,0}}.
+>\\]
+>If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{t}{2^{k_{0}-b}}$ does not yield an admissible answer. In this case, go to Step 16.
 >11. If $\zeta_{0}<\zeta_{\min}$, then set $k\leftarrow k_{0}-b$.
 >12. Set $m\leftarrow 2^{k-k_{0}+b}$. Set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >13. Set $m\leftarrow 2^{k-k_{0}+b}t$ and check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >14. Inspect the inequality
->  
->  $$
->    \frac{m}{2^{k}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta}{n_{U,0}}.
->  $$
->  
->  If it does hold, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, set $k\leftarrow k+1$ and proceed to the next step.
->  
+>\\[
+>  \frac{m}{2^{k}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta}{n_{U,0}}.
+>\\]
+>    If it does hold, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, set $k\leftarrow k+1$ and proceed to the next step.
 >15. Check if $mn_{\max}+2^{k}\zeta_{0} \leq N_{\max}$ holds. If it does hold, then go back to Step 12. Otherwise, proceed to the next step.
->  
 >16. Set $k_{0}\leftarrow k_{0}+1$, $b\leftarrow 0$, and compute
->  
->  $$
->    t \leftarrow \left\lfloor
->      \frac{2^{k_{0}}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
->      {n_{L,0}}
->    \right\rfloor + 1,\quad
->    \zeta_{0}\leftarrow \max\left(
->      \frac{2^{k_{0}}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}{2^{k_{0}}},
->    0\right).
->  $$
->  
+>\\[
+>  t \leftarrow \left\lfloor
+>    \frac{2^{k_{0}}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
+>    {n_{L,0}}
+>  \right\rfloor + 1,\quad
+>  \zeta_{0}\leftarrow \max\left(
+>    \frac{2^{k_{0}}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}{2^{k_{0}}},
+>  0\right).
+>\\]
 >17. If $t$ is even, then set $t\leftarrow t+1$. Inspect the inequality $tn_{\max} + 2^{k_{0}}\zeta_{0}\leq N_{\max}$. If this does not hold, then this means every other candidate in the interval $[\zeta_{\min},\zeta_{\max})$ we have not seen yet are too large numbers, so we move onto the next subinterval. In this case, go to Step 18. Otherwise, we repeat the procedure Step 10 - Step 15 for $t\leftarrow t+2\tau$ for all nonnegative integer $\tau$ such that $t+2\tau<\frac{2^{k_{0}}\left(\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}\right)}{n_{U,0}}$ (note that $\tau=0$ might still violate the inequality), and if it fails for all such $\tau$, then go to Step 16. 
 >18. We have failed to find any admissible choice of $(k,m,s)$ so far, so we have to move onto the next subinterval. If $\zeta_{\max}=1$, then we already have exhausted the whole interval, so retrun with **FAIL**. Otherwise, go back to Step 4.
 
