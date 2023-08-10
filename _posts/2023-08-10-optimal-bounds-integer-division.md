@@ -1,7 +1,7 @@
 ---
 title: "On the Optimal Bounds for Integer Division by Constants"
-date: 2023-08-07
-permalink: /posts/2022/08/optimal-bounds-integer-division/
+date: 2023-08-10
+permalink: /posts/2023/08/optimal-bounds-integer-division/
 tags:
   - programming
   - C/C++
