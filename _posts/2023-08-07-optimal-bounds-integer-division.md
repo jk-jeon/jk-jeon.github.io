@@ -976,19 +976,8 @@ After filling out some omitted details, we arrive at the following algorithm.
 >2. Find the smallest $n=1,\ \cdots\ ,n_{\max}$ that minimizes $\frac{\left\lfloor nx\right\rfloor + 1}{n}$ and call it $n_{U,0}$.
 >3. Set $\zeta_{\max} \leftarrow 0$, $\zeta_{L,\max} \leftarrow 0$, $\zeta_{U,\max} \leftarrow 0$, $n_{L,1} \leftarrow 0$, $n_{U,1} \leftarrow 0$.
 >4. Check if $\zeta_{\max} = \zeta_{L,\max}$. If that is the case, then we have to update $\zeta_{L,\max}$. Set $n_{L,0}\leftarrow n_{L,0}+n_{L,1}$. If $n_{L,0}=n_{\max}$, then set $\zeta_{L,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max}-n_{L,0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{L,1}$, and set \\[ \zeta_{L,\max}\leftarrow \min\left(\frac{n_{L,1}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}\left\lfloor n_{L,1}x\right\rfloor}{n_{L,1}}, 1\right). \\]
->5. Check if $\zeta_{\max} = \zeta_{U,\max}$. If that is the case, then we have to update $\zeta_{U,\max}$. Set $n_{U,0}\leftarrow n_{U,0}-n_{U,1}$. If $n_{U,0}=1$, then set $\zeta_{U,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{U,0}-1$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{U,1}$, and set
->  \\[
->    \zeta_{U,\max}\leftarrow
->    \min\left(\frac{n_{U,1}\left(\left\lfloor n_{U,0}x\right\rfloor + 1\right)
->    - n_{U,0}\left\lfloor n_{U,1}x\right\rfloor}{n_{U,1}}, 1\right).
->  \\]
->6. Set $\zeta_{\min}\leftarrow \zeta_{\max}$, $\zeta_{\max} \leftarrow \min\left(\zeta_{L,\max},\zeta_{U,\max}\right)$, and
->  \\[
->    \Delta \leftarrow
->    \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}
->    - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}.
->  \\]
->    If $\Delta\leq 0$, then this means the search interval $I$ is empty. In this case, go to Step 15. Otherwise, proceed to the next step.
+>5. Check if $\zeta_{\max} = \zeta_{U,\max}$. If that is the case, then we have to update $\zeta_{U,\max}$. Set $n_{U,0}\leftarrow n_{U,0}-n_{U,1}$. If $n_{U,0}=1$, then set $\zeta_{U,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{U,0}-1$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{U,1}$, and set \\[ \zeta_{U,\max}\leftarrow \min\left(\frac{n_{U,1}\left(\left\lfloor n_{U,0}x\right\rfloor + 1\right) - n_{U,0}\left\lfloor n_{U,1}x\right\rfloor}{n_{U,1}}, 1\right). \\]
+>6. Set $\zeta_{\min}\leftarrow \zeta_{\max}$, $\zeta_{\max} \leftarrow \min\left(\zeta_{L,\max},\zeta_{U,\max}\right)$, and \\[ \Delta \leftarrow \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}} - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}. \\] If $\Delta\leq 0$, then this means the search interval $I$ is empty. In this case, go to Step 15. Otherwise, proceed to the next step.
 >7. Set $k_{0}\leftarrow \left\lfloor\log_{2}\frac{1}{\Delta}\right\rfloor$ and compute
 >\\[
 >  t \leftarrow \left\lfloor
@@ -1048,15 +1037,15 @@ $$\label{eq:gap between successive zeta max}
   \frac{n_{1}\left\lfloor n_{0}x\right\rfloor
   - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},
 $$
-</div>
-    respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to
-\\[
+</div> respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to
+<div>
+$$
   (n_{0}+n_{1})\left(
     \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
     - \frac{\left\lfloor n_{2}x\right\rfloor}{n_{2}}
   \right).
-\\]
-    Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
+$$
+</div> Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
   
 2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, [**Algorithm 7**](#xi-zeta-finding-algorithm) favors the one with the smallest $k$, and among all admissible choices of $(k,m,s)$ with the smallest $k$, it favors the one with the smallest $s$.
 
