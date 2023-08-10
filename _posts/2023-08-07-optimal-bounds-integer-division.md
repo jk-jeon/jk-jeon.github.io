@@ -33,13 +33,13 @@ Obviously, we are gonna apply this idea for computers, so the denominators of th
 
 >**Theorem 1 (Granlund-Montgomery, 1994).**
 >
-> Suppose $m$, $d$, $k$ are nonnegative integers such that $d\neq 0$ 
+>Suppose $m$, $d$, $k$ are nonnegative integers such that $d\neq 0$ 
 >
-> $$
->   2^{N+k} \leq md \leq 2^{N+k}+2^{k}.
-> $$
+>$$
+>  2^{N+k} \leq md \leq 2^{N+k}+2^{k}.
+>$$
 >
-> Then $\left\lfloor n/d \right\rfloor = \left\lfloor mn/2^{N+k} \right\rfloor$ for every integer $n$ with $0\leq n< 2^{N}$.
+>Then $\left\lfloor n/d \right\rfloor = \left\lfloor mn/2^{N+k} \right\rfloor$ for every integer $n$ with $0\leq n< 2^{N}$.
 
 Here, $d$ is the given divisor and we are supposed to approximate $\frac{1}{d}$ by $\frac{m}{2^{N+k}}$. An assumption here is that we want to perform the division $n/d$ for all $n$ from $0$ to $2^{N}-1$, where $N$ is supposed to be the bit-width of the integer type we are dealing with. In this setting, this theorem gives a sufficient condition where we can compute the quotient of $n/d$ by first multiplying $m$ to $n$ and then shifting the result to the right by $(N+k)$-bits. A premise here is that we will need more than $N$-bits because our dividend is of $N$-bits, so maybe the result of the multiplication $mn$ will need to be stored in $2N$-bits. Since we are shifting by $(N+k)$-bits, the lower half of the result is actually not needed, and we just take the upper half and shift it by $k$-bits.
 
@@ -653,10 +653,10 @@ Hence, we finally arrive at the following iterative algorithm for computing the 
 >2. If $n_{0} = n_{\max}$, then $n_{0}$ is the largest maximizer; return.
 >3. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max} - n_{0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{1}$.
 >4. Inspect the inequality
->$$\begin{aligned}
->  \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
->  \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.
->\end{aligned}$$
+>  $$\begin{aligned}
+>    \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
+>    \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.
+>  \end{aligned}$$
 >5. If the inequality does not hold, then $n_{0}$ is the largest maximizer; return.
 >6. If the inequality does hold, then set $n_{0}\leftarrow n_{0} + n_{1}$ and go to Step 2.
 
@@ -1092,3 +1092,11 @@ After filling out some omitted details, we arrive at the following algorithm.
   Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
   
 2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, [**Algorithm 7**](#xi-zeta-finding-algorithm) favors the one with the smallest $k$, and among all admissible choices of $(k,m,s)$ with the smallest $k$, it favors the one with the smallest $s$.
+
+## Deducing the result by Lemire et al
+
+Consider the special case when $x=\frac{1}{q}$, $q\leq n_{\max}$, and $\xi=\zeta$. In this case, we have the following result:
+
+>**Theorem 8 (Lemire et al, 2021).**
+>
+>Suppose $m$, $d$, $k$ are nonnegative integers such that $d\neq 0$ 
