@@ -1208,7 +1208,7 @@ Recall that we have seen in a [previous section](#magic-number-size-bound) that 
 >  \geq \frac{2^{k}}{q\max\left(u,v\right)},
 >$$
 >
->and the right-hand side is bounded below by $1$ by the assumption, so we are done.
+>and the right-hand side is bounded below by $1$ by the assumption, so we are done. $\quad\blacksquare$
 
 Therefore, [**Theorem 2**](#floor-computation) and [**Theorem 8**](#lemire-special-case) are enough to cover all cases when $x=\frac{1}{q}$ with $q\leq n_{\max}$. Then does [**Algorithm 7**](#xi-zeta-finding-algorithm) have any relevance in practice?
 
