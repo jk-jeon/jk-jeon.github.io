@@ -95,7 +95,7 @@ It [seems](https://godbolt.org/z/b3jcs9vMK) that even the most recent version of
 
 Then what is the best possible condition? I am not sure who was the first for finding the optimal bound, but at least it seems that such a bound is written in the famous book *Hacker's Delight* by H. S. Warren Jr. Also, recently (in 2021), [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) showed the optimality of an equivalent bound. I will not write down the optimal bounds obtained by these authors, because I will present a more general result proved by myself in the next section.
 
-Here is one remark before getting into the next section. The aforementioned results on the optimal bound work for $n$ from the range $$\left\{1,\ \cdots\ ,n_{\max}\right\}$$ where $n_{\max}$ is *not necessarily of the form* $2^{N}-1$. However, it seems that even recent compilers do not seem to leverage this fact. For example, let us look at the following code:
+Here is one remark before getting into the next section. The aforementioned results on the optimal bound work for $n$ from the range $$\left\{1,\ \cdots\ ,n_{\max}\right\}$$ where $n_{\max}$ is *not necessarily of the form* $2^{N}-1$. However, even recent compilers do not seem to leverage this fact. For example, let us look at the following code:
 ```cpp
 std::uint64_t div(std::uint64_t n) {
     [[assume(n < 10000000000)]];
@@ -143,7 +143,7 @@ And there is no big difference😥
 
 Actually, during the development of [Dragonbox](https://github.com/jk-jeon/dragonbox), I was interested in a more general problem of multiplying a rational number to $n$ and then finding out the integer part of the resulting rational number. In other words, my problem was not just about division, rather about multiplication followed by a division. This presence of multiplier certainly makes the situation a little bit more tricky, but it is anyway possible to derive the optimal bound in a similar way, which leads to the following generalization of the results mentioned in the previous section. *(Disclaimer: I am definitely not claiming to be the first who proved this, and I am sure an equivalent result could be found elsewhere, though I am not aware of any.)*
 
-><b id=floor-computation>Theorem 2</b> (From [this paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf))**.**
+><b id="floor-computation">Theorem 2</b> (From [this paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf))**.**
 >
 >Let $x$ be a real number and $n_{\max}$ a positive integer. Then for a real number $\xi$, we have the followings.
 >
@@ -344,7 +344,7 @@ can be computed by performing a multiplication, an addition, and a shift.
 
 The inclusion of this $\zeta$ might allow us to use a smaller magic number, thereby enabling its accommodation within a single word. The next section is dedicated to the condition for having the above equality.
 
-Here is a small remark before we start the (extensive) discussion of the optimal bound for this. Note that this trick of including the $\zeta$ term is probably not so useful for $64$-bit divisions, because addition is not really a trivial operation in this case. This is because the result of the multiplication $mn$ spans two $64$-bit blocks. Hence, we need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. While I have not conducted a benchmark, I speculate that this approach probably result in worse performance. However, this trick might give a better performance for the $32$-bit case than the method explained in this section, as every operation can be done inside $64$-bits. Interestingly, it [seems](https://godbolt.org/z/zqKW3WhEn) modern compilers do not use this trick anyway. In the link provided, the compiler is trying to compute multiplication by $4999244749$ followed by the shift by $49$-bits. However, it turns out, by multiplying $1249811187$, adding $1249811187$, and then shifting to right by $47$-bits, we can do this computation completely within $64$-bits. I do not know whether the reason why the compilers do not leverage this trick is because it does not perform better, or just because they did not bother to implement it.
+Here is a small remark before we start the (extensive) discussion of the optimal bound for this. Note that this trick of including the $\zeta$ term is probably not so useful for $64$-bit divisions, because addition is not really a trivial operation in this case. This is because the result of the multiplication $mn$ spans two $64$-bit blocks. Hence, we need an `adc` (add-with-carry) instruction or an equivalent, which is not particularly well-optimized in typical x86-64 CPU's. While I have not conducted a benchmark, I speculate that this approach probably results in worse performance. However, this trick might give a better performance for the $32$-bit case than the method explained in this section, as every operation can be done inside $64$-bits. Interestingly, it [seems](https://godbolt.org/z/zqKW3WhEn) modern compilers do not use this trick anyway. In the link provided, the compiler is trying to compute multiplication by $4999244749$ followed by the shift by $49$-bits. However, it turns out, by multiplying $1249811187$, adding $1249811187$, and then shifting to right by $47$-bits, we can do this computation completely within $64$-bits. I do not know whether the reason why the compilers do not leverage this trick is because it does not perform better, or just because they did not bother to implement it.
 
 # Multiply-add-and-shift rather than multiply-shift
 
@@ -356,7 +356,7 @@ $$
   \left\lfloor nx \right\rfloor = \left\lfloor n\xi + \zeta \right\rfloor
 $$
 
-for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. I provided a proof of this special case in a later [subsection](#the-result-by-lemire-et-al). The proof I wrote seem to rely on a heavy result proved below, but it can be done without it pretty easily as well.
+for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. I provided a proof of this special case in a later [subsection](#the-result-by-lemire-et-al). The proof I wrote seems to rely on a heavy lifting done below, but it can be done without it pretty easily as well.
 
 However, in the general case I am dealing here, i.e., the only restriction I have is $\zeta\geq 0$, the situation is quite more complicated. Nevertheless, even in this generality, it is possible to give a very concrete description of how exactly the presence of $\zeta$ distorts the optimal bound.
 
@@ -452,7 +452,7 @@ $$
   < \frac{q}{n}(qx - p)
 $$
 
-which contradicts to $n>q$. Therefore, by the definition of $n_{0}$, we must have $n>n_{\max}$, so in particular $n>n_{0}$.
+which contradicts to $n>q$. Therefore, by the definition of $n_{0}$, we must have $n>n_{\max}$.
 
 Using this fact, now we can easily prove $\eqref{eq:floor splits; lower bound}$. Again let $\frac{p}{q}$ be the reduced form of $\frac{\left\lfloor n_{0}x\right\rfloor}{n_{0}}$, then for any $n = 0,\ \cdots\ ,n_{\max} - q$, we must have
 
@@ -519,9 +519,11 @@ Therefore, in a sense, $\frac{\left\lfloor nx\right\rfloor}{n}$ itself should be
 
 At this point, we could just enumerate all rational approximations of $x$ from below satisfying the above bound and find out the one that maximizes $\frac{\left\lfloor (n_{0}+n)x \right\rfloor - \zeta}{n_{0}+n}$. Indeed, the theory of continued fractions allows us to develop an efficient algorithm for doing such a task. (See **Algorithm C.13** in my [paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf) on Dragonbox for an algorithm doing a closely related task.) However, we can do better here.
 
-First of all, note that if $\zeta$ is small enough, then $\eqref{eq:lower bound iteration criterion}$ does not have any solution for $n=1,\ \cdots\ ,n_{\max} - n_{0}$, which means $n_{0}$ is indeed the maximizer we are looking for and there is nothing further we need to do. This conclusion is consistent with the intuition that $n_{0}$ should be close enough to the maximizer of $\frac{\left\lfloor nx\right\rfloor -\zeta}{n}$ at least if $\zeta$ is close to zero. But the problem occurs when $\zeta$ is not that small.
+First of all, note that if $\zeta$ is small enough, then $\eqref{eq:lower bound iteration criterion}$ does not have any solution for $n=1,\ \cdots\ ,n_{\max} - n_{0}$, which means $n_{0}$ is indeed the largest maximizer we are looking for and there is nothing further we need to do. To be more precise, if $\zeta$ chosen so that $\frac{\left\lfloor n_{0}x\right\rfloor -\zeta}{n_{0}}$ is strictly greater than the next best rational approximation from below of $x$, then any solution to $\eqref{eq:lower bound iteration criterion}$ must be a multiple of $$q_{*}$$ where $$q_{*}$$ is the denominator of $\frac{\left\lfloor n_{0}x\right\rfloor}{n_{0}}$ in its reduced form. But since $n_{0}$ is chosen to be the largest, it follows that there is no multiple of $$q_{*}$$ in the range $$\{1,\ \cdots\ ,n_{\max} - n_{0}\}$$, so there is no solution to $\eqref{eq:lower bound iteration criterion}$ in that range.
 
-It is quite tempting to claim that the maximizer of the left-hand side of $\eqref{eq:lower bound iteration criterion}$ is the maximizer of $\frac{\left\lfloor (n_{0}+n)x \right\rfloor - \zeta}{n_{0}+n}$, but that is not true in general. Nevertheless, we can start from there, just like that we started from $n_{0}$ from the beginning.
+This conclusion is consistent with the intuition that $n_{0}$ should be close enough to the maximizer of $\frac{\left\lfloor nx\right\rfloor -\zeta}{n}$ at least if $\zeta$ is small. But what if $\zeta$ is not that small?
+
+It is quite tempting to claim that the minimizer of the left-hand side of $\eqref{eq:lower bound iteration criterion}$ is the maximizer of $\frac{\left\lfloor (n_{0}+n)x \right\rfloor - \zeta}{n_{0}+n}$, but that is not true in general. Nevertheless, we can start from there, just like that we started from $n_{0}$ from the beginning.
 
 In this reason, let $n_{1}$ be the largest maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$ for $n=1,\ \cdots\ ,n_{\max} - n_{0}$. As pointed out earlier, if such $n_{1}$ does not satisfy $\eqref{eq:lower bound iteration criterion}$, then there is nothing further to do, so suppose that the inequality is indeed satisfied with $n=n_{1}$.
 
@@ -904,7 +906,7 @@ Note that our purpose of introducing $\zeta$ was to increase the gap between the
 
 Nevertheless, the way those algorithms work for a fixed $\zeta$ is in fact quite special in that it allows us to figure out a good $\zeta$ fitting into our purpose of widening the gap between two bounds. The important point here is that, *$\zeta$ only appears in deciding when to stop the iteration, and all other details of the actual iteration steps do not depend on $\zeta$ at all*.
 
-Hence, our strategy is as follows. First, we assume $\zeta$ lives in the interval $[0,1)$ (otherwise $\left\lfloor nx\right\rfloor = \left\lfloor n\xi+\zeta\right\rfloor$ fails to hold for $n=0$). Then we can partition the interval $[0,1)$ into subintervals of the form $[\zeta_{\min},\zeta_{\max})$ where the numbers of iterations that [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm) will take remain constant. Then we look at each of these subintervals one by one, from left to right, while proceeding the iterations of [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm) whenever we move into the next subinterval and the numbers of iterations for each of them change.
+Hence, our strategy is as follows. First, we assume $\zeta$ lives in the interval $[0,1)$ (otherwise $\left\lfloor nx\right\rfloor = \left\lfloor n\xi+\zeta\right\rfloor$ fails to hold for $n=0$). Then we can partition the interval $[0,1)$ into subintervals of the form $[\zeta_{\min},\zeta_{\max})$ where the numbers of iterations that [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm) will take remain constant. Then we look at each of these subintervals one by one, from left to right, while proceeding the iterations of [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm) whenever we move onto the next subinterval and the numbers of iterations for each of them change.
 
 Our constraint on $\xi$ and $\zeta$ is that the computation of $mn+s$ should not overflow, so suppose that there is a given limit $N_{\max}$ on how large $mn+s$ can be. Now, take a subinterval $[\zeta_{\min},\zeta_{\max})$ as described above. If there is at least one feasible choice of $\xi$ for some $\zeta\in[\zeta_{\min},\zeta_{\max})$, then such $\xi$ must lie in the interval
 
@@ -912,7 +914,7 @@ $$
   I:= \left(\frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}, \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}\right),
 $$
 
-where $n_{L,0}$ and $n_{U,0}$ mean $n_{0}$ appearing in [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm), respectively.
+where $n_{L,0}$ and $n_{U,0}$ are the supposed output of [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm), respectively, which must stay constant as long as $\zeta\in[\zeta_{\min},\zeta_{\max})$.
 
 Next, we will take a loop over all candidates for $\xi$ in $I$ and check one by one if a chosen candidate is really a possible choice of $\xi$. Let $\Delta$ be the size of the interval above, that is,
 
@@ -953,7 +955,7 @@ $$
 
 given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions are satisfied, then $k=k_{0}'-b$, $m=t$, and $s=2^{k_{0}'-b}\zeta_{0}$ are valid solutions. Otherwise, we conclude that $\xi$ does not yield an admisslbe choice of $(k,m,s)$.
 
-If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. Now, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions. Actually, the difference $\zeta-\zeta_{0}$ can be made small by considering a larger denominator of $\xi$ and $\zeta_{0}$, so we have to successively double the denominator and see there is a case where $\zeta$ satisfies all three conditions. Of course, if we enlarged the denominator too much, then the smallness constraint will get broken no matter how small $\zeta-\zeta_{0}$ is, so at that point we stop doing this doubling and conclude that $\xi$ does not yield an admissible choice of $(k,m,s)$.
+If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. Now, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions. Actually, the difference $\zeta-\zeta_{0}$ can be made small by considering a larger denominator of $\xi$ and $\zeta_{0}$, so we have to successively double the denominator and see if there is a case where $\zeta$ satisfies all three conditions. Of course, if we enlarged the denominator too much, then the smallness constraint will get broken no matter how small $\zeta-\zeta_{0}$ will be, so at that point we stop doing this doubling and conclude that $\xi$ does not yield an admissible choice of $(k,m,s)$.
 
 If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase $k_{0}'$ by one and repeat the same procedure with the integers in the interval $2^{k_{0}'}\Delta$. Note that this time we do not need to consider even integers because those were already checked for smaller $k_{0}'$.
 
@@ -992,7 +994,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 >    \left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}
 >  \right)}{n_{U,0}}.
 >\\]
->    If it does not hold, then set $k_{0}\leftarrow k_{0} + 1$, recompute $t$ accordingly, and set $b\leftarrow 0$. If it does hold, then set $b$ be the greatest integer such that $2^{b}$ divides $t$, and set $t\leftarrow t/2^{b}$.
+>    If it does not hold, then set $k_{0}\leftarrow k_{0} + 1$, recompute $t$ accordingly, and set $b\leftarrow 0$. If it does hold, then set $b$ to be the greatest integer such that $2^{b}$ divides $t$, and set $t\leftarrow t/2^{b}$.
 >9. Set
 >\\[
 >  \zeta_{0} \leftarrow \max\left(
@@ -1007,8 +1009,8 @@ After filling out some omitted details, we arrive at the following algorithm.
 >\\]
 >If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{t}{2^{k_{0}-b}}$ does not yield an admissible answer. In this case, go to Step 16.
 >11. If $\zeta_{0}<\zeta_{\min}$, then set $k\leftarrow k_{0}-b$.
->12. Set $m\leftarrow 2^{k-k_{0}+b}$. Set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
->13. Set $m\leftarrow 2^{k-k_{0}+b}t$ and check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
+>12. Set $m\leftarrow 2^{k-k_{0}+b}t. Also, set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
+>13. Check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >14. Inspect the inequality
 >\\[
 >  \frac{m}{2^{k}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta}{n_{U,0}}.
@@ -1032,7 +1034,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 
 1. Whenever we update $\zeta_{L,\max}$ and $\zeta_{U,\max}$, the updated values must be always strictly bigger than the previous values unless they already have reached their highest value $1$. Let us see the case of $\zeta_{L,\max}$; the case of $\zeta_{U,\max}$ is similar. Suppose that initially we had $n_{L,0} = n_{0}$, $n_{L,1} = n_{1}$, and after recomputing $n_{L,1}$ we got $n_{L,1} = n_{2}$. Then the new value of $\zeta_{L,\max}$ and the old value of it are respectively given as \\[\label{eq:gap between successive zeta max} \frac{n_{2}\left\lfloor(n_{0}+n_{1})x\right\rfloor - (n_{0}+n_{1})\left\lfloor n_{2}x\right\rfloor}{n_{2}},\quad \frac{n_{1}\left\lfloor n_{0}x\right\rfloor - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},\\] respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to \\[ (n_{0}+n_{1})\left(\frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}} - \frac{\left\lfloor n_{2}x\right\rfloor}{n_{2}} \right).\\] Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
   
-2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, [**Algorithm 7**](#xi-zeta-finding-algorithm) favors the one with the smallest $k$, and among all admissible choices of $(k,m,s)$ with the smallest $k$, it favors the one with the smallest $s$.
+2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, then [**Algorithm 7**](#xi-zeta-finding-algorithm) tries to minimize $k$, $m$, and then $s$, in that order.
 
 An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L88).
 
@@ -1127,7 +1129,7 @@ We can give an alternative proof of this fact using what we have developed so fa
 
 Note the fact that the numerator of $x$ is $1$ is crucially used in this proof.
 
-[Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) also shows that, if $n_{\max} = 2^{N} - 1$ and $q$ is not a power of $2$, then whenever the best magic constant predicted by [**Theorem 2**](#floor-computation) does not fit into a word, the best magic constant predicted by the above theorem should fit into a word. Therefore, these two are enough when $n_{\max} = 2^{N} - 1$, $x=\frac{1}{q}$, and $q\leq n_{\max}$. Then does [**Algorithm 7**](#xi-zeta-finding-algorithm) have any relevance in practice?
+[Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) also showed that, if $n_{\max} = 2^{N} - 1$ and $q$ is not a power of $2$, then whenever the best magic constant predicted by [**Theorem 2**](#floor-computation) does not fit into a word, the best magic constant predicted by the above theorem should fit into a word. Therefore, these two are enough when $n_{\max} = 2^{N} - 1$, $x=\frac{1}{q}$, and $q\leq n_{\max}$. Then does [**Algorithm 7**](#xi-zeta-finding-algorithm) have any relevance in practice?
 
 ## An example usage of [**Algorithm 7**](#xi-zeta-finding-algorithm)
 
