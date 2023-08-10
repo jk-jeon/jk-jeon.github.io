@@ -1029,23 +1029,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 
 **Remarks.**
 
-1. Whenever we update $\zeta_{L,\max}$ and $\zeta_{U,\max}$, the updated values must be always strictly bigger than the previous values unless they already have reached their highest value $1$. Let us see the case of $\zeta_{L,\max}$; the case of $\zeta_{U,\max}$ is similar. Suppose that initially we had $n_{L,0} = n_{0}$, $n_{L,1} = n_{1}$, and after recomputing $n_{L,1}$ we got $n_{L,1} = n_{2}$. Then the new value of $\zeta_{L,\max}$ and the old value of it are respectively given as
-<div>
-$$\label{eq:gap between successive zeta max}
-  \frac{n_{2}\left\lfloor(n_{0}+n_{1})x\right\rfloor
-  - (n_{0}+n_{1})\left\lfloor n_{2}x\right\rfloor}{n_{2}},\quad
-  \frac{n_{1}\left\lfloor n_{0}x\right\rfloor
-  - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},
-$$
-</div> respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to
-<div>
-$$
-  (n_{0}+n_{1})\left(
-    \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
-    - \frac{\left\lfloor n_{2}x\right\rfloor}{n_{2}}
-  \right).
-$$
-</div> Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
+1. Whenever we update $\zeta_{L,\max}$ and $\zeta_{U,\max}$, the updated values must be always strictly bigger than the previous values unless they already have reached their highest value $1$. Let us see the case of $\zeta_{L,\max}$; the case of $\zeta_{U,\max}$ is similar. Suppose that initially we had $n_{L,0} = n_{0}$, $n_{L,1} = n_{1}$, and after recomputing $n_{L,1}$ we got $n_{L,1} = n_{2}$. Then the new value of $\zeta_{L,\max}$ and the old value of it are respectively given as \\[\label{eq:gap between successive zeta max} \frac{n_{2}\left\lfloor(n_{0}+n_{1})x\right\rfloor - (n_{0}+n_{1})\left\lfloor n_{2}x\right\rfloor}{n_{2}},\quad \frac{n_{1}\left\lfloor n_{0}x\right\rfloor - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},\\] respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to \\[ (n_{0}+n_{1})\left(\frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}} - \frac{\left\lfloor n_{2}x\right\rfloor}{n_{2}} \right).\\] Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
   
 2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, [**Algorithm 7**](#xi-zeta-finding-algorithm) favors the one with the smallest $k$, and among all admissible choices of $(k,m,s)$ with the smallest $k$, it favors the one with the smallest $s$.
 
