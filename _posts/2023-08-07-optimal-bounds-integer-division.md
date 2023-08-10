@@ -975,12 +975,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 >1. Find the largest $n=1,\ \cdots\ ,n_{\max}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{L,0}$.
 >2. Find the smallest $n=1,\ \cdots\ ,n_{\max}$ that minimizes $\frac{\left\lfloor nx\right\rfloor + 1}{n}$ and call it $n_{U,0}$.
 >3. Set $\zeta_{\max} \leftarrow 0$, $\zeta_{L,\max} \leftarrow 0$, $\zeta_{U,\max} \leftarrow 0$, $n_{L,1} \leftarrow 0$, $n_{U,1} \leftarrow 0$.
->4. Check if $\zeta_{\max} = \zeta_{L,\max}$. If that is the case, then we have to update $\zeta_{L,\max}$. Set $n_{L,0}\leftarrow n_{L,0}+n_{L,1}$. If $n_{L,0}=n_{\max}$, then set $\zeta_{L,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max}-n_{L,0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{L,1}$, and set
->  \\[
->    \zeta_{L,\max}\leftarrow
->    \min\left(\frac{n_{L,1}\left\lfloor n_{L,0}x\right\rfloor
->    - n_{L,0}\left\lfloor n_{L,1}x\right\rfloor}{n_{L,1}}, 1\right).
->  \\]
+>4. Check if $\zeta_{\max} = \zeta_{L,\max}$. If that is the case, then we have to update $\zeta_{L,\max}$. Set $n_{L,0}\leftarrow n_{L,0}+n_{L,1}$. If $n_{L,0}=n_{\max}$, then set $\zeta_{L,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max}-n_{L,0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{L,1}$, and set \\[ \zeta_{L,\max}\leftarrow \min\left(\frac{n_{L,1}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}\left\lfloor n_{L,1}x\right\rfloor}{n_{L,1}}, 1\right). \\]
 >5. Check if $\zeta_{\max} = \zeta_{U,\max}$. If that is the case, then we have to update $\zeta_{U,\max}$. Set $n_{U,0}\leftarrow n_{U,0}-n_{U,1}$. If $n_{U,0}=1$, then set $\zeta_{U,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{U,0}-1$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{U,1}$, and set
 >  \\[
 >    \zeta_{U,\max}\leftarrow
@@ -1046,12 +1041,14 @@ After filling out some omitted details, we arrive at the following algorithm.
 **Remarks.**
 
 1. Whenever we update $\zeta_{L,\max}$ and $\zeta_{U,\max}$, the updated values must be always strictly bigger than the previous values unless they already have reached their highest value $1$. Let us see the case of $\zeta_{L,\max}$; the case of $\zeta_{U,\max}$ is similar. Suppose that initially we had $n_{L,0} = n_{0}$, $n_{L,1} = n_{1}$, and after recomputing $n_{L,1}$ we got $n_{L,1} = n_{2}$. Then the new value of $\zeta_{L,\max}$ and the old value of it are respectively given as
-\\[\label{eq:gap between successive zeta max}
+<div>
+$$\label{eq:gap between successive zeta max}
   \frac{n_{2}\left\lfloor(n_{0}+n_{1})x\right\rfloor
   - (n_{0}+n_{1})\left\lfloor n_{2}x\right\rfloor}{n_{2}},\quad
   \frac{n_{1}\left\lfloor n_{0}x\right\rfloor
   - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},
-\\]
+$$
+</div>
     respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to
 \\[
   (n_{0}+n_{1})\left(
@@ -1150,4 +1147,6 @@ We can give an alternative proof of this fact using what we have developed so fa
 >  \frac{n}{q} - \left\lfloor\frac{n}{q}\right\rfloor \leq \frac{q-1}{q},
 >$$
 >
->which means nothing but that the remainder of $n$ divided by $q$ is at most $q-1$, which is trivially true.
+>which means nothing but that the remainder of $n$ divided by $q$ is at most $q-1$, which is trivially true. $\quad\blacksquare$
+
+Note the fact that the numerator of $x$ is $1$ is crucially used in this proof.
