@@ -1182,5 +1182,5 @@ $$
 
 for all $n=0,\ \cdots\ ,2^{32}-1$. The maximum possible value of the numerator $3340530119\cdot n + 477218588$ is strictly less than $2^{64}$ in this case. Hence, we get `div3`.
 
-Note that `div3` has one more instructions than `div2`, but it does not invoke the $128$-bit multiplication (the `mul` instruction both found in `div1` and `div2`) which usually performs not so impressively on typical modern x86-64 CPU's, so I think probably `div3` will perform better than `div2` although I have not benchmarked ro confirm this guess.
+Note that `div3` has one more instructions than `div2`, but it does not invoke the $128$-bit multiplication (the `mul` instruction both found in `div1` and `div2`) which usually performs not so impressively on typical modern x86-64 CPU's, so I think probably `div3` will perform better than `div2` although I have not benchmarked to confirm this guess.
 
