@@ -653,10 +653,10 @@ Hence, we finally arrive at the following iterative algorithm for computing the 
 >2. If $n_{0} = n_{\max}$, then $n_{0}$ is the largest maximizer; return.
 >3. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max} - n_{0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$ and call it $n_{1}$.
 >4. Inspect the inequality
->  $$\begin{aligned}\\
->    \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
->    \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.\\
->  \end{aligned}$$
+>\[
+>  \frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}}
+>  \geq \frac{\left\lfloor n_{0}x\right\rfloor - \zeta}{n_{0}}.
+>\]
 >5. If the inequality does not hold, then $n_{0}$ is the largest maximizer; return.
 >6. If the inequality does hold, then set $n_{0}\leftarrow n_{0} + n_{1}$ and go to Step 2.
 
