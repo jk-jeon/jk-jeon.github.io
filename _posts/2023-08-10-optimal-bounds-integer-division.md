@@ -1151,7 +1151,7 @@ Note the fact that the numerator of $x$ is $1$ is crucially used in this proof.
 >
 >must be nonempty as well.
 
-Thus, if we let $v$ to be the $v$ in [**Theorem 2**](#floor-computation) and $u:= \left\lfloor \frac{n_{\max}}{q}\right\rfloor q+1$, then whenever the best magic constant $m=\left\lfloor \frac{2^{k}}{q} \right\rfloor$ happens to be greater than or equal to $n_{\max}$, we always have
+Thus, if we let $v$ to be the $v$ in [**Theorem 2**](#floor-computation) and $u:= \left\lfloor \frac{n_{\max}}{q}\right\rfloor q+1$, then whenever the best magic constant $m=\left\lceil \frac{2^{k}}{q} \right\rceil$ happens to be greater than or equal to $n_{\max}$, we always have
 
 $$
   \left\lceil \frac{2^{k-1}}{q}\left(1 - \frac{1}{u}\right)\right\rceil
