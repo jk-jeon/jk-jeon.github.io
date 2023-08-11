@@ -1,5 +1,5 @@
 ---
-title: "On the Optimal Bounds for Integer Division by Constants"
+title: "On the optimal bounds for integer division by constants"
 date: 2023-08-10
 permalink: /posts/2023/08/optimal-bounds-integer-division/
 tags:
