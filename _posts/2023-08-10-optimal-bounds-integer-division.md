@@ -12,7 +12,7 @@ It is well-known that the integer division is quite a heavy operation on modern 
 Rather, this post is about some of the common optimization techniques for circumventing 
 integer division. To be more precise, the post can be roughly divided into two parts. The first part discusses the well-known Granlund-Montgomery style multiply-and-shift technique and some associated issues. The second part is about my recent research on a related multiply-add-and-shift technique. In this section, I establish an optimal bound, which perhaps is a novel result. It would be intriguing to see whether modern compilers can take advantage of this new bound.
 
-Note that by *integer division*, we specifically mean rgw computation of the quotient and/or the remainder, rather than evaluating the result as a real number. More specifically, throughout this entire post, *integer division* will always mean taking the quotient unless specified otherwise. Also, I will confine myself into divisions of positive integers, even though divisions of negative integers hold practical significance as well. Finally, all assembly code provided herein are for x86-64 architecture.
+Note that by *integer division*, we specifically mean the computation of the quotient and/or the remainder, rather than evaluating the result as a real number. More specifically, throughout this entire post, *integer division* will always mean taking the quotient unless specified otherwise. Also, I will confine myself into divisions of positive integers, even though divisions of negative integers hold practical significance as well. Finally, all assembly code provided herein are for x86-64 architecture.
 
 # Turning an integer division into a multiply-and-shift
 
