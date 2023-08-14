@@ -91,7 +91,7 @@ $$
 
 to exist is $k=17$, and in that case the unique $m$ satisfying the above is $5475793997$. This is kind of unfortunate, because the magic constant $m=5475793997$ is of $33$-bits, so the computation of $nm$ cannot be done inside $64$-bits. However, it turns out that we can take $k=16$ and $m=2737896999$ and still the equality $\left\lfloor \frac{n}{d}\right\rfloor = \left\lfloor \frac{nm}{2^{N+k}}\right\rfloor$ holds for all $n=0,\ \cdots\ ,2^{N}-1$, although the above inequality is not satisfied in this case. Now, the new constant $2737896999$ is of $32$-bits, so we can do our computation inside $64$-bits. This might result a massive difference in practice!
 
-It [seems](https://godbolt.org/z/b3jcs9vMK) that even the most recent version of GCC (13.2) is still not aware of this, while clang knows that the above $m$ and $k$ works. (In the link provided, GCC is actually trying to compute $\left\lfloor \frac{nm}{2^{N+k}} \right\rfloor$ with the $33$-bit constant $m = 5475793997$. Detailed explanation will be given in a [later section](#when-the-magic-number-is-too-big).)
+It [seems](https://godbolt.org/z/b3jcs9vMK) that even the most recent version of GCC (13.2) is still not aware of this, while clang knows that the above $m$ and $k$ work. (In the link provided, GCC is actually trying to compute $\left\lfloor \frac{nm}{2^{N+k}} \right\rfloor$ with the $33$-bit constant $m = 5475793997$. Detailed explanation will be given in a [later section](#when-the-magic-number-is-too-big).)
 
 Then what is the best possible condition? I am not sure who was the first for finding the optimal bound, but at least it seems that such a bound is written in the famous book *Hacker's Delight* by H. S. Warren Jr. Also, recently (in 2021), [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) showed the optimality of an equivalent bound. (**EDIT**: according to a [Reddit user](https://www.reddit.com/r/cpp/comments/15n9pfy/comment/jvn5amq/?utm_source=share&utm_medium=web2x&context=3), there was a [report](https://dominoweb.draco.res.ibm.com/6005bbbc96b898df852578dc005be861.html) written by H. S. Warren Jr in 1992, even *earlier* than Granlund-Montgomery, which contained the optimal bound with the proof of optimality.)
 
@@ -358,7 +358,7 @@ $$
   \left\lfloor nx \right\rfloor = \left\lfloor n\xi + \zeta \right\rfloor
 $$
 
-for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$ and is effectively rational. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. I provided a proof of this special case in a later [subsection](#the-result-by-lemire-et-al). The proof I wrote seems to rely on a heavy lifting done below, but it can be done without it pretty easily as well.
+for all $n=1,\ \cdots\ ,n_{\max}$, where $x$, $\xi$ are real numbers and $\zeta$ is a nonnegative real number. We will derive the optimal bound, i.e., an "if and only if" condition. We remark that an optimal bound has been obtained in the paper by [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442) mentioned above for the special case when $x=\frac{1}{q}$ for some $q\leq n_{\max}$ and $\xi=\zeta$. According to their paper, the proof of the optimality of their bound is almost identical to the case of having no $\zeta$, so they even did not bother to write down the proof. I provided a proof of this special case in a later [subsection](#the-result-by-lemire-et-al). The proof I wrote seems to rely on a heavy lifting done below, but it can be done without it pretty easily as well.
 
 However, in the general case I am dealing here, i.e., the only restriction I have is $\zeta\geq 0$, the situation is quite more complicated. Nevertheless, even in this generality, it is possible to give a very concrete description of how exactly the presence of $\zeta$ distorts the optimal bound.
 
@@ -957,7 +957,7 @@ $$
 
 given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions are satisfied, then $k=k_{0}'-b$, $m=t$, and $s=2^{k_{0}'-b}\zeta_{0}$ are valid solutions. Otherwise, we conclude that $\xi$ does not yield an admisslbe choice of $(k,m,s)$.
 
-If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. Now, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions. Actually, the difference $\zeta-\zeta_{0}$ can be made small by considering a larger denominator of $\xi$ and $\zeta_{0}$, so we have to successively double the denominator and see if there is a case where $\zeta$ satisfies all three conditions. Of course, if we enlarged the denominator too much, then the smallness constraint will get broken no matter how small $\zeta-\zeta_{0}$ will be, so at that point we stop doing this doubling and conclude that $\xi$ does not yield an admissible choice of $(k,m,s)$.
+If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. Now, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions. Actually, the difference $\zeta-\zeta_{0}$ can be made smaller by considering a larger denominator of $\xi$ and $\zeta_{0}$, so we have to successively double the denominator and see if there is a case where $\zeta$ satisfies all three conditions. Of course, if we enlarged the denominator too much, then the smallness constraint will get broken no matter how small $\zeta-\zeta_{0}$ will be, so at that point we stop doing this doubling and conclude that $\xi$ does not yield an admissible choice of $(k,m,s)$.
 
 If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase $k_{0}'$ by one and repeat the same procedure with the integers in the interval $2^{k_{0}'}\Delta$. Note that this time we do not need to consider even integers because those were already checked for smaller $k_{0}'$.
 
@@ -1011,7 +1011,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 >\\]
 >If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{t}{2^{k_{0}-b}}$ does not yield an admissible answer. In this case, go to Step 16.
 >11. If $\zeta_{0}<\zeta_{\min}$, then set $k\leftarrow k_{0}-b$.
->12. Set $m\leftarrow 2^{k-k_{0}+b}t. Also, set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
+>12. Set $m\leftarrow 2^{k-k_{0}+b}t. Also, set $$a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$$ and $$\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >13. Check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >14. Inspect the inequality
 >\\[
@@ -1036,7 +1036,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 
 1. Whenever we update $\zeta_{L,\max}$ and $\zeta_{U,\max}$, the updated values must be always strictly bigger than the previous values unless they already have reached their highest value $1$. Let us see the case of $\zeta_{L,\max}$; the case of $\zeta_{U,\max}$ is similar. Suppose that initially we had $n_{L,0} = n_{0}$, $n_{L,1} = n_{1}$, and after recomputing $n_{L,1}$ we got $n_{L,1} = n_{2}$. Then the new value of $\zeta_{L,\max}$ and the old value of it are respectively given as \\[\label{eq:gap between successive zeta max} \frac{n_{2}\left\lfloor(n_{0}+n_{1})x\right\rfloor - (n_{0}+n_{1})\left\lfloor n_{2}x\right\rfloor}{n_{2}},\quad \frac{n_{1}\left\lfloor n_{0}x\right\rfloor - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},\\] respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to \\[ (n_{0}+n_{1})\left(\frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}} - \frac{\left\lfloor n_{2}x\right\rfloor}{n_{2}} \right).\\] Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
   
-2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, then [**Algorithm 7**](#xi-zeta-finding-algorithm) tries to minimize $k$, $m$, and then $s$, in that order.
+2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, then [**Algorithm 7**](#xi-zeta-finding-algorithm) tends to favor smaller $k$, $m$, and $s$, in that order, but it may not necessarily minimize them because of how Step 11 - Step 15 work.
 
 An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L88).
 
@@ -1135,23 +1135,23 @@ Note the fact that the numerator of $x$ is $1$ is crucially used in this proof.
 
 >**Theorem 9** (Improves [Lemire et al.](https://doi.org/10.1016/j.heliyon.2021.e07442))
 >
->Let $q,u,v$ be positive integers, and let $k$ be the smallest integer such that the set
+>Let $x$ be a positive real number and $u,v$ be positive integers. Let $k$ be the smallest integer such that the set
 >
 >$$
->  \left[\frac{2^{k}}{q}, \frac{2^{k}}{q}\left(1 + \frac{1}{v}\right)\right)
+>  \left[2^{k}x, 2^{k}x\left(1 + \frac{1}{v}\right)\right)
 >  \cap \mathbb{Z}
 >$$
 >
->is not empty. If $\frac{2^{k}}{q} \geq \max\left(u,v\right)$, then the set
+>is not empty. If $2^{k}x \geq \max\left(u,v\right)$, then the set
 >
 >$$
->  \left[\frac{2^{k-1}}{q}\left(1-\frac{1}{u}\right), \frac{2^{k-1}}{q}\right)
+>  \left[2^{k-1}x\left(1-\frac{1}{u}\right), 2^{k-1}x\right)
 >  \cap \mathbb{Z}
 >$$
 >
 >must be nonempty as well.
 
-Thus, if we let $v$ to be the $v$ in [**Theorem 2**](#floor-computation) and $u:= \left\lfloor \frac{n_{\max}}{q}\right\rfloor q+1$, then whenever the best magic constant $m=\left\lceil \frac{2^{k}}{q} \right\rceil$ happens to be greater than or equal to $n_{\max}$, we always have
+Thus, if we let $x=\frac{1}{q}$, $v$ to be the $v$ in [**Theorem 2**](#floor-computation) and $u:= \left\lfloor \frac{n_{\max}}{q}\right\rfloor q+1$, then whenever the best magic constant $m=\left\lceil \frac{2^{k}}{q} \right\rceil$ happens to be greater than or equal to $n_{\max}$, we always have
 
 $$
   \left\lceil \frac{2^{k-1}}{q}\left(1 - \frac{1}{u}\right)\right\rceil
@@ -1163,49 +1163,49 @@ Recall that we have seen in a [previous section](#magic-number-size-bound) that 
 >**Proof.** By definition of $k$, we must have
 >
 >$$
->  \left[\frac{2^{k-1}}{q}, \frac{2^{k-1}}{q}\left(1 + \frac{1}{v}\right)\right)
+>  \left[2^{k-1}x, 2^{k-1}x\left(1 + \frac{1}{v}\right)\right)
 >  \cap \mathbb{Z} = \emptyset.
 >$$
 >
 >Let
 >
 >$$
->  \alpha := \left\lceil \frac{2^{k-1}}{q} \right\rceil - \frac{2^{k-1}}{q}
+>  \alpha := \left\lceil 2^{k-1}x \right\rceil - 2^{k-1}x
 >  \in [0,1),
 >$$
 >
 >then hence we must have
 >
 >$$
->  \frac{2^{k-1}}{q} + \alpha \geq \frac{2^{k-1}}{q}\left(1 + \frac{1}{v}\right),
+>  2^{k-1}x + \alpha \geq 2^{k-1}x\left(1 + \frac{1}{v}\right),
 >$$
 >
 >thus
 >
 >$$\label{eq:bound in the proof of the complementary result}
->  \alpha \geq \frac{2^{k-1}}{qv}.
+>  \alpha \geq \frac{2^{k-1}x}{v}.
 >$$
 >
 >Now, note that
 >
 >$$\begin{aligned}
->  \frac{2^{k-1}}{q}\left(1-\frac{1}{u}\right)
->  &= \left\lceil \frac{2^{k-1}}{q} \right\rceil
->  - \alpha - \frac{2^{k-1}}{qu},
+>  2^{k-1}x\left(1-\frac{1}{u}\right)
+>  &= \left\lceil 2^{k-1}x \right\rceil
+>  - \alpha - \frac{2^{k-1}x}{u},
 >\end{aligned}$$
 >
 >so it is enough to show that
 >
 >$$
->  \alpha + \frac{2^{k-1}}{qu} \geq 1.
+>  \alpha + \frac{2^{k-1}x}{u} \geq 1.
 >$$
 >
 >Note that from $\eqref{eq:bound in the proof of the complementary result}$, we know
 >
 >$$
->  \alpha + \frac{2^{k-1}}{qu}
->  \geq \frac{2^{k-1}}{qv} + \frac{2^{k-1}}{qu}
->  \geq \frac{2^{k}}{q\max\left(u,v\right)},
+>  \alpha + \frac{2^{k-1}x}{u}
+>  \geq \frac{2^{k-1}x}{v} + \frac{2^{k-1}x}{u}
+>  \geq \frac{2^{k}x}{\max\left(u,v\right)},
 >$$
 >
 >and the right-hand side is bounded below by $1$ by the assumption, so we are done. $\quad\blacksquare$
