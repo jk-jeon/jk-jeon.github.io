@@ -1011,7 +1011,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 >\\]
 >If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{t}{2^{k_{0}-b}}$ does not yield an admissible answer. In this case, go to Step 16.
 >11. If $\zeta_{0}<\zeta_{\min}$, then set $k\leftarrow k_{0}-b$.
->12. Set $m\leftarrow 2^{k-k_{0}+b}t. Also, set $$a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$$ and $$\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
+>12. Set $m\leftarrow 2^{k-k_{0}+b}t$. Also, set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >13. Check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
 >14. Inspect the inequality
 >\\[
