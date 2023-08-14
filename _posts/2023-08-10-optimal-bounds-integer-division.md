@@ -1045,7 +1045,7 @@ After filling out some omitted details, we arrive at the following algorithm.
   
 2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, then [**Algorithm 7**](#xi-zeta-finding-algorithm) favors to find smaller $k$, $m$, and $s$, in that order.
 
-An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L88).
+An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L94).
 
 ## Results by Lemire et al.
 
