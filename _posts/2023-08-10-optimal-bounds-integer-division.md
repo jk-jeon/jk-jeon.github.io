@@ -933,41 +933,40 @@ $$
 
 and this means that there is at most one integer in the interval $2^{k_{0}}I$ while there is at least one integer in the interval $2^{k_{0}+1}I$. Therefore, we first see if there is one in $2^{k_{0}}\Delta$, and if not, then have a look at $2^{k_{0}+1}\Delta$ where the existence is guaranteed. Also, note that if there were none in $2^{k_{0}}\Delta$, then $2^{k_{0}+1}\Delta$ should have exactly one integer and that integer must be odd.
 
-Either case, we can find the smallest possible $t$ such that
+Either case, we can find the smallest possible integer $k$ such that
 
 $$
-  \xi = \frac{t}{2^{k_{0}' - b}}
+  \xi = \frac{m}{2^{k}}
 $$
 
-is in the interval $I$ for some $b\geq 0$, where $k_{0}'$ is either $k_{0}$ or $k_{0}+1$ and $t$ is an odd number. Now, in order for this $\xi$ to be allowed by a choice of $\zeta$, according to [**Algorithm 5**](#lower-bound-algorithm), $\zeta$ should be at least
+is in the interval $I$ for some $m\in\mathbb{Z}$. (When $2^{k_{0}}I$ does not contain an integer, then $k = k_{0}+1$, and if it contains an integer, then $k = k_{0}-b$ where $b$ is the highest exponent of $2$ such that $2^{b}$ divides the unique integer in $2^{k_{0}}I$.) Then we take a loop over all $t$ such that $\xi = \frac{m}{2^{k}}$ stays inside $I$. In order for this $\xi$ to be allowed by a choice of $\zeta$, according to [**Algorithm 5**](#lower-bound-algorithm), $\zeta$ should be at least
 
 $$
   \zeta_{0} := \left\lfloor n_{L,0}x \right\rfloor - n_{L,0}\xi
-  = \frac{2^{k_{0}'-b}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}
-  {2^{k_{0}-b}}.
+  = \frac{2^{k}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}m}{2^{k}}.
 $$
 
 Since we want our $\xi$ to satisfy the upper bound given by [**Algorithm 6**](#upper-bound-algorithm) as well, we want to choose $\zeta$ to be as small as possible as long as $\zeta\geq\zeta_{0}$ is satisfied. Hence, we want to take $\zeta=\zeta_{0}$, but this is not always possible because $\zeta_{0}\geq\zeta_{\min}$ is not always true. (The above $\zeta_{0}$ even can be negative, so in the actual algorithm we may truncate it to be nonnegative.)
 
-If $\zeta_{0}\geq\zeta_{\min}$ is satisfied, then we may indeed take $\zeta=\zeta_{0}$. By the construction, $\zeta_{0}<\zeta_{\max}$ is automatically satisfied, so we want to check two things: (1) the smallness constraint $mn_{\max} + s \leq N_{\max}$ with $m=t$ and $s=2^{k_{0}'-b}\zeta_{0}$, and (2) the true upper bound
+If $\zeta_{0}\geq\zeta_{\min}$ is satisfied, then we may indeed take $\zeta=\zeta_{0}$. By the construction, $\zeta_{0}<\zeta_{\max}$ is automatically satisfied, so we want to check two things: (1) the smallness constraint $mn_{\max} + s \leq N_{\max}$ with $s=2^{k}\zeta_{0}$, and (2) the true upper bound
 
 $$
   \xi < \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{0}}{n_{U,0}}
 $$
 
-given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions are satisfied, then $k=k_{0}'-b$, $m=t$, and $s=2^{k_{0}'-b}\zeta_{0}$ are valid solutions. Otherwise, we conclude that $\xi$ does not yield an admisslbe choice of $(k,m,s)$.
+given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions are satisfied, then $k$, $m$, and $s=2^{k}\zeta_{0}$ are valid solutions. Otherwise, we conclude that $\xi$ does not yield an admisslbe choice of $(k,m,s)$.
 
-If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. Now, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions. Actually, the difference $\zeta-\zeta_{0}$ can be made smaller by considering a larger denominator of $\xi$ and $\zeta_{0}$, so we have to successively double the denominator and see if there is a case where $\zeta$ satisfies all three conditions. Of course, if we enlarged the denominator too much, then the smallness constraint will get broken no matter how small $\zeta-\zeta_{0}$ will be, so at that point we stop doing this doubling and conclude that $\xi$ does not yield an admissible choice of $(k,m,s)$.
+If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. In this case, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions.
 
-If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase $k_{0}'$ by one and repeat the same procedure with the integers in the interval $2^{k_{0}'}\Delta$. Note that this time we do not need to consider even integers because those were already checked for smaller $k_{0}'$.
+If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase the numerator $t$ and see if that works out until $\xi=\frac{m}{2^{k}}$ goes outside of the search interval $I$. After exhuasting all $m$'s, now we increase $k$ by one and repeat the same procedure. Note that even though all of $\xi=\frac{m}{2^{k}}$'s with even numerators are already considered when we are looking at a smaller $k$, we do not exclude them from the search because for the case $\zeta_{0}<\zeta_{\min}$, having a larger denominator of $\zeta$ might allow the gap $\zeta - \zeta_{0}$ to be smaller.
 
-This loop over $k_{0}'$ should be stopped when we arrive at a point where the smallest odd integer $t$ in $2^{k_{0}'}\Delta$ already fails to satisfy
+This loop over $k$ should be stopped when we arrive at a point where the smallest integer $m$ in $2^{k}\Delta$ already fails to satisfy
 
 $$
-  tn_{\max} + 2^{k_{0}'}\zeta_{0} \leq N_{\max}.
+  mn_{\max} + 2^{k}\zeta_{0} \leq N_{\max}.
 $$
 
-If we exhausted all $k_{0}'$'s satisfying the above, then now we conclude that there is no $\zeta\in[\zeta_{\min},\zeta_{\max})$ yielding an admissible choice of $(k,m,s)$, so we should move onto the next subinterval.
+If we exhausted all $k$'s satisfying the above, then now we conclude that there is no $\zeta\in[\zeta_{\min},\zeta_{\max})$ yielding an admissible choice of $(k,m,s)$, so we should move onto the next subinterval.
 
 After filling out some omitted details, we arrive at the following algorithm.
 
@@ -982,61 +981,69 @@ After filling out some omitted details, we arrive at the following algorithm.
 >3. Set $\zeta_{\max} \leftarrow 0$, $\zeta_{L,\max} \leftarrow 0$, $\zeta_{U,\max} \leftarrow 0$, $n_{L,1} \leftarrow 0$, $n_{U,1} \leftarrow 0$.
 >4. Check if $\zeta_{\max} = \zeta_{L,\max}$. If that is the case, then we have to update $\zeta_{L,\max}$. Set $n_{L,0}\leftarrow n_{L,0}+n_{L,1}$. If $n_{L,0}=n_{\max}$, then set $\zeta_{L,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{\max}-n_{L,0}$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{L,1}$, and set \\[ \zeta_{L,\max}\leftarrow \min\left(\frac{n_{L,1}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}\left\lfloor n_{L,1}x\right\rfloor}{n_{L,1}}, 1\right). \\]
 >5. Check if $\zeta_{\max} = \zeta_{U,\max}$. If that is the case, then we have to update $\zeta_{U,\max}$. Set $n_{U,0}\leftarrow n_{U,0}-n_{U,1}$. If $n_{U,0}=1$, then set $\zeta_{U,\max}\leftarrow 1$. Otherwise, find the largest $n=1,\ \cdots\ ,n_{U,0}-1$ that maximizes $\frac{\left\lfloor nx\right\rfloor}{n}$, assign it to $n_{U,1}$, and set \\[ \zeta_{U,\max}\leftarrow \min\left(\frac{n_{U,1}\left(\left\lfloor n_{U,0}x\right\rfloor + 1\right) - n_{U,0}\left\lfloor n_{U,1}x\right\rfloor}{n_{U,1}}, 1\right). \\]
->6. Set $\zeta_{\min}\leftarrow \zeta_{\max}$, $\zeta_{\max} \leftarrow \min\left(\zeta_{L,\max},\zeta_{U,\max}\right)$, and \\[ \Delta \leftarrow \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}} - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}. \\] If $\Delta\leq 0$, then this means the search interval $I$ is empty. In this case, go to Step 18. Otherwise, proceed to the next step.
->7. Set $k_{0}\leftarrow \left\lfloor\log_{2}\frac{1}{\Delta}\right\rfloor$ and compute
+>6. Set $\zeta_{\min}\leftarrow \zeta_{\max}$, $\zeta_{\max} \leftarrow \min\left(\zeta_{L,\max},\zeta_{U,\max}\right)$, and \\[ \Delta \leftarrow \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}} - \frac{\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}}{n_{L,0}}. \\] If $\Delta\leq 0$, then this means the search interval $I$ is empty. In this case, go to Step 16. Otherwise, set $k\leftarrow \left\lfloor\log_{2}\frac{1}{\Delta}\right\rfloor$ and proceed to the next step.
+>7. Compute
 >\\[
->  t \leftarrow \left\lfloor
->    \frac{2^{k_{0}}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
+>  m \leftarrow \left\lfloor
+>    \frac{2^{k}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
 >    {n_{L,0}}
->  \right\rfloor + 1.
+>  \right\rfloor + 1
 >\\]
->8. Inspect the inequality
+>    and inspect the inequality
 >\\[
->  t < \frac{2^{k_{0}}\left(
+>  m < \frac{2^{k}\left(
 >    \left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}
 >  \right)}{n_{U,0}}.
 >\\]
->    If it does not hold, then set $k_{0}\leftarrow k_{0} + 1$, recompute $t$ accordingly, and set $b\leftarrow 0$. If it does hold, then set $b$ to be the greatest integer such that $2^{b}$ divides $t$, and set $t\leftarrow t/2^{b}$.
->9. Set
+>    If it does not hold, then set $k\leftarrow k + 1$ and recompute $m$ accordingly. Otherwise, set $k\leftarrow k - b$ where $b$ is the greatest integer such that $2^{b}$ divides $m$, and set $m\leftarrow m/2^{b}$.
+>8. Set
 >\\[
 >  \zeta_{0} \leftarrow \max\left(
->    \frac{2^{k_{0}-b}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}{2^{k_{0}-b}},
+>    \frac{2^{k}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}m}{2^{k}},
 >  0\right)
 >\\]
->    and inspect the inequality $tn_{\max} + 2^{k_{0}-b}\zeta_{0}\leq N_{\max}$. If it does not hold, then this means every candidate we can find in the interval $[\zeta_{\min},\zeta_{\max})$ are too large numbers, so we move onto the next subinterval. In this case, go to Step 18. Otherwise, proceed to the next step.
->10. If $\zeta_{0}\geq\zeta_{\min}$, then $\zeta_{0}\in[\zeta_{\min},\zeta_{\max})$ and $tn_{\max} + 2^{k_{0}-b}\zeta_{0} \leq N_{\max}$ hold, so it is enough to check the inequality
+>    and inspect the inequality $mn_{\max} + 2^{k}\zeta_{0}\leq N_{\max}$. If it does not hold, then this means every candidate we can further find in the interval $[\zeta_{\min},\zeta_{\max})$ are consisting of too large numbers, so we move onto the next subinterval. In this case, go to Step 16. Otherwise, proceed to the next step.
+>9. If $\zeta_{0}\geq\zeta_{\min}$, then $\zeta_{0}\in[\zeta_{\min},\zeta_{\max})$ and $mn_{\max} + 2^{k}\zeta_{0} \leq N_{\max}$ hold, so it is enough to check the inequality
 >\\[
->  \frac{t}{2^{k_{0}-b}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{0}}
+>  \frac{m}{2^{k}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{0}}
 >  {n_{U,0}}.
 >\\]
->If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{t}{2^{k_{0}-b}}$ does not yield an admissible answer. In this case, go to Step 16.
->11. If $\zeta_{0}<\zeta_{\min}$, then set $k\leftarrow k_{0}-b$.
->12. Set $m\leftarrow 2^{k-k_{0}+b}t$. Also, set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
->13. Check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then set $k\leftarrow k+1$ and go to Step 15.
->14. Inspect the inequality
+>    If this holds, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, we conclude that $\xi=\frac{m}{2^{k}}$ does not yield an admissible answer. In this case, go to Step 13.
+>10. If $\zeta_{0}<\zeta_{\min}$, then set $a\leftarrow \left\lceil 2^{k}(\zeta_{\min} - \zeta_{0})\right\rceil$ and $\zeta\leftarrow \zeta_{0} + \frac{a}{2^{k}}$ so that $\zeta\geq\zeta_{\min}$ is satisfied. Check if $\zeta<\zeta_{\max}$ holds, and if that is not the case, then go to Step 13.
+>11. Check if $mn_{\max} + 2^{k}\zeta \leq N_{\max}$ holds. If that is not the case, then go to Step 13.
+>12. Inspect the inequality
 >\\[
 >  \frac{m}{2^{k}}<\frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta}{n_{U,0}}.
 >\\]
->    If it does hold, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, set $k\leftarrow k+1$ and proceed to the next step.
->15. Check if $mn_{\max}+2^{k}\zeta_{0} \leq N_{\max}$ holds. If it does hold, then go back to Step 12. Otherwise, proceed to the next step.
->16. Set $k_{0}\leftarrow k_{0}+1$, $b\leftarrow 0$, and compute
+>    If it does hold, then we have found an admissible choice of $(k,m,s)$, so return. Otherwise, proceed to the next step.
+>13. Set $m\leftarrow m+1$ and inspect the inequality
 >\\[
->  t \leftarrow \left\lfloor
->    \frac{2^{k_{0}}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
->    {n_{L,0}}
->  \right\rfloor + 1,\quad
->  \zeta_{0}\leftarrow \max\left(
->    \frac{2^{k_{0}}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}t}{2^{k_{0}}},
->  0\right).
+>  \frac{m}{2^{k}} < \frac{\left\lfloor n_{U,0}x\right\rfloor + 1 - \zeta_{\min}}
+>  {n_{U,0}}.
 >\\]
->17. If $t$ is even, then set $t\leftarrow t+1$. Inspect the inequality $tn_{\max} + 2^{k_{0}}\zeta_{0}\leq N_{\max}$. If this does not hold, then this means every other candidate in the interval $[\zeta_{\min},\zeta_{\max})$ we have not seen yet are too large numbers, so we move onto the next subinterval. In this case, go to Step 18. Otherwise, we repeat the procedure Step 10 - Step 15 for $t\leftarrow t+2\tau$ for all nonnegative integer $\tau$ such that $t+2\tau<\frac{2^{k_{0}}\left(\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}\right)}{n_{U,0}}$ (note that $\tau=0$ might still violate the inequality), and if it fails for all such $\tau$, then go to Step 16. 
->18. We have failed to find any admissible choice of $(k,m,s)$ so far, so we have to move onto the next subinterval. If $\zeta_{\max}=1$, then we already have exhausted the whole interval, so retrun with **FAIL**. Otherwise, go back to Step 4.
+>    If it does not hold, then go to Step 15.
+>14. If it does hold, then set
+>\\[
+>  \zeta_{0} \leftarrow \max\left(
+>    \frac{2^{k}\left\lfloor n_{L,0}x\right\rfloor - n_{L,0}m}{2^{k}},
+>  0\right)
+>\\]
+>    and inspect the inequality $mn_{\max} + 2^{k}\zeta_{0}\leq N_{\max}$. If it does hold, then go back to Step 9. Otherwise, proceed to the next step.
+>15. Set $k\leftarrow k+1$ and
+>\\[
+>  m \leftarrow \left\lfloor
+>    \frac{2^{k}\left(\left\lfloor n_{L,0}x\right\rfloor - \zeta_{\max}\right)}
+>    {n_{L,0}}
+>  \right\rfloor + 1,
+>\\]
+>    and go to Step 8.
+>16. We have failed to find any admissible choice of $(k,m,s)$ so far, so we have to move onto the next subinterval. If $\zeta_{\max}=1$, then we already have exhausted the whole interval, so retrun with **FAIL**. Otherwise, go back to Step 4.
 
 **Remarks.**
 
 1. Whenever we update $\zeta_{L,\max}$ and $\zeta_{U,\max}$, the updated values must be always strictly bigger than the previous values unless they already have reached their highest value $1$. Let us see the case of $\zeta_{L,\max}$; the case of $\zeta_{U,\max}$ is similar. Suppose that initially we had $n_{L,0} = n_{0}$, $n_{L,1} = n_{1}$, and after recomputing $n_{L,1}$ we got $n_{L,1} = n_{2}$. Then the new value of $\zeta_{L,\max}$ and the old value of it are respectively given as \\[\label{eq:gap between successive zeta max} \frac{n_{2}\left\lfloor(n_{0}+n_{1})x\right\rfloor - (n_{0}+n_{1})\left\lfloor n_{2}x\right\rfloor}{n_{2}},\quad \frac{n_{1}\left\lfloor n_{0}x\right\rfloor - n_{0}\left\lfloor n_{1}x\right\rfloor}{n_{1}},\\] respectively. Applying $\eqref{eq:floor splits; lower bound}$, it turns out that the first one minus the second one is equal to \\[ (n_{0}+n_{1})\left(\frac{\left\lfloor n_{1}x\right\rfloor}{n_{1}} - \frac{\left\lfloor n_{2}x\right\rfloor}{n_{2}} \right).\\] Now, recall the way $n_{1}$ is chosen: we first find the best rational approximation of $x$ from below in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}\}$$, call its denominator $$q_{*}$$, and set $n_{1}$ to be the largest multiple of $$q_{*}$$. Since $n_{1}$ is the largest multiple, it follows that $n_{\max} - n_{0} - n_{1}$ should be strictly smaller than $$q_{*}$$. Therefore, the best rational approximation in the range $$\{1,\ \cdots\ ,n_{\max}-n_{0}-n_{1}\}$$ should be strictly worse than what $$q_{*}$$ gives. This shows that $\eqref{eq:gap between successive zeta max}$ is strictly positive.
   
-2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, then [**Algorithm 7**](#xi-zeta-finding-algorithm) tends to favor smaller $k$, $m$, and $s$, in that order, but it may not necessarily minimize them because of how Step 11 - Step 15 work.
+2. When there indeed exists at least one admissible choice of $(k,m,s)$ given $x$, $n_{\max}$, and $N_{\max}$, then [**Algorithm 7**](#xi-zeta-finding-algorithm) favors to find smaller $k$, $m$, and $s$, in that order.
 
 An actual implementation of this algorithm can be found [here](https://github.com/jk-jeon/idiv/blob/main/include/idiv/idiv.h#L88).
 
