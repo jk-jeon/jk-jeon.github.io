@@ -418,13 +418,14 @@ The definition provided above is the one *in the weak sense*, although it is not
 >
 >Let $x$ be a real number. We say a rational number $\frac{p}{q}$ (again, in its reduced form) is a **best rational approximation from below (above, resp.) in the strong sense**, if $\frac{p}{q}\leq x$ ($\frac{p}{q}\geq x$, resp.) and for any rational number $\frac{a}{b}$ with $qx - p\geq bx - a\geq 0$ ($p - qx\geq a - bx \geq 0$, resp.), we always have $q\leq b$.
 
-As the name suggests, if $\frac{p}{q}$ is a best rational approximation from below (above, resp.) in the strong sense, then it is a best rational approximation from below (above, resp.) in the weak sense. To see why, take any rational number $\frac{a}{b}$ such that $\frac{p}{q}\leq\frac{a}{b}\leq x$ holds, then it is enough to show that $q\leq b$ must hold. (We are only considering the "from below" case, and the "from above" case can be done in the same way.) This is indeed quite easy to show: since $x - \frac{p}{q} \geq x - \frac{a}{b}$ holds, multiplying $q$ on both sides yields
+As the name suggests, if $\frac{p}{q}$ is a best rational approximation from below (above, resp.) in the strong sense, then it is a best rational approximation from below (above, resp.) in the weak sense. To see why, suppose that $\frac{p}{q}$ is a best rational approximation from above of $x$ in the strong sense and take any rational number $\frac{a}{b}$ with $\frac{a}{b}\leq x$ and $b\leq q$. Then it is enough to show that $\frac{p}{q}\geq\frac{a}{b}$ holds. (We are only considering the "from below" case, and the "from above" case can be done in the same way.) This is indeed quite easy to show:
 
 $$
-  qx - p \geq \frac{q}{b}(bx - a).
+  x - \frac{p}{q} = \frac{qx - p}{q} \leq \frac{bx - a}{q} \leq \frac{bx - a}{b}
+  = x - \frac{a}{b},
 $$
 
-If $b<q$, then the right-hand side is at least $bx - a$, but then by the assumption that $\frac{p}{q}$ is a best rational approximation in the strong sense, we must have $q\leq b$, which is a contradiction. Thus, we get $q\leq b$, so $\frac{p}{q}$ is indeed a best rational approximation from below in the weak sense.
+thus we conclude $\frac{a}{b}\leq\frac{p}{q}$ as claimed, so $\frac{p}{q}$ is indeed a best rational approximation from below of $x$ in the weak sense.
 
 Remarkably, using the theory of [continued fractions](https://en.wikipedia.org/wiki/Continued_fraction), it can be shown that the converse is also true. Note that this fact is entirely not trivial only by looking at their definitions. You can find a proof of this fact in my [paper](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf) on Dragonbox; see the remark after **Algorithm C.13** (I shamelessly give my own writing as a reference because I do not know of any other).
 
