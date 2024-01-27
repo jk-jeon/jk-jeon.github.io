@@ -919,7 +919,7 @@ $$
 
 where $n_{L,0}$ and $n_{U,0}$ are the supposed output of [**Algorithm 5**](#lower-bound-algorithm) and [**Algorithm 6**](#upper-bound-algorithm), respectively, which must stay constant as long as $\zeta\in[\zeta_{\min},\zeta_{\max})$.
 
-Next, we will take a loop over all candidates for $\xi$ in $I$ and check one by one if a chosen candidate is really a possible choice of $\xi$. Let $\Delta$ be the size of the interval above, that is,
+Next, we will take a loop over all numbers of the form $\frac{m}{2^{k}}$ in $I$ and check one by one if it is really a possible choice of $\xi$. The order of examination will be the lexicographic order on $(k,m)$, that is, from smaller $k$ to larger $k$, and for given $k$, from smaller $m$ to larger $m$. To find the smallest $k$, let $\Delta$ be the size of the interval above, that is,
 
 $$
   \Delta := \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{\min}}{n_{U,0}}
@@ -929,10 +929,10 @@ $$
 Define $k_{0}:=\left\lfloor\log_{2}\frac{1}{\Delta}\right\rfloor$, then we have
 
 $$
-  2^{k_{0}}\Delta \leq 1 < 2^{k_{0}+1}\Delta < 2,
+  2^{k_{0}}\Delta \leq 1 < 2^{k_{0}+1}\Delta \leq 2,
 $$
 
-and this means that there is at most one integer in the interval $2^{k_{0}}I$ while there is at least one integer in the interval $2^{k_{0}+1}I$. Therefore, we first see if there is one in $2^{k_{0}}\Delta$, and if not, then have a look at $2^{k_{0}+1}\Delta$ where the existence is guaranteed. Also, note that if there were none in $2^{k_{0}}\Delta$, then $2^{k_{0}+1}\Delta$ should have exactly one integer and that integer must be odd.
+and this means that there is at most one integer in the interval $2^{k_{0}}I$ while there is at least one integer in the interval $2^{k_{0}+1}I$. Therefore, we first see if there is one in $2^{k_{0}}I$, and if not, then have a look at $2^{k_{0}+1}I$ where the existence is guaranteed. Also, note that if there were none in $2^{k_{0}}I$, then $2^{k_{0}+1}I$ should have exactly one integer and that integer must be odd.
 
 Either case, we can find the smallest possible integer $k$ such that
 
@@ -940,7 +940,7 @@ $$
   \xi = \frac{m}{2^{k}}
 $$
 
-is in the interval $I$ for some $m\in\mathbb{Z}$. (When $2^{k_{0}}I$ does not contain an integer, then $k = k_{0}+1$, and if it contains an integer, then $k = k_{0}-b$ where $b$ is the highest exponent of $2$ such that $2^{b}$ divides the unique integer in $2^{k_{0}}I$.) Then we take a loop over all $t$ such that $\xi = \frac{m}{2^{k}}$ stays inside $I$. In order for this $\xi$ to be allowed by a choice of $\zeta$, according to [**Algorithm 5**](#lower-bound-algorithm), $\zeta$ should be at least
+is in the interval $I$ for some $m\in\mathbb{Z}$. (When $2^{k_{0}}I$ does not contain an integer, then $k = k_{0}+1$, and if it contains an integer, then $k = k_{0}-b$ where $b$ is the highest exponent of $2$ such that $2^{b}$ divides the unique integer in $2^{k_{0}}I$.) We will start from there and successively increase the value of $k$. For currently given $k$, we take a loop over all $m$ such that $\xi = \frac{m}{2^{k}}$ stays inside $I$. (By the construction, there is exactly one possible $m$ for the smallest $k$ which we start from.) In order for this $\xi$ to be allowed by a choice of $\zeta$, according to [**Algorithm 5**](#lower-bound-algorithm), $\zeta$ should be at least
 
 $$
   \zeta_{0} := \left\lfloor n_{L,0}x \right\rfloor - n_{L,0}\xi
@@ -959,9 +959,9 @@ given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions ar
 
 If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. In this case, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions.
 
-If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase the numerator $t$ and see if that works out until $\xi=\frac{m}{2^{k}}$ goes outside of the search interval $I$. After exhuasting all $m$'s, now we increase $k$ by one and repeat the same procedure. Note that even though all of $\xi=\frac{m}{2^{k}}$'s with even numerators are already considered when we are looking at a smaller $k$, we do not exclude them from the search because for the case $\zeta_{0}<\zeta_{\min}$, having a larger denominator of $\zeta$ might allow the gap $\zeta - \zeta_{0}$ to be smaller.
+If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase the numerator $m$ and see if that works out until $\xi=\frac{m}{2^{k}}$ goes outside of the search interval $I$. After exhuasting all $m$'s, now we increase $k$ by one and repeat the same procedure. Note that even though all of $\xi=\frac{m}{2^{k}}$'s with even numerators are already considered when we were looking at a smaller $k$, we do not exclude them from the search because for the case $\zeta_{0}<\zeta_{\min}$, having a larger denominator of $\zeta$ might allow the gap $\zeta - \zeta_{0}$ to be smaller.
 
-This loop over $k$ should be stopped when we arrive at a point where the smallest integer $m$ in $2^{k}\Delta$ already fails to satisfy
+This loop over $k$ should be stopped when we arrive at a point where the smallest integer $m$ in $2^{k}I$ already fails to satisfy
 
 $$
   mn_{\max} + 2^{k}\zeta_{0} \leq N_{\max}.
@@ -1271,5 +1271,4 @@ $$
 
 for all $n=0,\ \cdots\ ,2^{32}-1$. The maximum possible value of the numerator $3340530119\cdot n + 477218588$ is strictly less than $2^{64}$ in this case. Hence, we get `div3`.
 
-Note that `div3` has one more instructions than `div2`, but it does not invoke the $128$-bit multiplication (the `mul` instruction both found in `div1` and `div2`) which usually performs not so impressively on typical modern x86-64 CPU's, so I think probably `div3` will perform better than `div2` although I have not benchmarked to confirm this guess.
-
+It is hard to tell which one between `div2` and `div3` will be faster. Note that `div3` has one more instructions than `div2`, but it does not invoke the $128$-bit multiplication (the `mul` instruction both found in `div1` and `div2`). In typical modern x86-64 CPU's, $128$-bit multiplication uses twice more computational resources than the $64$-bit one, so it might more easily become a bottleneck if there are many multiplications to be done. Also, as far as I know Intel CPU's still does not provide SIMD instructions for $128$-bit multiplication, so `div3` could be more aggressively vectorized, which may result in massive speed up. Still, all of these are just speculations and of course when it comes to performance there is nothing we can be sure about. Anyway, it is good to have multiple options we can try out.
