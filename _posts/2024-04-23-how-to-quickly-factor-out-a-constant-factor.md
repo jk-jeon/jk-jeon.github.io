@@ -1,6 +1,6 @@
 ---
 title: "How to quickly factor out a constant factor from integers"
-date: 2024-04-20
+date: 2024-04-23
 permalink: /posts/2024/04/how-to-quickly-factor-out-a-constant-factor/
 tags:
   - programming
