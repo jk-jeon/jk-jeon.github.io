@@ -437,10 +437,15 @@ So far it sounds like this new method is better than the classical Granlund-Mont
 In summary, the algorithm works as follows, assuming $N=2^{b}$.
 
 1. Write $q = 2^{t}q_{0}$ for an odd integer $q_{0}$.
+
 2. Let $m_{0}$ be the modular inverse of $q_{0}$ with respect to $2^{b-t}$, and let $p_{0}\mathrel{\unicode{x2254}} (q_{0}m_{0}-1)/2^{b-t}$.
+
 3. If $p_{0}$ is odd, let $p\mathrel{\unicode{x2254}} p_{0}$, otherwise, let $p\mathrel{\unicode{x2254}} p_{0} + q_{0}$.
+
 4. Let $m\mathrel{\unicode{x2254}} (2^{b-t}p + 1)/q_{0}$.
+
 5. Let $u$ be the modular inverse of $p$ with respect to $q$.
+
 6. Then for any $n=0,1,\ \cdots\ ,\left\lfloor (2^{b-t}+u)/q\right\rfloor q + q - 1 - u$, $n$ is a multiple of $q$ if and only if
 
 $$
