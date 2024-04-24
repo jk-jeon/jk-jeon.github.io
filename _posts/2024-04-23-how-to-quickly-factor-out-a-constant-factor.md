@@ -434,7 +434,7 @@ Compared to the method proposed by Granlund-Montgomery, bit-rotation is never ne
 
 So far it sounds like this new method is better than the classical Granlund-Montgomery algorithm based on bit-rotation, but note that the maximum possible value of $n_{\max}$ (i.e., the right-hand side of $\eqref{eq:nmax condition}$) is roughly of size $N/g$, so in particular, if $N=2^{b}$ and $q = 2^{t}q_{0}$ for some odd integer $q_{0}$, then $n_{\max}$ should be of at most about $(b-t)$-bits. Depending on the specific parameters, it is possible to improve the right-hand side of $\eqref{eq:nmax condition}$ a little bit by choosing a different $p$ (since $u$ is determined from $p$), but this cannot have any substantial impact on how large $n_{\max}$ can be. Also, at this moment I do not know of an elegant way of choosing $p$ that maximizes the bound on $n_{\max}$.
 
-In summary, the algorithm works as follows, assuming $N=2^{b}$.
+In summary, the algorithm works as follows, assuming $1<q<N$ and $N=2^{b}$.
 
 1. Write $q = 2^{t}q_{0}$ for an odd integer $q_{0}$.
 
@@ -447,16 +447,16 @@ In summary, the algorithm works as follows, assuming $N=2^{b}$.
 5. Let $u$ be the modular inverse of $p$ with respect to $q$.
 
 6. Then for any $n=0,1,\ \cdots\ ,\left\lfloor (2^{b-t}+u)/q\right\rfloor q + q - 1 - u$, $n$ is a multiple of $q$ if and only if
-
-$$
-  (nm\ \operatorname{mod}\ 2^{b}) < \frac{2^{b-t}+u}{q_{0}}.
-$$
+    
+    $$
+      (nm\ \operatorname{mod}\ 2^{b}) < \frac{2^{b-t}+u}{q_{0}}.
+    $$
 
 7. In case the above inequality holds, we also have
-
-$$
-  \frac{n}{q} = \frac{(nm\ \operatorname{mod}\ 2^{b})}{2^{t}}.
-$$
+    
+    $$
+      \frac{n}{q} = \frac{(nm\ \operatorname{mod}\ 2^{b})}{2^{t}}.
+    $$
 
 The corresponding code for factoring out the highest power of $q$ would look like the following:
 
