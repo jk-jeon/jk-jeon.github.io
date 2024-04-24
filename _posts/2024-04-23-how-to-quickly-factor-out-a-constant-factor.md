@@ -451,7 +451,7 @@ In summary, the algorithm works as follows, assuming $1<q<N$ and $N=2^{b}$.
     $$
       (nm\ \operatorname{mod}\ 2^{b}) < \frac{2^{b-t}+u}{q_{0}}.
     $$
-    
+
 7. In case the above inequality holds, we also have
     
     $$
