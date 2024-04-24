@@ -7,9 +7,9 @@ tags:
   - C/C++
 ---
 
-This post revisits the topic of integer division, building upon the discussion in [the previous post](https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/). Specifically, I'll delve into determining the number of trailing zeros in the decimal representation of an input integer, or more broadly, identifying the highest power of a given constant that divides the input. This exploration stems from the problem of converting floating-point numbers into strings, where certain contemporary algorithms, such as [Schubfach](https://drive.google.com/file/d/1luHhyQF9zKlM8yJ1nebU0OgVYhfC6CBN/edit) and [Dragonbox](https://github.com/jk-jeon/dragonbox), may yield outputs containing trailing zeros.
+This post revisits the topic of integer division, building upon the discussion in [the previous post](https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/). Specifically, I'll delve into removing trailing zeros in the decimal representation of an input integer, or more broadly, factoring out the highest power of a given constant that divides the input. This exploration stems from the problem of converting floating-point numbers into strings, where certain contemporary algorithms, such as [Schubfach](https://drive.google.com/file/d/1luHhyQF9zKlM8yJ1nebU0OgVYhfC6CBN/edit) and [Dragonbox](https://github.com/jk-jeon/dragonbox), may yield outputs containing trailing zeros.
 
-Let us stat the precise statement of our problem:
+Here is the precise statement of our problem:
 
 > Given positive integer constants $n_{\max}$ and $q\leq n_{\max}$, how to find the largest integer $k$ such that $q^{k}$ divides $n$, together with the corresponding $\frac{n}{q^{k}}$, for any $n=1,\ \cdots\ ,n_{\max}$?
 
@@ -17,7 +17,7 @@ As one can expect, this more or less boils down to an efficient divisibility tes
 
 # Naïve algorithm
 
-Some of the readers may wonder, isn't this an extremely simple problem? Why not just do, something like:
+Here is the most straightforward implementation I can think of:
 
 ```cpp
 std::size_t s = 0;
@@ -34,15 +34,15 @@ while (true) {
 return {n, s};
 ```
 
-Of course, this works (as long as $n\neq 0$ which we do assume throughout), but obviously our objective is to explore avenues for greater performance. Thus, let us see what is the main performance issue I want to tackle in the above. Here, we are assuming that the divisor $q$ is a given constant, so any sane modern compiler knows that the dreaded generic integer divison is not necessary. Rather, they would replace the division into a multiply-and-shift, or some slight variation of it, as explained in [the previous post](https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/). That is great, but note that we need to compute *both* the quotient and the remainder. As far as I know, there is no k known algorithm capable of computing both quotient and remainder with *only one* multiplication, which means that the above code will perform *two* multiplications per iteration. However, if we consider cases where the input is not divisible by the divisor, we realize that we don't actually require the precise values of the quotient or the remainder. Our sole concern is whether the remainder is *zero*, and *only if* that is the case, we do want to know the quotient of the division. Therefore, it's conceivable that we could accomplish this with just one multiplication per iteration.
+Of course, this works (as long as $n\neq 0$ which we do assume throughout), but obviously our objective is to explore avenues for greater performance. Thus, let us see what is the main performance issue I want to tackle in the above. Here, we are assuming that the divisor $q$ is a given constant, so any sane modern compiler knows that the dreaded generic integer division is not necessary. Rather, they would replace the division into a multiply-and-shift, or some slight variation of it, as explained in [the previous post](https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/). That is great, but note that we need to compute *both* the quotient and the remainder. As far as I know, there is no known algorithm capable of computing both quotient and remainder with *only one* multiplication, which means that the above code will perform *two* multiplications per iteration. However, if we consider cases where the input is not divisible by the divisor, we realize that we don't actually require the precise values of the quotient or the remainder. Our sole concern is whether the remainder is *zero*, and *only if* that is the case, we do want to know the quotient of the division. Therefore, it's conceivable that we could accomplish this with just one multiplication per iteration.
 
-Actually, [the classical paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) by Granlund-Montgomery already positively answered this question, which is the topic of the next section.
+Actually, [the classical paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) by Granlund-Montgomery already presented such an algorithm, which is the topic of the next section.
 
 # Granlund-Montgomery modular inverse algorithm
 
 First, let us assume that $q$ is an odd number for a while. Assume further that our input is of $b$-bit unsigned integer type, e.g. of type `std::uint32_t`, with $b=32$. Hence, we are assuming that $n_{\max}$ is at most $2^{b}-1$. Now, since $q$ is *coprime* to $2^{b}$, there uniquely exists the *modular inverse* of $q$ with respect to $2^{b}$. Let us call it $m$, which in general can be found using the extended Euclid's algorithm. But how is it useful to us?
 
-The key observation here is that, on the ring $\mathbb{Z}/2^{b}$ of integer residue classes modulo $2^{b}$, the multiplication by any integer coprime to $2^{b}$ is an automorphism, i.e., a *bijective* group homomorphism onto itself. In particular, multiplication by such an integer induces a *bijection* from the set $\{0,1,\ \cdots\ ,2^{b}-1\}$ onto itself.
+The key observation here is that, on the group $\mathbb{Z}/2^{b}$ of integer residue classes modulo $2^{b}$, the multiplication by any integer coprime to $2^{b}$ is an automorphism, i.e., a *bijective* group homomorphism onto itself. In particular, multiplication by such an integer induces a *bijection* from the set $$\left\{0,1,\ \cdots\ ,2^{b}-1\right\}$$ onto itself.
 
 Now, what does this bijection, defined in particular by the modular inverse $m$ (which must be coprime to $2^{b}$), do to multiples of $q$, i.e., $0, q,\ \cdots\ ,\left\lfloor\frac{2^{b} - 1}{q}\right\rfloor q$? Note that for any integer $a$,
 
@@ -50,7 +50,7 @@ $$
   (aq)m \equiv a(qm) \equiv a\ (\operatorname{mod}\ 2^{b}),
 $$
 
-thus, the bijection $\{0,1,\ \cdots\ ,2^{b}-1\}\to\{0,1,\ \cdots\ ,2^{b}-1\}$ defined by $m$ maps $aq$ into $a$. Therefore, *anything that gets mapped into $0,1,\ \cdots\ ,\left\lfloor\frac{2^{b}-1}{q}\right\rfloor$ must be a multiple of $q$*, because the map is a bijection, and *vice versa*.
+thus, the bijection $$\left\{0,1,\ \cdots\ ,2^{b}-1\right\}\to\left\{0,1,\ \cdots\ ,2^{b}-1\right\}$$ defined by $m$ maps $aq$ into $a$. Therefore, *anything that gets mapped into $$\left\{0,1,\ \cdots\ ,\left\lfloor\frac{2^{b}-1}{q}\right\rfloor\right\}$$ must be a multiple of $q$*, because the map is a bijection, and *vice versa*.
 
 Furthermore, the image of this bijection, in the case when the input $n$ was actually a multiple of $q$, is precisely $n/q$. Since multiplication modulo $2^{b}$ is what C/C++ abstract machines are supposed to do whenever they see an integer multiplication, we find that the following code does the job we want, but with *only one* multiplication per an iteration:
 
@@ -74,7 +74,7 @@ return {n, s};
 
 All is good so far, but recall that this works *only when $q$ is odd*. Unfortunately, our main application, the trailing zero removal, requires $q$ to be $10$, which is even.
 
-Actually, [the paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) by Granlund-Montgomery proposes a clever solution for the case of possibly non-odd divisors, based on *bit-rotation*. Let us write $q = 2^{t}q_{0}$ for an integer $t$ and a positive odd number $q_{0}$. Obviously, there is no modular inverse of $q$ with respect to $2^{b}$, but we can do the next best thing, that is, to find the modular inverse of $q_{0}$ with respect to $2^{b-t}$. Let us call it $m$.
+Actually, [the paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) by Granlund-Montgomery proposes a clever solution for the case of possibly non-odd divisors, based on *bit-rotation*. Let us write $q = 2^{t}q_{0}$ for an integer $t$ and a positive odd number $q_{0}$. Obviously, there is no modular inverse of $q$ with respect to $2^{b}$, but we can try the next best thing, that is, the modular inverse of $q_{0}$ with respect to $2^{b-t}$. Let us call it $m$.
 
 Now, for given $n=0,1,\ \cdots\ ,n_{\max} \leq 2^{b}-1$, let us consider the multiplication $nm$ modulo $2^{b}$ and then perform bit-rotate-to-right on it by $t$-bits. Let us call the result $r$. Clearly, the highest $t$-bits of $r$ is all-zero if and only if the lowest $t$-bits of $(nm\ \operatorname{mod}\ 2^{b})$ is all-zero, and since $m$ must be an odd number, this is the case if and only if the lowest $t$-bits of $n$ is all-zero, that is, $n$ is a multiple of $2^{t}$.
 
@@ -237,7 +237,7 @@ return {n, s};
 
 Staring at [**Theorem 1**](#integer-check), one can ask: *if all we care about is **divisibility**, not the quotient, then do we really need to take $x = \frac{1}{q}$?* That is, as long as $p$ is any integer coprime to $q$, asking if $n/q$ is an integer is exactly the same question as asking if $\frac{np}{q}$ is an integer. In fact, this observation leads to a derivation of the modular inverse divisibility check algorithm by Granlund-Montgomery explained [above](#granlund-montgomery-modular-inverse-algorithm) for the case of odd divisor, and the Dragonbox paper already did this (*Remark 3* after Theorem 4.6). A few days ago, I realized the same argument actually applies to the case of general divisor as well, which leads to yet another divisibility check algorithm explained below, which I think probably is novel.
 
-Suppose that $p$ is a positive integer coprime to $q$, then as pointed out, $n$ is divisible by $q$ if and only if $nx$ is an integer with $x\coloneqq\frac{p}{q}$. Therefore, by [**Theorem 1**](#integer-check) (together with Theorem 4.2 from [the Dragonbox paper](https://github.com/jk-jeon/dragonbox/tree/master/other_files/Dragonbox.pdf)), for any $\xi,\eta$ satisfying
+Suppose that $p$ is a positive integer coprime to $q$, then as pointed out, $n$ is divisible by $q$ if and only if $nx$ is an integer with $x\mathrel{\unicode{x2254}}\frac{p}{q}$. Therefore, by [**Theorem 1**](#integer-check) (together with Theorem 4.2 from [the Dragonbox paper](https://github.com/jk-jeon/dragonbox/tree/master/other_files/Dragonbox.pdf)), for any $\xi,\eta$ satisfying
 
 $$\label{eq:condition for xi}
   \frac{p}{q} \leq \xi < \frac{p}{q} + \frac{1}{vq}
