@@ -34,7 +34,7 @@ while (true) {
 return {n, s};
 ```
 
-Of course, this works (as long as $n\neq 0$ which we do assume throughout), but obviously our objective is to explore avenues for greater performance. Thus, let us see what is the main performance issue I want to tackle in the above. Here, we are assuming that the divisor $q$ is a given constant, so any sane modern compiler knows that the dreaded generic integer division is not necessary. Rather, they would replace the division into a multiply-and-shift, or some slight variation of it, as explained in [the previous post](https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/). That is great, but note that we need to compute *both* the quotient and the remainder. As far as I know, there is no known algorithm capable of computing both quotient and remainder with *only one* multiplication, which means that the above code will perform *two* multiplications per iteration. However, if we consider cases where the input is not divisible by the divisor, we realize that we don't actually require the precise values of the quotient or the remainder. Our sole concern is whether the remainder is *zero*, and *only if* that is the case, we do want to know the quotient of the division. Therefore, it's conceivable that we could accomplish this with just one multiplication per iteration.
+Of course, this works (as long as $n\neq 0$ which we do assume throughout), but obviously our objective is to explore avenues for greater performance. Here, we are assuming that the divisor $q$ is a given constant, so any sane modern compiler knows that the dreaded generic integer division is not necessary. Rather, they would replace the division into a multiply-and-shift, or some slight variation of it, as explained in [the previous post](https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/). That is great, but note that we need to compute *both* the quotient and the remainder. As far as I know, there is no known algorithm capable of computing both quotient and remainder with *only one* multiplication, which means that the above code will perform *two* multiplications per iteration. However, if we consider cases where the input is not divisible by the divisor, we realize that we don't actually require the precise values of the quotient or the remainder. Our sole concern is whether the remainder is *zero*, and *only if* that is the case, we do want to know the quotient of the division. Therefore, it's conceivable that we could accomplish this with just one multiplication per iteration, which presumably will improve the performance.
 
 Actually, [the classical paper](https://gmplib.org/~tege/divcnst-pldi94.pdf) by Granlund-Montgomery already presented such an algorithm, which is the topic of the next section.
 
@@ -112,7 +112,7 @@ return {n, s};
 
 # Lemire's algorithm
 
-In a [paper published in 2019](https://doi.org/10.1002/spe.2689), Lemire et al proposed an alternative way of checking divisibility which has some advantages over Granlund-Montgomery algorithm. The theorem behind this algorithm was not optimal when first presented, and later they showed the optimal result in [another paper](https://doi.org/10.1016/j.heliyon.2021.e07442). Here, I present a more general result which contains the result by Lemire et al as a special case. This is one of the theorems I proved in my [paper on Dragonbox](https://github.com/jk-jeon/dragonbox/tree/master/other_files/Dragonbox.pdf) (Theorem 4.6), which I copied below:
+In a [paper published in 2019](https://doi.org/10.1002/spe.2689), Lemire et al proposed an alternative way of checking divisibility which has some advantages over Granlund-Montgomery algorithm. The theorem behind this algorithm was not optimal when first presented, but later they showed the optimal result in [another paper](https://doi.org/10.1016/j.heliyon.2021.e07442). Here, I present a more general result which contains the result by Lemire et al as a special case. This is one of the theorems I proved in my [paper on Dragonbox](https://github.com/jk-jeon/dragonbox/tree/master/other_files/Dragonbox.pdf) (Theorem 4.6), which I copied below:
 
 ><b id="integer-check">Theorem 1</b>
 >Let $x,\xi$ be real numbers and $n_{\max}$ be a positive integer
@@ -213,9 +213,11 @@ $$
 
 In other words, we multiply $m$ to $n$, then the lowest $b$-bits can be used for inspecting divisibility, while the remaining upper bits constitutes the quotient.
 
-Note that this is always the case, regardless of whether $n$ is divisible by $q$ or not, so this algorithm actually does more than what we are asking for. Furthermore, there is only *one* magic number, $m$, while Granlund-Montgomery requires two. However, one should also note that the cost of these "extra features" is that we must perform a "widening multiplication", that is, if $n_{\max}$ and $m$ are of $b$-bits, then we need all of $2b$-bits of the multiplication of $n$ and $m$. It is also worth mentioning that the magic number $m$ might actually require more than $b$-bits. For details, please refer to [the previous post]((https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/)), or [this paper](https://doi.org/10.1016/j.heliyon.2021.e07442) by Lemire et al.
+Note that this is always the case, regardless of whether $n$ is divisible by $q$ or not, so this algorithm actually does more than what we are asking for. Furthermore, there is only *one* magic number, $m$, while Granlund-Montgomery requires two. This may have some positive impact on the code size, instruction decoding overhead, register usage overhead, etc..
 
-In any case, the algorithm we obtain work like the following:
+However, one should also note that the cost of these "extra features" is that we must perform a "widening multiplication", that is, if $n_{\max}$ and $m$ are of $b$-bits, then we need all of $2b$-bits of the multiplication of $n$ and $m$. It is also worth mentioning that the magic number $m$ might actually require more than $b$-bits. For details, please refer to [the previous post]((https://jk-jeon.github.io/posts/2023/08/optimal-bounds-integer-division/)), or [this paper](https://doi.org/10.1016/j.heliyon.2021.e07442) by Lemire et al.
+
+In any case, the resulting algorithm would be like the following:
 
 ```cpp
 // m is precalculated from q.
@@ -258,7 +260,7 @@ $$
 
 where $v$ is the greatest integer satisfying $vp\equiv -1\ (\operatorname{mod}\ q)$ and $u$ is the smallest positive integer satisfying $up\equiv 1\ (\operatorname{mod}\ q)$.
 
-Again, since our goal is to make the evalation of the inequality $\eqref{eq:integer check condition}$ as easy as possible, we may want to take $\xi=\frac{m}{2^{b}}$ and $\eta=\frac{s}{2^{b}}$ as before, so that $\eqref{eq:integer check condition}$ becomes
+Again, since our goal is to make the evaluation of the inequality $\eqref{eq:integer check condition}$ as easy as possible, we may want to take $\xi=\frac{m}{2^{b}}$ and $\eta=\frac{s}{2^{b}}$ as before, so that $\eqref{eq:integer check condition}$ becomes
 
 $$
   (nm\ \operatorname{mod}\ 2^{b}) < s.
@@ -283,7 +285,7 @@ $$\label{eq:condition for eta modified}
   < s \leq \frac{u}{q}\left(qm - Np\right) + \frac{N}{q},
 $$
 
-respectively. Note that, both sides of the above inequality have the factor $qm - Np$, and the left-hand side multiplies it to $\left\lfloor\frac{n_{\max}}{q}\right\rfloor$ and the right-hand side multiplies it to $\frac{u}{q}$. Since $u$ is at most $q-1$, usually $\left\lfloor\frac{n_{\max}}{q}\right\rfloor$ is much larger than $\frac{u}{q}$, so it is usually the case that the inequality can hold only when the factor $qm - Np$ is small enough. So, it makes sense to actually *minimize* it. Note that we are to take $N = 2^{b}$ and $b$ is a factor defined by the application, while $m$ and $p$ are something we can choose. In such a situation, the smallest possible nonnegative value of $qm - Np$ is exactly $g\coloneqq \operatorname{gcd}(q,N)$, the greatest common divisor of $q$ and $N$. Recall that a general solution for the equation $qm - Np = g$ is given as
+respectively. Note that, both sides of the above inequality have the factor $qm - Np$, and the left-hand side multiplies it to $\left\lfloor\frac{n_{\max}}{q}\right\rfloor$ and the right-hand side multiplies it to $\frac{u}{q}$. Since $u$ is at most $q-1$, usually $\left\lfloor\frac{n_{\max}}{q}\right\rfloor$ is much larger than $\frac{u}{q}$, so it is usually the case that the inequality can hold only when the factor $qm - Np$ is small enough. So, it makes sense to actually *minimize* it. Note that we are to take $N = 2^{b}$ and $b$ is a factor defined by the application, while $m$ and $p$ are something we can choose. In such a situation, the smallest possible nonnegative value of $qm - Np$ is exactly $g\mathrel{\unicode{x2254}} \operatorname{gcd}(q,N)$, the greatest common divisor of $q$ and $N$. Recall that a general solution for the equation $qm - Np = g$ is given as
 
 $$
   m = m_{0} + \frac{Nk}{g},\quad
@@ -295,7 +297,7 @@ where $m_{0}$ is the modular inverse of $\frac{q}{g}$ with respect to $\frac{N}{
 Now, we cannot just take any $k\in\mathbb{Z}$, because this whole argument breaks down if $p$ and $q$ are not coprime. In particular, $p_{0}$ is not guaranteed to be coprime to $q$. For example, take $N=32$ and $q=30$, then we get $g=2$, $m_{0}=15$ and $p_{0}=14$ so that $qm_{0} - Np_{0} = 2$, but $\operatorname{gcd}(p_{0},q) = 2$. Nevertheless, it is always possible to find some $k$ such that $p = p_{0} + \frac{qk}{g}$ is coprime to $q$. The proof I wrote below of this fact is due to [Seung uk Jang](https://seungukj.github.io/):
 
 ><b id="coprime-existence">Proposition 2</b>
->Let $a,b$ be any integers and $g\coloneqq\operatorname{gcd}(a,b)$. Then there exist integers $x,y$ such that $ax - by = g$ and $\operatorname{gcd}(a,y) = 1$. Specifically, such $x,y$ can be found as
+>Let $a,b$ be any integers and $g\mathrel{\unicode{x2254}}\operatorname{gcd}(a,b)$. Then there exist integers $x,y$ such that $ax - by = g$ and $\operatorname{gcd}(a,y) = 1$. Specifically, such $x,y$ can be found as
 >
 >$$
 >  x = x_{0} + \frac{bk}{g},\quad y = y_{0} + \frac{ak}{g},
@@ -329,7 +331,7 @@ $$
   m = 15 + 16k,\quad p = 14 + 15k
 $$
 
-with $k$ being the smallest positive integer satisfying
+with $k$ being the smallest nonnegative integer satisfying
 
 $$
   15k \equiv 1 - 14\ (\operatorname{mod}\ 2),
@@ -337,7 +339,7 @@ $$
 
 which is $k=1$. Hence, we take $m = 31$ and $p = 29$.
 
-In fact, for the specific case of $N=2^{b}$ and $q\leq N$, we can always take either $k=0$ or $1$. Indeed, by the assumption $g$ is a power of $2$ and $q/g$ is an odd number. Then, exactly one of $p_{0}$ and $p_{0} + \frac{q}{g}$ is an odd number, so exacty one of them is coprime to $g$. On the other hand, since
+In fact, for the specific case of $N=2^{b}$ and $q\leq N$, we can always take either $k=0$ or $1$. Indeed, by the assumption, $g$ is a power of $2$ and $q/g$ is an odd number. Then, one of $p_{0}$ and $p_{0} + \frac{q}{g}$ is an odd number, so one of them is coprime to $g$. On the other hand, since
 
 $$
   \left(\frac{q}{g}\right)m_{0} - \left(\frac{N}{g}\right)p_{0} = 1,
@@ -395,7 +397,7 @@ $$
   (nm\ \operatorname{mod}\ N) < \frac{ug+N}{q}.
 $$
 
-Furthermore, if $n$ turned out to be a multiple of $q$, then we can compute $n/q$ from $(nm\ \operatorname{mod}\ N)$ as in the classical Granlund-Montgomery case. More precisely, assume that $n=aq$ for some integer $a$, then
+Furthermore, if $n$ turned out to be a multiple of $q$, then we can compute $n/q$ from $(nm\ \operatorname{mod}\ N)$ as in the classical Granlund-Montgomery case. More precisely, assume that $n=aq$ for some integer $a\geq 0$, then
 
 $$\begin{align*}
   (nm\ \operatorname{mod}\ N)
@@ -428,16 +430,16 @@ $$
 
 thus $a$ can be recovered by computing $\frac{(nm\ \operatorname{mod}\ N)}{g}$. Note that in particular if $N=2^{b}$, division by $g$ is just a bit-shift.
 
-Compared to the method proposed by Granlund-Montgomery, bit-rotation is never needed, but at the expense of requires an additional shift for computing $n/q$. Note that this shifting is only needed if $n$ turned out to be a multiple of $q$. The divisibility check can be done with one multiplication and one comparison.
+Compared to the method proposed by Granlund-Montgomery, bit-rotation is never needed, but at the expense of requires an additional shift for computing $n/q$. Note that this shifting is only needed if $n$ turned out to be a multiple of $q$. The divisibility check alone can be done with one multiplication and one comparison.
 
-This sounds like this new new method is better than the Granlund-Montgomery one, but note that the maximum possible value of $n_{\max}$ (i.e., the right-hand side of $\eqref{eq:nmax condition}$) is roughly of the size $N/g$, so in particular, if $N=2^{b}$ and $q = 2^{t}q_{0}$ for some odd integer $q_{0}$, then $n_{\max}$ can be at most of about $(b-t)$-bits. Since $u$ is determined from $p$, the maximum possible value of $n_{\max}$ depends on the choice of $p$, and some choice of $p$ may result in a larger value than some other choices, but at this moment I do not know of an elegant way of choosing $p$ that maximizes it.
+So far it sounds like this new method is better than the classical Granlund-Montgomery algorithm based on bit-rotation, but note that the maximum possible value of $n_{\max}$ (i.e., the right-hand side of $\eqref{eq:nmax condition}$) is roughly of size $N/g$, so in particular, if $N=2^{b}$ and $q = 2^{t}q_{0}$ for some odd integer $q_{0}$, then $n_{\max}$ should be of at most about $(b-t)$-bits. Depending on the specific parameters, it is possible to improve the right-hand side of $\eqref{eq:nmax condition}$ a little bit by choosing a different $p$ (since $u$ is determined from $p$), but this cannot have any substantial impact on how large $n_{\max}$ can be. Also, at this moment I do not know of an elegant way of choosing $p$ that maximizes the bound on $n_{\max}$.
 
 In summary, the algorithm works as follows, assuming $N=2^{b}$.
 
 1. Write $q = 2^{t}q_{0}$ for an odd integer $q_{0}$.
-2. Let $m_{0}$ be the modular inverse of $q_{0}$ with respect to $2^{b-t}$, and let $p_{0}\coloneqq (q_{0}m_{0}-1)/2^{b-t}$.
-3. If $p_{0}$ is odd, let $p\coloneqq p_{0}$, otherwise, let $p\coloneqq p_{0} + q_{0}$.
-4. Let $m\coloneqq (2^{b-t}p + 1)/q_{0}$.
+2. Let $m_{0}$ be the modular inverse of $q_{0}$ with respect to $2^{b-t}$, and let $p_{0}\mathrel{\unicode{x2254}} (q_{0}m_{0}-1)/2^{b-t}$.
+3. If $p_{0}$ is odd, let $p\mathrel{\unicode{x2254}} p_{0}$, otherwise, let $p\mathrel{\unicode{x2254}} p_{0} + q_{0}$.
+4. Let $m\mathrel{\unicode{x2254}} (2^{b-t}p + 1)/q_{0}$.
 5. Let $u$ be the modular inverse of $p$ with respect to $q$.
 6. Then for any $n=0,1,\ \cdots\ ,\left\lfloor (2^{b-t}+u)/q\right\rfloor q + q - 1 - u$, $n$ is a multiple of $q$ if and only if
 
@@ -473,9 +475,9 @@ One should keep in mind that the above only works provided $n$ is at most $\left
 
 # Benchmark
 
-Which one will perform the best, obviously, would depend on the myriads of details. Nevertheless, I ran a benchmark to have some idea on relative performances between these algorithms. Since my intended application was for trailing zero removal, the divisor $q$ is $10$ in this benchmark. Also, in Dragonbox, trailing zero removal may be needed only for numbers of at most $8$ digits for IEEE-754 binary32, and for numbers of at most $16$ digits for IEEE-754 binary64, so I made these assumptions for finding out the magic numbers of each algorithm.
+Determining the most efficient approach inherently depends on a multitude of factors. To gain insight into the relative performances of various algorithms, I conducted a benchmark. Given that my primary application involves removing trailing zeros, I set the divisor $q$ to $10$ for this benchmark. Additionally, considering the requirements of Dragonbox, where trailing zero removal may only be necessary for numbers up to $8$ digits for IEEE-754 binary32 and up to $16$ digits for IEEE-754 binary64, I incorporated these assumptions in the benchmark to determine the optimal parameters for each algorithm.
 
-Here is the data I got on my laptop (Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz, Windows 10):
+Here is the data I collected on my laptop (Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz, Windows 10):
 
 - 32-bit benchmark for numbers with at most 8 digits.
 
@@ -512,15 +514,17 @@ Here is the data I got on my laptop (Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz, 
 (The code is available [here](https://github.com/jk-jeon/rtz_benchmark).)
 
 And here are some detailed information on how the benchmark is done:
-- Samples are randomly generated by the following procedure:
-  - Uniformly randomly generate the number of total digits, from 1 to the prescribed maximum number of digits.
-  - Given the number of total digits, uniformly randomly generate the number of trailing zeros, from 0 to the number of total digits minus 1.
-  - Given the number of total digits and the number of trailing zeros, uniformly randomly generate an unsigned integer.
-- "Generalized Granlund-Montgomery" means the generalized modular inverse algorithm explained in the [last section](#generalized-modular-inverse-algorithm).
-- Algorithms without any suffix remove trailing zeros one by one. These are the code shown in the previous sections.
-- Algorithms with "2-1" suffix first remove as must two consecutive trailing zeros as possible (i.e., run the loop with $q=100$), and then remove one more zero if needed.
-- Algorithms with "8-2-1" suffix first try to see if the input has at least eight trailing zeros (using the corresponding divisibility check algorithm with $q=10^{8}$), and if that is the case, then remove eight zeros and call the 32-bit "2-1" variants of themselves. If there are less than eight trailing zeros, then they proceed as their "2-1" variants.
+- Samples were generated randomly using the following procedure:
+  - Uniformly randomly generate the total number of digits, ranging from 1 to the specified maximum number of digits.
+  - Given the total number of digits, uniformly randomly generate the number of trailing zeros, ranging from 0 to the total number of digits minus 1.
+  - Uniformly randomly generate an unsigned integer with given total number of digits and the number of trailing zeros.
+- *Generalized Granlund-Montgomery* refers to the generalized modular inverse algorithm explained in the [last section](#generalized-modular-inverse-algorithm).
+- Algorithms without any suffix iteratively remove trailing zeros one by one as demonstrated as code snippets in previous sections.
+- Algorithms suffixed with "2-1" initially attempt to iteratively remove two consecutive trailing zeros at once (by running the loop with $q=100$), and then remove one more zero if necessary.
+- Algorithms suffixed with "8-2-1" first check if the input contains at least eight trailing zeros (using the corresponding divisibility check algorithm with $q=10^{8}$), and if that is the case, then remove eight zeros and invoke the 32-bit "2-1" variants of themselves. If there are fewer than eight trailing zeros, then they proceed like their "2-1" variants.
 
-It seems there is not so much difference between all three algorithms overall, and even the naïve one is not so bad. The data shown above seems to indiciate that generalized Granlund-Montgomery is the fastest, but when I ran the benchmark several times the data fluctuated quite a bit and the best performer changed run by run. All three consistently performed better than the naïve one though.
+It seems there is not so much difference between all three algorithms overall, and even the naïve one is not so bad. The data shown above may seem to indiciate that thwe generalized Granlund-Montgomery is the fastest, but there were notable fluctuation with repeated runs and the top performer varied run to run. However, all three consistently outperformed the naïve approach.
 
-My conclusion is that, I would just use the generalized Granlund-Montgomery algorithm, since it does not require any special operations, like bit-rotation as in the classical Granlund-Montgomery or widening multiplication as in Lemire, and it can be done with only standard C/C++ arithmetic operations. Of course, the downside is that it has smaller range of valid input. If that causes a trouble, then I would fallback to the classical Granlund-Montgomery. Lemire's algorithm is still very useful if I have to know the quotient regardless of divisibility. There indeed is such an occasion in Dragonbox, and I am already using Lemire's algorithm for that.
+My conclusion is that, I would just use the generalized Granlund-Montgomery algorithm whenever possible, since it only relies on standard C/C++ arithmetic operations and does not require any special operations, like bit-rotation (as in the classical Granlund-Montgomery algorithm) or widening multiplication (as in Lemire's algorithm). Of course, we need to acknowledge that the generalized Granlund-Montgomery algorithm has a narrower range of valid inputs. Should this limitation pose an issue, I would resort to the classical Granlund-Montgomery algorithm.
+
+On the other hand, Lemire's algorithm is still very useful if I have to know the quotient regardless of divisibility. There indeed is such an occasion in Dragonbox, where I am already leveraging Lemire's algorithm for this purpose.
