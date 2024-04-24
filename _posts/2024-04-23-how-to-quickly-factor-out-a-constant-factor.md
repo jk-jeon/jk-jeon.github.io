@@ -486,35 +486,43 @@ Here is the data I collected on my laptop (Intel(R) Core(TM) i7-7700HQ CPU @ 2.8
 
 - 32-bit benchmark for numbers with at most 8 digits.
 
-| Algorithms                            | Average time consumed per a sample |
-| --------------------------------------|------------------------------------|
-| Null (baseline)                       | 1.40327ns                          |
-| Naïve                                 | 11.972ns                           |
-| Granlund-Montgomery                   | 10.0685ns                          |
-| Lemire                                | 10.9145ns                          |
-| Generalized Granlund-Montgomery       | 9.91788ns                          |
-| Naïve 2-1                             | 8.70671ns                          |
-| Granlund-Montgomery 2-1               | 7.95768ns                          |
-| Lemire 2-1                            | 7.09958ns                          |
-| Generalized Granlund-Montgomery 2-1   | 6.94924ns                          |
+| Algorithms                                 | Average time consumed per a sample |
+| -------------------------------------------|------------------------------------|
+| Null (baseline)                            | 1.4035ns                           |
+| Naïve                                      | 12.7084ns                          |
+| Granlund-Montgomery                        | 11.8153ns                          |
+| Lemire                                     | 12.2671ns                          |
+| Generalized Granlund-Montgomery            | 11.2075ns                          |
+| Naïve 2-1                                  | 8.92781ns                          |
+| Granlund-Montgomery 2-1                    | 7.85643ns                          |
+| Lemire 2-1                                 | 7.60924ns                          |
+| Generalized Granlund-Montgomery 2-1        | 7.85875ns                          |
+| Naïve branchless                           | 3.30768ns                          |
+| Granlund-Montgomery branchless             | 2.52126ns                          |
+| Lemire branchless                          | 2.71366ns                          |
+| Generalized Granlund-Montgomery branchless | 2.51748ns                          |
 
 - 64-bit benchmark for numbers with at most 16 digits.
 
-| Algorithms                            | Average time consumed per a sample |
-| --------------------------------------|------------------------------------|
-| Null (baseline)                       | 1.40884ns                          |
-| Naïve                                 | 15.3583ns                          |
-| Granlund-Montgomery                   | 12.5624ns                          |
-| Lemire                                | 14.4462ns                          |
-| Generalized Granlund-Montgomery       | 14.318ns                           |
-| Naïve 2-1                             | 12.2732ns                          |
-| Granlund-Montgomery 2-1               | 10.388ns                           |
-| Lemire 2-1                            | 11.3699ns                          |
-| Generalized Granlund-Montgomery 2-1   | 10.6213ns                          |
-| Naïve 8-2-1                           | 12.0705ns                          |
-| Granlund-Montgomery 8-2-1             | 10.1758ns                          |
-| Lemire 8-2-1                          | 13.5926ns                          |
-| Generalized Granlund-Montgomery 8-2-1 | 9.8563ns                           |
+| Algorithms                                 | Average time consumed per a sample |
+| -------------------------------------------|------------------------------------|
+| Null (baseline)                            | 1.68744ns                          |
+| Naïve                                      | 16.5861ns                          |
+| Granlund-Montgomery                        | 14.1657ns                          |
+| Lemire                                     | 14.3427ns                          |
+| Generalized Granlund-Montgomery            | 15.0626ns                          |
+| Naïve 2-1                                  | 13.2377ns                          |
+| Granlund-Montgomery 2-1                    | 11.3316ns                          |
+| Lemire 2-1                                 | 11.6016ns                          |
+| Generalized Granlund-Montgomery 2-1        | 11.8173ns                          |
+| Naïve 8-2-1                                | 12.5984ns                          |
+| Granlund-Montgomery 8-2-1                  | 11.0704ns                          |
+| Lemire 8-2-1                               | 13.3804ns                          |
+| Generalized Granlund-Montgomery 8-2-1      | 11.1482ns                          |
+| Naïve branchless                           | 5.68382ns                          |
+| Granlund-Montgomery branchless             | 4.0157ns                           |
+| Lemire branchless                          | 4.92971ns                          |
+| Generalized Granlund-Montgomery branchless | 4.64833ns                          |
 
 (The code is available [here](https://github.com/jk-jeon/rtz_benchmark).)
 
@@ -527,13 +535,20 @@ And here are some detailed information on how the benchmark is done:
 - Algorithms without any suffix iteratively remove trailing zeros one by one as demonstrated as code snippets in previous sections.
 - Algorithms suffixed with "2-1" initially attempt to iteratively remove two consecutive trailing zeros at once (by running the loop with $q=100$), and then remove one more zero if necessary.
 - Algorithms suffixed with "8-2-1" first check if the input contains at least eight trailing zeros (using the corresponding divisibility check algorithm with $q=10^{8}$), and if that is the case, then remove eight zeros and invoke the 32-bit "2-1" variants of themselves. If there are fewer than eight trailing zeros, then they proceed like their "2-1" variants.
+- Algorithms suffixed with "branchless" do branchless binary search, as suggested by reddit users [r/pigeon768](https://www.reddit.com/user/pigeon768/) and [r/TheoreticalDumbass](https://www.reddit.com/user/TheoreticalDumbass/). (See [this reddit post](https://www.reddit.com/r/cpp/comments/1cbsobb/how_to_quickly_factor_out_a_constant_factor_from/).)
 
-It seems there is not so much difference between all three algorithms overall, and even the naïve one is not so bad. The data shown above may seem to indiciate that the generalized Granlund-Montgomery is the fastest, but there were notable fluctuation with repeated runs and the top performer varied run to run. However, all three consistently outperformed the naïve approach.
+It seems there is not so much difference between all three algorithms overall, and even the naïve one is not so bad. There were notable fluctuation with repeated runs and the top performer varied run to run, but all three consistently outperformed the naïve approach, and I could observe a certain pattern.
 
-My conclusion is that, I would just use the generalized Granlund-Montgomery algorithm whenever possible, since it only relies on standard C/C++ arithmetic operations and does not require any special operations, like bit-rotation (as in the classical Granlund-Montgomery algorithm) or widening multiplication (as in Lemire's algorithm). Of course, we need to acknowledge that the generalized Granlund-Montgomery algorithm has a narrower range of valid inputs. Should this limitation pose an issue, I would resort to the classical Granlund-Montgomery algorithm.
+Firstly, Lemire's algorithm seems to suffer for large divisors, for instance $q=10^{8}$ or maybe even $q=10^{4}$. This is probably because for large divisors the number of bits needed for a correct divisibility test often exceeds the word size. This means that comparing the low bits of the result of multiplication with the threshold value is not a simple single comparison in reality.
+
+For instance, "Lemire 8-2-1" and "Lemire branchless" algorithms from the benchmark use $80$-bits for checking divisibility by $q=10^{8}$ for inputs of up to $16$ decimal digits. This means that, given the input is passed as a $64$-bit unsigned integer, we perform widening $128$-bit multiplication with a $64$-bit magic number $m$ (whose value is $12089258196146292$ in this case), and we check two things to decide divisibility: that the lowest $16$-bits from the upper half of the $128$-bit multiplication result is all zero, and that the lower half of this $128$-bit multiplication result is strictly less than $m$. Actually, the minimum required number of bits for a correct divisibility test is $78$ assuming inputs are limited to $16$ decimal digits, and I opted for $2$ more bits to facilitate the extraction of $16$-bits from the upper $64$-bits rather than $14$-bits.
+
+(Note also that having to have more bits than the word size means that, even if all we care is divisibility without any need to determine the quotient, Lemire's algorithm may still need widening multiplication!)
+
+Secondly, it seems on x86-64 the classical Granlund-Montgomery algorithm is just better than the proposed generalization of it, especially for the branchless case. Note that `ror` and `shr` have identical performance ([reference](https://www.agner.org/optimize/instruction_tables.pdf)), so for the branchless case, having to bit-shift *only when* the input is divisible turns out to be a pessimization, because we need to evaluate the bit-shift regardless of the divisibility, and as a result it just ends up requiring an additional `mov` compared to the unconditional bit-rotation of classical Granlund-Montgomery algorithm. Even for the branchful case, it seems the compiler still tries to evaluate the bit-shift regardless of the divisibility and as a consequence generates one more `mov`.
+
+My conclusion is that, the classical Granlund-Montgomery is probably the best for trailing zero removal, at least on x86-64. Yet, the proposed generalized modular inverse algorithm may be a better choice on machines without `ror` instruction, or machines with smaller word size. Lemire's algorithm does not seem to offer any big advantage over the other two for our problem, and it is expected to perform worse on machines with smaller word size, because it needs to perform widening multiplication.
 
 On the other hand, Lemire's algorithm is still very useful if I have to know the quotient regardless of divisibility. There indeed is such an occasion in Dragonbox, where I am already leveraging Lemire's algorithm for this purpose.
 
-It is also worth pointing out that, if all we care is divisibility without any need to determine the quotient, then Lemire's algorithm may not actually require widening multiplication, so it might be in fact better than other algorithms since it relies on only one magic number. However, if the divisor $q$ is large enough, it is often the case that the number of bits needed for the divisibility test often exceeds the word size, which means that widening multiplication is still needed even if we completely disregard the quotient.
-
-For instance, "Lemire 8-2-1" algorithm from the benchmark uses $80$-bits for checking divisibility by $q=10^{8}$ for inputs of up to $16$ decimal digits. This means that, given the input is passed as a $64$-bit unsigned integer, we perform widening $128$-bit multiplication with a $64$-bit magic number $m$ (whose value is $12089258196146292$ in this case), and we check two things to decide divisibility: that the lowest $16$-bits from the upper half of the $128$-bit multiplication result is all zero, and that the lower half of this $128$-bit multiplication result is strictly less than $m$. Actually, the minimum required number of bits for a correct divisibility test is $78$ assuming inputs are limited to $16$ decimal digits, and I opted for $2$ more bits to facilitate the extraction of $16$-bits from the upper $64$-bits rather than $14$-bits. Nonetheless, the point here is the necessity of widening multiplication, as $64$-bits alone is not enough. In fact, the essence of the proposed generalized modular inverse algorithm is in identifying a value for $p$ other than $1$ which is supposed to relax the necessary conditions from [**Theorem 1**](#integer-check) as much as possible. Hence, it is entirely expected that the proposed algorithm allows a less restrictive bound on $b$ given $n_{\max}$, compared to Lemire's algorithm.
+Special thanks to reddit users [r/pigeon768](https://www.reddit.com/user/pigeon768/) and [r/TheoreticalDumbass](https://www.reddit.com/user/TheoreticalDumbass/) who proposed the branchless idea!
