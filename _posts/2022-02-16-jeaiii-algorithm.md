@@ -759,9 +759,11 @@ $$
   = 1441151881
 $$
 
-do the job. ~~In fact, an exhasutive check shows that we can even take $L = 24$ and $m = 720575941$.~~
+do the job. In fact, an exhasutive check shows that we can even take $L = 24$ and $m = 720575941$.
 
-EDIT: Actually, $L=24$ with $m = 720575941$ doesn't work for large numbers. See [here](https://jk-jeon.github.io/posts/2022/12/fixed-precision-formatting/#appendix-fixed-point-fraction-trick-revisited) for a better analysis.
+EDIT: Recall that in the above, the range of $n$ is constrained into $[0,10^{9}-1]$. It turns out $L = 24$ with $m = 720575941$ works only up to $n = 1133989877$, and it starts to produce errors if $n \geq 1133989878$.
+
+I derived a better, but still incomplete analysis [here](https://jk-jeon.github.io/posts/2022/12/fixed-precision-formatting/#appendix-fixed-point-fraction-trick-revisited). After a while, I eventually obtained a complete algorithm for computing the optimal bounds, and wrote a [program](https://github.com/jk-jeon/idiv/blob/main/subproject/example/jeaiii_analysis.cpp) that does the analysis. The algorithm itself is not published anywhere at this moment.
 
 
 # Concluding remarks
