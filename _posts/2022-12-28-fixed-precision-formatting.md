@@ -977,7 +977,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{28}$, $q=5^{k}=5^{4}$.
   - $\mathrm{ModInv}(p,q)=196$, so $v=\left\lfloor\frac{n_{\max}-196}{q}\right\rfloor q + 196 = 999571$.
   
-  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=4$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =687195$, which is of $20$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =429497$, which is of $19$-bits.
 
 - $D=32$, $k=5$, $n\in[0,10^{6})$.
 
@@ -985,7 +985,7 @@ Here I collected some example applications of the above analysis that I used in 
   - $p=2^{D-k}=2^{27}$, $q=5^{k}=5^{5}$.
   - $\mathrm{ModInv}(p,q)=1642$, so $v=\left\lfloor\frac{n_{\max}-1642}{q}\right\rfloor q + 1642 = 998517$.
   
-  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=0$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =429497$, which is of $19$-bits.
+  The smallest $L$ that allows an integer solution to $\eqref{eq:jeaiii fixed-length specialized}$ is $L=4$, and in this case $m=\left\lceil \frac{2^{L}p}{q} - \frac{2^{L}}{vq} \right \rceil =687195$, which is of $20$-bits.
 
 - $D=32$, $k=5$, $n\in[0,10^{7})$.
 
