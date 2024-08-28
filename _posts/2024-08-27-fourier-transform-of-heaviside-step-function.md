@@ -1,6 +1,6 @@
 ---
 title: "The Fourier Transform of the Heaviside Step Function"
-date: 2024-04-23
+date: 2024-08-27
 permalink: /posts/2024/08/fourier-transform-of-heaviside-step-function/
 tags:
   - analysis
