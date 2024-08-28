@@ -37,7 +37,7 @@ $$
     -1 & \textrm{if $x < 0$,} \\ 1 & \textrm{otherwise.}\end{cases}
 $$
 
-Since $H = \frac{1}{2}(\mathrm{sgn}+1)$, we know $\hat{H} = \frac{1}{2}\widehat{\mathrm{sgn}} + \frac{1}{2}\delta$ where $\delta$ is the [Dirac delta function](https://en.wikipedia.org/wiki/Dirac_delta_function). But how to compute $\widehat{\mathrm{sgn}}$? Doesn't the integral still diverge? The trick is, first we multiply the exponential decay $x\mapsto\exp(-\lambda|x|)$ for some $\lambda>0$ to $\mathrm{sgn}$, compute the Fourier transform of the resulting function, and then send the decay factor $\lambda$ to $0$. Let us see how it works out.
+Since $H = \frac{1}{2}(\mathrm{sgn}+1)$, we know $\hat{H} = \frac{1}{2}\widehat{\mathrm{sgn}} + \frac{1}{2}\delta$ where $\delta$ is the [Dirac delta function](https://en.wikipedia.org/wiki/Dirac_delta_function). But how to compute $\widehat{\mathrm{sgn}}$? Doesn't the integral still diverge? The trick is, first we multiply the exponential decay $$x\mapsto\exp(-\lambda|x|)$$ for some $\lambda>0$ to $\mathrm{sgn}$, compute the Fourier transform of the resulting function, and then send the decay factor $\lambda$ to $0$. Let us see how it works out.
 
 First, given $\lambda>0$, we compute:
 
