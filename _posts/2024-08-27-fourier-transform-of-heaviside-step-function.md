@@ -130,7 +130,7 @@ Therefore, we have both $$\widehat{\mathrm{sgn}}_{\lambda} \to \widehat{\mathrm{
 
 But isn't this a contradiction, as we have already seen that $\hat{H}_{\lambda}$ does not converge to $\frac{1}{2}\widehat{\mathrm{sgn}} + \frac{1}{2}\delta$? Actually, it does converge to it. The error committed by the informal, naïve argument given at the beginning of the post is not in the idea of using the exponential decay, rather it is in the way it is executed.
 
-## The limit of $H_{\lambda}$'s
+## The limit of $\hat{H}_{\lambda}$'s
 
 Henceforth, let us directly compute the correct distributional limit of $H_{\lambda}$'s. Fix $\lambda>0$ and $\phi\in\mathcal{S}(\mathbb{R})$, then by definition,
 
