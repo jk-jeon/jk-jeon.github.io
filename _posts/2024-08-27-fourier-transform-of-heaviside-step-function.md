@@ -113,9 +113,9 @@ $$
 
 as $\lambda\to 0^{+}$. (That $f$ defines a tempered distribution simply means that $f\phi$ is integrable for every $\phi\in\mathcal{S}(\mathbb{R})$, so the dominated convergence theorem still applies.)
 
-In particular, we do have both $\mathrm{sgn}_{\lambda}\to\mathrm{sgn}$ and $H_{\lambda}\to H$ as $\lambda\to 0^{+}$.
+In particular, we do have both $$\mathrm{sgn}_{\lambda}\to\mathrm{sgn}$$ and $$H_{\lambda}\to H$$ as $\lambda\to 0^{+}$.
 
-Next, we see that the Fourier transform $\hat{\cdot}\colon\mathcal{S}'(\mathbb{R})\to\mathcal{S}'(\mathbb{R})$ is continuous with respect to the [weak-$*$ topology](https://en.wikipedia.org/wiki/Weak_topology#The_weak_and_weak*_topologies). Because of [how it is defined](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Fourier_transform), this is in fact very trivial: for given [net](https://en.wikipedia.org/wiki/Net_(mathematics)) $\left(u_{\alpha}\right)_{\alpha\in D}$ in $\mathcal{S}'(\mathbb{R})$ convergent to some $u\in\mathcal{S}'(\mathbb{R})$ with respect to the weak-$*$ topology, we have
+Next, we see that the Fourier transform $\hat{\cdot}\colon\mathcal{S}'(\mathbb{R})\to\mathcal{S}'(\mathbb{R})$ is continuous with respect to the [weak-$$*$$ topology](https://en.wikipedia.org/wiki/Weak_topology#The_weak_and_weak*_topologies). Because of [how it is defined](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Fourier_transform), this is in fact very trivial: for given [net](https://en.wikipedia.org/wiki/Net_(mathematics)) $$\left(u_{\alpha}\right)_{\alpha\in D}$$ in $\mathcal{S}'(\mathbb{R})$ convergent to some $u\in\mathcal{S}'(\mathbb{R})$ with respect to the weak-$*$ topology, we have
 
 $$
   \lim_{\alpha\in D}\left\langle \hat{u}_{\alpha}, \phi\right\rangle
@@ -126,7 +126,7 @@ $$
 
 for each $\phi\in\mathcal{S}(\mathbb{R})$.
 
-Therefore, we have both $\widehat{\mathrm{sgn}}_{\lambda} \to \widehat{\mathrm{sgn}}$ and $\hat{H}_{\lambda}\to \hat{H}$ as $\lambda\to 0^{+}$.
+Therefore, we have both $$\widehat{\mathrm{sgn}}_{\lambda} \to \widehat{\mathrm{sgn}}$$ and $$\hat{H}_{\lambda}\to \hat{H}$$ as $\lambda\to 0^{+}$.
 
 But isn't this a contradiction, as we have already seen that $\hat{H}_{\lambda}$ does not converge to $\frac{1}{2}\widehat{\mathrm{sgn}} + \frac{1}{2}\delta$? Actually, it does converge to it. The error committed by the informal, naïve argument given at the beginning of the post is not in the idea of using the exponential decay, rather it is in the way it is executed.
 
@@ -188,7 +188,7 @@ $$
   \right)
 $$
 
-where $\left\|\,\cdot\,\right\|_{\mathcal{C}^{0}}$ is the [uniform norm](https://en.wikipedia.org/wiki/Uniform_norm).
+where $$\left\|\,\cdot\,\right\|_{\mathcal{C}^{0}}$$ is the [uniform norm](https://en.wikipedia.org/wiki/Uniform_norm).
 
 Therefore, by splitting the range of integral for $\xi\leq 1$ and $\xi>1$, we can see that the integrand of
 
