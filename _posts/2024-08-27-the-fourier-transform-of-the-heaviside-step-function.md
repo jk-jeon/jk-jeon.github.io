@@ -1,7 +1,7 @@
 ---
-title: "The Fourier Transform of the Heaviside Step Function"
+title: "The Fourier transform of the Heaviside step function"
 date: 2024-08-27
-permalink: /posts/2024/08/fourier-transform-of-heaviside-step-function/
+permalink: /posts/2024/08/the-fourier-transform-of-the-heaviside-step-function/
 tags:
   - analysis
   - distribution-theory
