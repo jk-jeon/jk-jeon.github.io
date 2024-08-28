@@ -85,7 +85,7 @@ Eh... what happened?
 
 The professor told us that he honestly does not really buy this exponential decay argument, and unfortunately he has no better explanation, so for the moment we should just believe that $\hat{H}(\xi) = \frac{1}{2\pi i\xi} + \frac{1}{2}\delta(\xi)$ is the right one, and we will see it is indeed the right one as we learn through and relate more things together.
 
-Nevertheless, I desparatly wanted to know why the argument seems to work for $\mathrm{sgn}$ but not for $H$, and I knew that the [distribution theory](https://en.wikipedia.org/wiki/Distribution_(mathematics)) is the right thing to look at. However, at that time my mathematical skill was not mature enough to truly appreciate the theory, and although I kind of figured out a way to make the argument rigorous, it was much later when I finally got a full explanation of what is really happening. (If I recall correctly, it was around 2020, *10 years after* I first saw this!) This post is about that explanation.
+Nevertheless, I desperatly wanted to know why the argument seems to work for $\mathrm{sgn}$ but not for $H$, and I knew that the [distribution theory](https://en.wikipedia.org/wiki/Distribution_(mathematics)) is the right thing to look at. However, at that time my mathematical skill was not mature enough to truly appreciate the theory, and although I kind of figured out a way to make the argument rigorous, it was much later when I finally got a full explanation of what is really happening. (If I recall correctly, it was around 2020, *10 years after* I first saw this!) This post is about that explanation.
 
 ## Justification of the exponential decay trick
 
