@@ -87,7 +87,7 @@ The professor told us that he honestly does not really buy this exponential deca
 
 Nevertheless, I desparatly wanted to know why the argument seems to work for $\mathrm{sgn}$ but not for $H$, and I knew that the [distribution theory](https://en.wikipedia.org/wiki/Distribution_(mathematics)) is the right thing to look at. However, at that time my mathematical skill was not mature enough to truly appreciate the theory, and although I kind of figured out a way to make the argument rigorous, it was much later when I finally got a full explanation of what is really happening. (If I recall correctly, it was around 2020, *10 years after* I first saw this!) This post is about that explanation.
 
-## The distribution theory explanation
+## Justification of the exponential decay trick
 
 First of all, in facy the exponential decay trick is *valid regardless of the function* we are looking at. This is in fact a simple consequence of the [dominated convergence theorem](https://en.wikipedia.org/wiki/Dominated_convergence_theorem): let $f\colon\mathbb{R}\to\mathbb{R}$ be a [locally integrable function](https://en.wikipedia.org/wiki/Locally_integrable_function) and for each $\lambda>0$, define
 
