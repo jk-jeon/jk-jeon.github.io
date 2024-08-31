@@ -775,7 +775,7 @@ $$
   \geq \frac{\left\lfloor (n_{0}-n_{1})x\right\rfloor + 1 - \zeta}{n_{0}-n_{1}}
 $$
 
-holds for all $n=1,\ \cdots\ ,n_{1}$. By $\eqref{eq:floor splits; upper bound}$, we can rewrite the inequaltiy above as
+holds for all $n=1,\ \cdots\ ,n_{1}$. By $\eqref{eq:floor splits; upper bound}$, we can rewrite the inequality above as
 
 $$\begin{aligned}
   &-n_{0}\left\lfloor nx\right\rfloor - n_{1}\left\lfloor n_{0}x\right\rfloor
@@ -868,7 +868,7 @@ $$
   = \left\lfloor n_{1}x\right\rfloor + \left\lfloor nx\right\rfloor.
 $$
 
-But we already have seen this in the case of lower bound, becuase we know $n_{1}$ is a maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$ for $n = 1,\ \cdots\ ,n_{0} - 1$. Hence, again we can show that
+But we already have seen this in the case of lower bound, because we know $n_{1}$ is a maximizer of $\frac{\left\lfloor nx\right\rfloor}{n}$ for $n = 1,\ \cdots\ ,n_{0} - 1$. Hence, again we can show that
 
 $$
   \frac{\left\lfloor (N_{1}-n)x\right\rfloor + 1 - \zeta}{N_{1}-n}
@@ -955,11 +955,11 @@ $$
   \xi < \frac{\left\lfloor n_{U,0}x\right \rfloor + 1 - \zeta_{0}}{n_{U,0}}
 $$
 
-given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions are satisfied, then $k$, $m$, and $s=2^{k}\zeta_{0}$ are valid solutions. Otherwise, we conclude that $\xi$ does not yield an admisslbe choice of $(k,m,s)$.
+given by [**Algorithm 6**](#upper-bound-algorithm). If both of the conditions are satisfied, then $k$, $m$, and $s=2^{k}\zeta_{0}$ are valid solutions. Otherwise, we conclude that $\xi$ does not yield an admissable choice of $(k,m,s)$.
 
 If $\zeta_{0}<\zeta_{\min}$, then we have to increase the numerator of $\zeta_{0}$ to put in inside $[\zeta_{\min},\zeta_{\max})$, so let $\zeta$ be the one obtained by adding the smallest positive integer to the numerator of $\zeta_{0}$ which ensures $\zeta\geq\zeta_{\min}$. In this case, since we cannot easily estimate how large $\zeta$ is compared to $\zeta_{0}$, we have to check $\zeta<\zeta_{\max}$ in addition to the other two conditions.
 
-If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase the numerator $m$ and see if that works out until $\xi=\frac{m}{2^{k}}$ goes outside of the search interval $I$. After exhuasting all $m$'s, now we increase $k$ by one and repeat the same procedure. Note that even though all of $\xi=\frac{m}{2^{k}}$'s with even numerators are already considered when we were looking at a smaller $k$, we do not exclude them from the search because for the case $\zeta_{0}<\zeta_{\min}$, having a larger denominator of $\zeta$ might allow the gap $\zeta - \zeta_{0}$ to be smaller.
+If we failed to find any admissible choice of $(k,m,s)$ with our $\xi$, then we increase the numerator $m$ and see if that works out until $\xi=\frac{m}{2^{k}}$ goes outside of the search interval $I$. After exhausting all $m$'s, now we increase $k$ by one and repeat the same procedure. Note that even though all of $\xi=\frac{m}{2^{k}}$'s with even numerators are already considered when we were looking at a smaller $k$, we do not exclude them from the search because for the case $\zeta_{0}<\zeta_{\min}$, having a larger denominator of $\zeta$ might allow the gap $\zeta - \zeta_{0}$ to be smaller.
 
 This loop over $k$ should be stopped when we arrive at a point where the smallest integer $m$ in $2^{k}I$ already fails to satisfy
 
@@ -1038,7 +1038,7 @@ After filling out some omitted details, we arrive at the following algorithm.
 >  \right\rfloor + 1,
 >\\]
 >    and go to Step 8.
->16. We have failed to find any admissible choice of $(k,m,s)$ so far, so we have to move onto the next subinterval. If $\zeta_{\max}=1$, then we already have exhausted the whole interval, so retrun with **FAIL**. Otherwise, go back to Step 4.
+>16. We have failed to find any admissible choice of $(k,m,s)$ so far, so we have to move onto the next subinterval. If $\zeta_{\max}=1$, then we already have exhausted the whole interval, so return with **FAIL**. Otherwise, go back to Step 4.
 
 **Remarks.**
 
