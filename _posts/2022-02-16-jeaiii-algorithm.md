@@ -259,7 +259,7 @@ char* itoa_always_10_digits(std::uint32_t n, char* buffer) {
 The constant $1441151881$ is only of $31$-bits and multiplications are performed in $64$-bits so there is no overflow.
 
 
-# Considertaion of variable length
+# Consideration of variable length
 
 One can easily modify the above algorithm to omit printing leading decimal zeros and align the output to the left-most position of the buffer. However, the resulting algorithm is not very nice; although it only performs no more than $5$ multiplications, it *always* performs $5$ multiplications, even for short numbers like $n=15$.
 
@@ -702,7 +702,7 @@ char* itoa_better_y(std::uint32_t n, char* buffer) {
 ```
 (Demo: [https://godbolt.org/z/7TaqYa9h1](https://godbolt.org/z/7TaqYa9h1))
 
-**Note**: Looking at a [port](https://github.com/tearosccebe/fast_io/blob/e74bd525b6765a9f418137d9aebd193f133e400e/include/fast_io_core_impl/integers/jeaiii_method.h#L49) of James Anhalt's original algorithm, it seems that the above code is probably a little bit better than the original implementation (which can be confirmd in the benchmark below) because the original algorithm performs an addition after the first multiplication and shift, for digit length longer than some value. With our choice of magic numbers, that is not necessary.
+**Note**: Looking at a [port](https://github.com/tearosccebe/fast_io/blob/e74bd525b6765a9f418137d9aebd193f133e400e/include/fast_io_core_impl/integers/jeaiii_method.h#L49) of James Anhalt's original algorithm, it seems that the above code is probably a little bit better than the original implementation (which can be confirmed in the benchmark below) because the original algorithm performs an addition after the first multiplication and shift, for digit length longer than some value. With our choice of magic numbers, that is not necessary.
 
 
 # Benchmark
@@ -759,7 +759,7 @@ $$
   = 1441151881
 $$
 
-do the job. In fact, an exhasutive check shows that we can even take $L = 24$ and $m = 720575941$.
+do the job. In fact, an exhaustive check shows that we can even take $L = 24$ and $m = 720575941$.
 
 EDIT: Recall that in the above, the range of $n$ is constrained into $[0,10^{9}-1]$. It turns out $L = 24$ with $m = 720575941$ works only up to $n = 1133989877$, and it starts to produce errors if $n \geq 1133989878$.
 
