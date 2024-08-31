@@ -85,11 +85,11 @@ Eh... what happened?
 
 The professor told us that he honestly does not really buy this exponential decay argument, and unfortunately he has no better explanation, so for the moment we should just believe that $\hat{H}(\xi) = \frac{1}{2\pi i\xi} + \frac{1}{2}\delta(\xi)$ is the right one, and we will see it is indeed the right one as we learn through and relate more things together.
 
-Nevertheless, I desperatly wanted to know why the argument seems to work for $\mathrm{sgn}$ but not for $H$, and I knew that the [distribution theory](https://en.wikipedia.org/wiki/Distribution_(mathematics)) is the right thing to look at. However, at that time my mathematical skill was not mature enough to truly appreciate the theory, and although I kind of figured out a way to make the argument rigorous, it was much later when I finally got a full explanation of what is really happening. (If I recall correctly, it was around 2020, *10 years after* I first saw this!) This post is about that explanation.
+Nevertheless, I desperately wanted to know why the argument seems to work for $\mathrm{sgn}$ but not for $H$, and I knew that the [distribution theory](https://en.wikipedia.org/wiki/Distribution_(mathematics)) is the right thing to look at. However, at that time my mathematical skill was not mature enough to truly appreciate the theory, and although I kind of figured out a way to make the argument rigorous, it was much later when I finally got a full explanation of what is really happening. (If I recall correctly, it was around 2020, *10 years after* I first saw this!) This post is about that explanation.
 
 ## Justification of the exponential decay trick
 
-First of all, in facy the exponential decay trick is *valid regardless of the function* we are looking at. This is in fact a simple consequence of the [dominated convergence theorem](https://en.wikipedia.org/wiki/Dominated_convergence_theorem): let $f\colon\mathbb{R}\to\mathbb{R}$ be a [locally integrable function](https://en.wikipedia.org/wiki/Locally_integrable_function) and for each $\lambda>0$, define
+First of all, in fact the exponential decay trick is *valid regardless of the function* we are looking at. This is indeed a simple consequence of the [dominated convergence theorem](https://en.wikipedia.org/wiki/Dominated_convergence_theorem): let $f\colon\mathbb{R}\to\mathbb{R}$ be a [locally integrable function](https://en.wikipedia.org/wiki/Locally_integrable_function) and for each $\lambda>0$, define
 
 $$
   f_{\lambda}\colon x\mapsto e^{-\lambda|x|}f(x).
@@ -115,7 +115,7 @@ as $\lambda\to 0^{+}$. (That $f$ defines a tempered distribution simply means th
 
 In particular, we do have both $$\mathrm{sgn}_{\lambda}\to\mathrm{sgn}$$ and $$H_{\lambda}\to H$$ as $\lambda\to 0^{+}$.
 
-Next, we see that the Fourier transform $\hat{\cdot}\colon\mathcal{S}'(\mathbb{R})\to\mathcal{S}'(\mathbb{R})$ is continuous with respect to the [weak-$$*$$ topology](https://en.wikipedia.org/wiki/Weak_topology#The_weak_and_weak*_topologies). Because of [how it is defined](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Fourier_transform), this is in fact very trivial: for given [net](https://en.wikipedia.org/wiki/Net_(mathematics)) $$\left(u_{\alpha}\right)_{\alpha\in D}$$ in $\mathcal{S}'(\mathbb{R})$ convergent to some $u\in\mathcal{S}'(\mathbb{R})$ with respect to the weak-$*$ topology, we have
+Next, we see that the Fourier transform $\hat{\cdot}\colon\mathcal{S}'(\mathbb{R})\to\mathcal{S}'(\mathbb{R})$ is continuous with respect to the [weak-$$*$$ topology](https://en.wikipedia.org/wiki/Weak_topology#The_weak_and_weak*_topologies). Because of [how it is defined](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Fourier_transform), this is in fact very trivial: for a given [net](https://en.wikipedia.org/wiki/Net_(mathematics)) $$\left(u_{\alpha}\right)_{\alpha\in D}$$ in $\mathcal{S}'(\mathbb{R})$ convergent to some $u\in\mathcal{S}'(\mathbb{R})$ with respect to the weak-$*$ topology, we have
 
 $$
   \lim_{\alpha\in D}\left\langle \hat{u}_{\alpha}, \phi\right\rangle
@@ -149,7 +149,7 @@ $$
 
 In other words, the formula $\hat{H}_{\lambda}(\xi) = \frac{1}{\lambda + 2\pi i\xi}$ is correct. However, the interesting part is on taking the limit $\lambda\to 0^{+}$: since there is no single integrable function that uniformly bounds the integrands for all small enough $\lambda>0$, we cannot blindly take the pointwise limit, and this is where the naïve argument got it wrong.
 
-The key observation we will leverage here is the cancellation between the positive and the negative regions of $\xi$. Let us write our integral as
+The key observation we will leverage here is the cancellation between contributions from the positive and the negative regions of $\xi$. Let us write our integral as
 
 $$
 \begin{align*}
@@ -197,7 +197,7 @@ $$
   {\lambda^{2} + 4\pi^{2}\xi^{2}}\,d\xi
 $$
 
-is uniformly bounded by an integrable function for all $\lambda\in(0,1]$, independently to $\lambda$. Consequently, we can apply the dominated convergence theorem to see
+is uniformly bounded by an integrable function for all $\lambda\in(0,1]$, independently to $\lambda$: for $\xi\leq 1$, (the absolute value of) the integrand is bounded by $$\frac{\lambda\|\phi''\|_{\mathcal{C}^{0}}}{8\pi^{2}}$$, and for $\xi>1$, it is bounded by $$\frac{\lambda\|\phi\|_{\mathcal{C}^{0}}}{\pi^{2}\xi^{2}}$$. Consequently, we can apply the dominated convergence theorem to see
 
 $$
   \int_{0}^{\infty}\frac{\lambda(\phi(\xi) + \phi(-\xi) - 2\phi(0))}
@@ -230,7 +230,7 @@ $$
   \right)\,d\xi \\
   &= \int_{0}^{\infty}\frac{\phi(\xi) - \phi(-\xi)}{2\pi i\xi}
   - \frac{\lambda^{2}(\phi(\xi) - \phi(-\xi))}
-  {2\pi i\xi(\lambda^{2} + 4\pi^{2}\xi^{2})}\,d\xi
+  {2\pi i\xi(\lambda^{2} + 4\pi^{2}\xi^{2})}\,d\xi.
 \end{align*}
 $$
 
