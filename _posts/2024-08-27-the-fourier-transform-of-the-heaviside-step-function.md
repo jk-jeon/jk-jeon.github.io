@@ -104,7 +104,7 @@ $$
   \to \left\langle f,\phi\right\rangle
 $$
 
-as $\lambda\to 0^{+}$. As pointed out, this follows immediately from the dominateed convergence theorem. By the same reason, if $f\colon\mathbb{R}\to\mathbb{R}$ is a locally integrable function that defines a [tempered distribution](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Tempered_distributions) and $\phi\in\mathcal{S}(\mathbb{R})$ is a [Schwartz function](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Schwartz_space), then we have
+as $\lambda\to 0^{+}$. As pointed out, this follows immediately from the dominated convergence theorem. By the same reason, if $f\colon\mathbb{R}\to\mathbb{R}$ is a locally integrable function that defines a [tempered distribution](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Tempered_distributions) and $\phi\in\mathcal{S}(\mathbb{R})$ is a [Schwartz function](https://en.wikipedia.org/wiki/Distribution_(mathematics)#Schwartz_space), then we have
 
 $$
   \left\langle f_{\lambda},\phi\right\rangle
