@@ -30,7 +30,7 @@ Note that in order to make this computation truly fast, we want to keep things i
 
 Hence, if for example we choose $k=30$, then $m=323228496$, so we must have $\vert n\vert\leq \lfloor (2^{31}-1)/m \rfloor = 6$ in order to ensure $nm$ to fit in 32-bits.
 
-(In fact, at least on x86_64, it seems that there is no difference in performace of multiplying a 64-bit register and a 32-bit constant to produce a 64-bit number, versus multiplying a 32-bit register and a 32-bit constant to produce a 32-bit number, so we might only want to ensure $m$ to be in 32-bits and $mn$ to be in 64-bits, but let us just assume that we want $nm$ to be also in 32-bits for simplicity. What matters here is that we want to keep things inside a fixed number of bits.)
+(In fact, at least on x86_64, it seems that there is no difference in performance of multiplying a 64-bit register and a 32-bit constant to produce a 64-bit number, versus multiplying a 32-bit register and a 32-bit constant to produce a 32-bit number, so we might only want to ensure $m$ to be in 32-bits and $mn$ to be in 64-bits, but let us just assume that we want $nm$ to be also in 32-bits for simplicity. What matters here is that we want to keep things inside a fixed number of bits.)
 
 As a result, these competing requirements will admit a sweet spot that gives the maximum range of $n$. In this specific case, the sweet spot turns out to be $k=21$ and $m=631305$, which allows $n$ up to $\vert n \vert\leq 2620$. 
 
@@ -113,7 +113,7 @@ $$
 
 and so on.
 
-Note that the sequence of convergents above is converging to $\log_{10}2$ rapidly. Indeed, the error $\left\vert\frac{p_{2}}{q_{2}} - x\right\vert$ of the second convergent is about $1.03\times 10^{-3}$, and $\left\vert\frac{p_{4}}{q_{4}} - x\right\vert$ is about $9.59\times 10^{-6}$. For the sixth convergent, the error $\left\vert\frac{p_{6}}{q_{6}} - x\right\vert$ is about $3.31\times 10^{-8}$. This is way better than other types of rational approximations, let's say by truncated decimal expansions of $\log_{10}2$, because in that case the denominator must grow approximately as large as $10^{8}$ in order to achieve the error of order $10^{-8}$, but that order of error was achievable by $\frac{p_{6}}{q_{6}}$ whose denomintaor is only $2136$.
+Note that the sequence of convergents above is converging to $\log_{10}2$ rapidly. Indeed, the error $\left\vert\frac{p_{2}}{q_{2}} - x\right\vert$ of the second convergent is about $1.03\times 10^{-3}$, and $\left\vert\frac{p_{4}}{q_{4}} - x\right\vert$ is about $9.59\times 10^{-6}$. For the sixth convergent, the error $\left\vert\frac{p_{6}}{q_{6}} - x\right\vert$ is about $3.31\times 10^{-8}$. This is way better than other types of rational approximations, let's say by truncated decimal expansions of $\log_{10}2$, because in that case the denominator must grow approximately as large as $10^{8}$ in order to achieve the error of order $10^{-8}$, but that order of error was achievable by $\frac{p_{6}}{q_{6}}$ whose denominator is only $2136$.
 
 ## Best rational approximations
 
@@ -211,7 +211,7 @@ Similarly, if $\frac{p}{q}$ is a best rational approximation of $x$ from above, 
 
 # Application into computation of $\lfloor nx \rfloor$
 
-Alright, now let's get back to where we started: when do we have the eqaulity
+Alright, now let's get back to where we started: when do we have the equality
 
 $$\tag{$*$}
   \left\lfloor \frac{nm}{2^{k}} \right\rfloor = \lfloor nx \rfloor
@@ -558,13 +558,13 @@ $$
   \left\lfloor \frac{nm - s}{2^{k}} \right\rfloor
 $$
 
-using a Grandlund-Montgomery style analysis we did for $\lfloor nx \rfloor$ with rational $x$.
+using a Granlund-Montgomery style analysis we did for $\lfloor nx \rfloor$ with rational $x$.
 
 Unfortunately, the bound I got by applying this analysis to the case $x=\log_{10}2$ and $y=\log_{10}\frac{4}{3}$ was not that great, particularly because $y$ is too close to $\frac{u+1}{q}$ for the choice $\frac{p}{q}=\frac{643}{2136}$, which is otherwise a very efficient and effective approximation of $x$. Well, but I might be overlooking some things at this point, so probably I have to give some more tries on this later.
 
 **(Edit on 02-10-2022)** I included a better analysis of this in my new paper on [Dragonbox](https://github.com/jk-jeon/dragonbox/blob/master/other_files/Dragonbox.pdf), Section 4.4. But still I consider it incomplete, because it seems that the actual range of $n$ is much wider than what the analysis method described in the paper expects.
 
 
-# Acknolwedgements
+# Acknowledgements
 
 Thanks Seung uk Jang for teaching me many things about continued fractions (including useful references) and other  discussions relevant to this post.
