@@ -231,7 +231,7 @@ This leads us to the following strategy for computing $\left(\left\lfloor nx \ri
 
 1. For all values of $x$ that we care about, find the smallest $Q$ satisfying the inequality $\eqref{eq:core inequality}$, and store the lowest $Q$-bits of $m = \left\lceil\frac{2^{Q}x}{D}\right\rceil$ and $Q$ in a cache table. This is done only once, before runtime.
 
-2. During runtime, for a given value of $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$ from the cache table. Then using the formula $\eqref{eq:core formula}$, which only requires some multipilcations and bit manipulations, we can compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$ for any given $n$.
+2. During runtime, for a given value of $x$, load the corresponding $(m\ \mathrm{mod}\ 2^{Q})$ and $Q$ from the cache table. Then using the formula $\eqref{eq:core formula}$, which only requires some multiplications and bit manipulations, we can compute $\left(\left\lfloor nx\right\rfloor\ \mathrm{mod}\ D\right)$ for any given $n$.
 
 In practice, however, this strategy is not directly applicable to our situation, because too much information needs to be stored. To illustrate this, recall that in our situation we have $x = 2^{e+k-1}\cdot 5^{k}$, so a different pair $(e,k)$ corresponds to a different $x$. After doing some analysis (which will be done in [a later section](#which--pairs-are-relevant)), one can figure out that there are about $540,000$ pairs $(e,k)$ that can appear in the computation, and given $D=10^{\eta}$, the smallest feasible $Q$ is around $120$ when $\eta=1$, and it is even larger for larger values of $\eta$. Hence, we already need at least about **$540,000\times 120\textrm{-bits}\approx 7.7$ MB** just to store the lowest $Q$-bits of $m$. And that's not even all we need, and we need to store $Q$ in addition to it. This is not acceptable.
 
@@ -516,7 +516,7 @@ And here is a little bit more detailed version of the summary:
 
 1. Given a floating point number $w = n\cdot 2^{e-1}$, we want to compute $\left(\left\lfloor w\cdot 10^{k} \right\rfloor\ \mathrm{mod}\ 10^{\eta}\right)$ for some $k$'s.
 
-2. For the first several digits, we can just multiply an appropirate entry from the Dragonbox table, or anything like that will work.
+2. For the first several digits, we can just multiply an appropriate entry from the Dragonbox table, or anything like that will work.
 
 3. To prepare for the case when that will not yield sufficiently many digits, we find $Q$ that makes the equality
 $$\begin{align*}
