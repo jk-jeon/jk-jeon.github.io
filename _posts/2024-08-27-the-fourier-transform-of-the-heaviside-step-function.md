@@ -5,6 +5,7 @@ permalink: /posts/2024/08/the-fourier-transform-of-the-heaviside-step-function/
 tags:
   - analysis
   - distribution-theory
+  - harmonic-analysis
 ---
 
 Back in 2010, as an electrical engineering major student I was taking an introductory course on signals and systems taught by my formal advisor. The course was mainly about four different kinds of Fourier transforms ([*Discrete-Time Fourier Series* a.k.a. *Discrete Fourier Transform*](https://en.wikipedia.org/wiki/Discrete_Fourier_transform), [*Discrete-Time Fourier Transform*](https://en.wikipedia.org/wiki/Discrete-time_Fourier_transform), [*Continuous-Time Fourier Series*](https://en.wikipedia.org/wiki/Fourier_series), and [*Continuous-Time Fourier Transform*](https://en.wikipedia.org/wiki/Fourier_transform)) and some additional topics like the famous [sampling theorem](https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem).

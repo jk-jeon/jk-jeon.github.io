@@ -4,6 +4,7 @@ date: 2024-09-04
 permalink: /posts/2024/09/lax-milgram/
 tags:
   - analysis
+  - distribution-theory
   - functional-analysis
   - pde
 ---
