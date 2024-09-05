@@ -15,12 +15,12 @@ This is a short note on a generalization of the [Lax-Milgram theorem](https://en
 Let $\Omega\subseteq\mathbb{R}^{n}$ be a bounded and smooth enough domain and $f\in L^{2}(\Omega)$. Consider the PDE
 
 $$\label{eq:Poisson equation}
-\begin{dcases}
+\begin{cases}
 \begin{aligned}
   -\Delta u &= f & \textrm{on}\quad & \Omega \\
   u &= 0 & \textrm{on}\quad & \partial\Omega.
 \end{aligned}
-\end{dcases}
+\end{cases}
 $$
 
 Suppose that $u\in C^{2}(\overline{\Omega})$ is a solution to this equation. Then for each $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$, we have
@@ -32,7 +32,7 @@ $$
   = \int_{\Omega}\nabla\phi\cdot \nabla u,
 $$
 
-where the last equality follows from the [divergence theorem](https://en.wikipedia.org/wiki/Divergence_theorem) and that $$\phi|_{\partial\Omega} = 0$$. Since having
+where the last equality follows from the [divergence theorem](https://en.wikipedia.org/wiki/Divergence_theorem) and that $\phi|\_{\partial\Omega} = 0$. Since having
 
 $$
   \int_{\Omega}f\phi = -\int_{\Omega}\phi\Delta u
