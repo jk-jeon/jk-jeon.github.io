@@ -15,10 +15,12 @@ This is a short note on a generalization of the [Lax-Milgram theorem](https://en
 Let $\Omega\subseteq\mathbb{R}^{n}$ be a bounded and smooth enough domain and $f\in L^{2}(\Omega)$. Consider the PDE
 
 $$
-\begin{aligned}\label{eq:Poisson equation}
+\begin{cases}
+\begin{aligned}
   -\Delta u &= f & \textrm{on}\quad & \Omega \\
   u &= 0 & \textrm{on}\quad & \partial\Omega.
 \end{aligned}
+\end{cases}
 $$
 
 Suppose that $u\in C^{2}(\overline{\Omega})$ is a solution to this equation. Then for each $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$, we have
@@ -42,7 +44,7 @@ $$
   \int_{\Omega}f\phi = \int_{\Omega}\nabla\phi\cdot\nabla u
 $$
 
-holds for all $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$. Since both sides define a continuous linear functional on the Hilbert space $$H_{0}^{1}(\Omega)$$ (the norm-closure of $$\mathcal{C}_{c}^{\infty}(\Omega)$$ inside the [Sobolev space](https://en.wikipedia.org/wiki/Sobolev_space) $H^{1}(\Omega)$), we have converted the problem of solving $\eqref{eq:Poisson equation}$ into the problem of finding an element $$u\in H_{0}^{1}(\Omega)$$ such that the continuous linear functional $$\phi\mapsto\int_{\Omega}\nabla\phi\cdot\nabla u$$ coincides with $$\phi\mapsto\int_{\Omega}f\phi$$. Thus, basically what we are asking here is the surjectivity of the linear map
+holds for all $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$. Since both sides define a continuous linear functional on the Hilbert space $$H_{0}^{1}(\Omega)$$ (the norm-closure of $$\mathcal{C}_{c}^{\infty}(\Omega)$$ inside the [Sobolev space](https://en.wikipedia.org/wiki/Sobolev_space) $H^{1}(\Omega)$), we have converted the problem of solving the PDE into the problem of finding an element $$u\in H_{0}^{1}(\Omega)$$ such that the continuous linear functional $$\phi\mapsto\int_{\Omega}\nabla\phi\cdot\nabla u$$ coincides with $$\phi\mapsto\int_{\Omega}f\phi$$. Thus, basically what we are asking here is the surjectivity of the linear map
 
 $$
 \begin{align*}
@@ -51,7 +53,7 @@ $$
 \end{align*}
 $$
 
-This is called the *weak formulation* of $\eqref{eq:Poisson equation}$. An element $$u\in H_{0}^{1}(\Omega)$$ satisfying $$Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$$ is then called a *weak solution* of $\eqref{eq:Poisson equation}$. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
+This is called the *weak formulation* of the PDE. An element $$u\in H_{0}^{1}(\Omega)$$ satisfying $$Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$$ is then called a *weak solution* of the PDE. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
 
 Therefore, we can reformulate our PDE into the following functional analysis question: given a bilinear form $B\colon E\times F\to \mathbb{K}$ where $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ is the scalar field, when the induced map
 
