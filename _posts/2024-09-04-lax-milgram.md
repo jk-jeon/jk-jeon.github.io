@@ -188,7 +188,7 @@ The theorem we want to prove is the following:
 
 Note that the only role that the topologies on $E,F$ play is on defining the dual spaces $E',F'$: it does not matter which dual topology we choose.
 
->**Proof.** $(1\Rightarrow 2)$ Suppose $v\in F\setminus\{0\}$. By [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), we can find $$v^{*}\in F'$$ such that $$v^{*}(v) \neq 0$$. Then by the assumption, there exists $u\in E$ such that $$Lu = v^{*}$$. Then
+>**Proof.** $(1\Rightarrow 2)$ Suppose $$v\in F\setminus\{0\}$$. By [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), we can find $$v^{*}\in F'$$ such that $$v^{*}(v) \neq 0$$. Then by the assumption, there exists $u\in E$ such that $$Lu = v^{*}$$. Then
 >
 >$$
 >  0\neq v^{*}(v) = (Lu)(v) = B(v,u) = (Rv)(u),
@@ -346,7 +346,7 @@ $$
   \cong \mathcal{C}_{c}^{\infty}(\Omega)
 $$
 
-really just means asking if $-\Delta\phi$ belongs to $$\mathcal{C}_{c}^{\infty}(\Omega)$$ for any $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$ which is trivially the case.
+holds really just means asking if $-\Delta\phi$ belongs to $$\mathcal{C}_{c}^{\infty}(\Omega)$$ for any $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$ which is trivially the case.
 
 The next question is whether or not $R$ is injective. This one is indeed easy to answer. Suppose $R\phi = 0$, then we must have $(R\phi)(\tilde{\phi}) = 0$ where $\tilde{\phi}$ is the distribution defined as
 
@@ -374,7 +374,7 @@ $$
   \sigma\left(\mathcal{C}_{c}^{\infty}(\Omega),\mathcal{C}_{c}^{\infty}(\Omega)'\right)\right),
 $$
 
-which is where the "real work" should be done. Let us actually show that $R^{-1}$ is continuous even when the codomain is endowed with the usual LF-topology rather than the weak-$$*$$ topology. That is, we want to see that the map
+which is where the "real work" should be done. Let us actually show that $R^{-1}$ is continuous even when the codomain is endowed with the usual LF-topology rather than the weak topology. That is, we want to see that the map
 
 $$
 \begin{aligned}
