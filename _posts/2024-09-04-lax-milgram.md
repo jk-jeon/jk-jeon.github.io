@@ -14,15 +14,13 @@ This is a short note on a generalization of the [Lax-Milgram theorem](https://en
 
 Let $\Omega\subseteq\mathbb{R}^{n}$ be a bounded and smooth enough domain and $f\in L^{2}(\Omega)$. Consider the PDE
 
-$$
-\begin{equation}\label{eq:Poisson equation}
+$$\label{eq:Poisson equation}
 \begin{dcases}
 \begin{aligned}
   -\Delta u &= f & \textrm{on}\quad & \Omega \\
   u &= 0 & \textrm{on}\quad & \partial\Omega.
 \end{aligned}
 \end{dcases}
-\end{equation}
 $$
 
 Suppose that $u\in C^{2}(\overline{\Omega})$ is a solution to this equation. Then for each $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$, we have
@@ -34,19 +32,19 @@ $$
   = \int_{\Omega}\nabla\phi\cdot \nabla u,
 $$
 
-where the last equality follows from the [divergence theorem](https://en.wikipedia.org/wiki/Divergence_theorem) and that $\phi|_{\partial\Omega} = 0$. Since having
+where the last equality follows from the [divergence theorem](https://en.wikipedia.org/wiki/Divergence_theorem) and that $$\phi|_{\partial\Omega} = 0$$. Since having
 
 $$
   \int_{\Omega}f\phi = -\int_{\Omega}\phi\Delta u
 $$
 
-for all $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$ is equivalent to $-\Delta u = f$ (which follows from the [Lebesgue differentiation theorem](https://en.wikipedia.org/wiki/Lebesgue_differentiation_theorem)), we conclude that $u$ is a solution if and only if
+for all $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$ is equivalent to $-\Delta u = f$ (which follows from the [Lebesgue differentiation theorem](https://en.wikipedia.org/wiki/Lebesgue_differentiation_theorem)), we conclude that $u$ is a solution if and only if
 
 $$
   \int_{\Omega}f\phi = \int_{\Omega}\nabla\phi\cdot\nabla u
 $$
 
-holds for all $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$. Since both sides define a continuous linear functional on the Hilbert space $H_{0}^{1}(\Omega)$ (the norm-closure of $\mathcal{C}_{c}^{\infty}(\Omega)$ inside the [Sobolev space](https://en.wikipedia.org/wiki/Sobolev_space) $H^{1}(\Omega)$), we have converted the problem of solving $\eqref{eq:Poisson equation}$ into the problem of finding an element $u\in H_{0}^{1}(\Omega)$ such that the continuous linear functional $\phi\mapsto\int_{\Omega}\nabla\phi\cdot\nabla u$ coincides with $\phi\mapsto\int_{\Omega}f\phi$. Thus, basically what we are asking here is the surjectivity of the linear map
+holds for all $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$. Since both sides define a continuous linear functional on the Hilbert space $$H_{0}^{1}(\Omega)$$ (the norm-closure of $$\mathcal{C}_{c}^{\infty}(\Omega)$$ inside the [Sobolev space](https://en.wikipedia.org/wiki/Sobolev_space) $H^{1}(\Omega)$), we have converted the problem of solving $\eqref{eq:Poisson equation}$ into the problem of finding an element $$u\in H_{0}^{1}(\Omega)$$ such that the continuous linear functional $$\phi\mapsto\int_{\Omega}\nabla\phi\cdot\nabla u$$ coincides with $$\phi\mapsto\int_{\Omega}f\phi$$. Thus, basically what we are asking here is the surjectivity of the linear map
 
 $$
 \begin{align*}
@@ -55,7 +53,7 @@ $$
 \end{align*}
 $$
 
-This is called the *weak formulation* of $\eqref{eq:Poisson equation}$. An element $u\in H_{0}^{1}(\Omega)$ satisfying $Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$ is then called a *weak solution* of $\eqref{eq:Poisson equation}$. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
+This is called the *weak formulation* of $\eqref{eq:Poisson equation}$. An element $$u\in H_{0}^{1}(\Omega)$$ satisfying $$Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$$ is then called a *weak solution* of $\eqref{eq:Poisson equation}$. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
 
 Therefore, we can reformulate our PDE into the following functional analysis question: given a bilinear form $B\colon E\times F\to \mathbb{K}$ where $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ is the scalar field, when the induced map
 
@@ -193,7 +191,7 @@ Note that $B$ being separately continuous precisely means that $L,R$ are well-de
 >
 >thus $Rv\neq 0$. This shows that $R$ is injective.
 >
->To show continuity of $R^{-1}$, let $\left(v_{\alpha}\right)_{\alpha\in D}$ be a [net](https://en.wikipedia.org/wiki/Net_(mathematics)) in $F$ such that $\left(Rv_{\alpha}\right)_{\alpha\in D}$ is convergent to $Rv$ with respect to $\sigma(E',E)$ for some $v\in F$. We want to show that $\left(v_{\alpha}\right)_{\alpha\in D}$ is convergent to $v$ with respect to $\sigma(F,F')$, which means nothing but that $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$v^{*}(v)$$ for all $$v^{*}\in F'$$. Given $$v^{*}\in F'$$, by the assumption there exists $u\in E$ such that $$Lu=v^{*}$$. Then $$v^{*}(v_{\alpha}) = (Lu)(v_{\alpha}) = B(v_{\alpha},u) = (Rv_{\alpha})(u)$$, so $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$(Rv)(u) = v^{*}(v)$$ as desired.
+>To show continuity of $R^{-1}$, let $$\left(v_{\alpha}\right)_{\alpha\in D}$$ be a [net](https://en.wikipedia.org/wiki/Net_(mathematics)) in $F$ such that $$\left(Rv_{\alpha}\right)_{\alpha\in D}$$ is convergent to $Rv$ with respect to $\sigma(E',E)$ for some $v\in F$. We want to show that $$\left(v_{\alpha}\right)_{\alpha\in D}$$ is convergent to $v$ with respect to $\sigma(F,F')$, which means nothing but that $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$v^{*}(v)$$ for all $$v^{*}\in F'$$. Given $$v^{*}\in F'$$, by the assumption there exists $u\in E$ such that $$Lu=v^{*}$$. Then $$v^{*}(v_{\alpha}) = (Lu)(v_{\alpha}) = B(v_{\alpha},u) = (Rv_{\alpha})(u)$$, so $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$(Rv)(u) = v^{*}(v)$$ as desired.
 >
 >$(2\Rightarrow 3)$ Trivial, since $\tau(E',E)$ is finer than or equal to $\sigma(E',E)$.
 >
