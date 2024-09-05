@@ -32,7 +32,7 @@ $$
   = \int_{\Omega}\nabla\phi\cdot \nabla u,
 $$
 
-where the last equality follows from the [divergence theorem](https://en.wikipedia.org/wiki/Divergence_theorem) and that $\phi|\_{\partial\Omega} = 0$. Since having
+where the last equality follows from the [divergence theorem](https://en.wikipedia.org/wiki/Divergence_theorem) and that $\phi\vert_{\partial\Omega} = 0$. Since having
 
 $$
   \int_{\Omega}f\phi = -\int_{\Omega}\phi\Delta u
