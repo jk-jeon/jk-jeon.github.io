@@ -16,12 +16,10 @@ Let $\Omega\subseteq\mathbb{R}^{n}$ be a bounded and smooth enough domain and $f
 
 $$\label{eq:Poisson equation}
 \begin{split}
-\begin{cases}
 \begin{aligned}
   -\Delta u &= f & \textrm{on}\quad & \Omega \\
   u &= 0 & \textrm{on}\quad & \partial\Omega.
 \end{aligned}
-\end{cases}
 \end{split}
 $$
 
