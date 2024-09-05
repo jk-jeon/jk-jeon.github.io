@@ -16,10 +16,6 @@ Let $\Omega\subseteq\mathbb{R}^{n}$ be a bounded and smooth enough domain and $f
 
 $$\label{eq:Poisson equation}
 asdasd
-\begin{aligned}
-  -\Delta u &= f & \textrm{on}\quad & \Omega \\
-  u &= 0 & \textrm{on}\quad & \partial\Omega.
-\end{aligned}
 $$
 
 Suppose that $u\in C^{2}(\overline{\Omega})$ is a solution to this equation. Then for each $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$, we have
