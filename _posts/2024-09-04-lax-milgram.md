@@ -70,7 +70,7 @@ The [Lax-Milgram theorem](https://en.wikipedia.org/wiki/Weak_formulation#The_Lax
 
 ## Duality pairings and Mackey-Arens theorem
 
-A lesson I learned from functional analysis is that every attempt for building a duality theory that encompasses, but goes beyond, the usual duality theory of Banach spaces will necessarily suffer, suffer quite a lot. This is not because the concept of duality is broken beyond Banach spaces, rather because it is already broken in the Banach space level. More precisely, the notion of "the correct dual space" is not always the usual one, the space of all continuous linear functionals with the operator norm. Rather, the correct dual space very much depends on the given situation, and there is no one-size-fit-all answer.
+A lesson I learned from functional analysis is that every attempt for building a duality theory that encompasses, but goes beyond, the usual duality theory of Banach spaces will necessarily suffer, suffer quite a lot. This is not because the concept of duality is broken beyond Banach spaces, rather because it is already broken in the Banach space level. More precisely, the notion of "the correct dual space" is not always the usual one, the space of all continuous linear functionals with the [operator norm](https://en.wikipedia.org/wiki/Operator_norm). Rather, the correct dual space very much depends on the given situation, and there is no one-size-fit-all answer.
 
 This is why it is a good idea to temporarily forget about the concept of continuous dual, and start with a so-called *duality pairing* given on an arbitrary pair $(E,F)$ of spaces, which a priori has nothing to with any kinds of topologies we can give on those spaces.
 
@@ -152,11 +152,15 @@ This theorem is basically a consequence of the [bipolar theorem](https://en.wiki
 >
 >for any [absolutely convex](https://en.wikipedia.org/wiki/Absolutely_convex_set) $\sigma(F,E)$-compact subsets of $K$.
 
+When $E$ is a normed space, the Mackey topology $\tau(E,E')$ is nothing but the norm topology. Indeed, recall tha the norm topology on $E$ is the subspace topology inherited from the norm topology on $E''$, which is the topology of uniform convergence on norm-bounded subsets of $E'$. By the [Banach-Alaoglu theorem](https://en.wikipedia.org/wiki/Banach%E2%80%93Alaoglu_theorem), any norm-bounded subset of $E'$ is contained in an absolutely convex weak-$$*$$ compact subset of $E'$, and weak-$$*$$ topology is nothing but the weak topology $\sigma(E',E)$. Therefore, the norm topology on $E$ is coarser than or equal to $\tau(E,E')$. On the other hand, the [uniform boundedness principle](https://en.wikipedia.org/wiki/Uniform_boundedness_principle) shows that any $\sigma(E',E)$-[bounded subsets](https://en.wikipedia.org/wiki/Bounded_set_(topological_vector_space)) (thus $\sigma(E',E)$-compact subsets in particular) of $E$ are norm-bounded, thus the Mackey topology is coarser than or equal to the norm topology, concluding the equivalence between the two.
+
+It is worth noting that, on the other hand, $\tau(E',E)$ is *not* the operator norm topology. Since the operator norm topology coincides with the Mackey topology $\tau(E',E'')$, we conclude that $\tau(E',E)$ coincides with the operator norm topology if $E$ is reflexive. Of course, the [Mackey-Arens theorem](#mackey-arens) shows that the converse is also true.
+
 ## A generalization of the Lax-Milgram theorem
 
 The theorem we want to prove is the following:
 
->**Theorem 6 (Lax-Milgram).**
+><b id="lax-milgram">Theorem 6</b> **(Lax-Milgram).**
 >
 >Let $E,F$ be [locally convex spaces](https://en.wikipedia.org/wiki/Locally_convex_topological_vector_space) over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ and $B\colon F\times E\to \mathbb{K}$ a bilinear form. Define
 >
@@ -178,10 +182,11 @@ The theorem we want to prove is the following:
 >
 >and suppose that $R[F] \subseteq E'$. Then the followings are equivalent:
 >1. $L[E] \supseteq F'$.
->2. $R$ is injective and $R^{-1}\colon \left(R[F],\sigma(E',E)\right)\to \left(F,\sigma(F,F')\right)$ is continuous.
->3. $R$ is injective and $R^{-1}\colon \left(R[F],\tau(E',E)\right)\to \left(F,\sigma(F,F')\right)$ is continuous.
+>2. $R$ is injective and $R^{-1}\colon \left(R[F],\mathscr{T}\right)\to \left(F,\sigma(F,F')\right)$ is continuous for all dual topologies $\mathscr{T}$ on $E'$ with respect to the canonical pairing between $E'$ and $E$.
+>3. $R$ is injective and $R^{-1}\colon \left(R[F],\mathscr{T}\right)\to \left(F,\sigma(F,F')\right)$ is continuous for some dual topology $\mathscr{T}$ on $E'$ with respect to the canonical pairing between $E'$ and $E$.
+>
 
-Note that the topology on $F$ plays no role at all. Its only significance is on defining $F'$, but we could simply replace the canonical pairing between $F$ and $F'$ by any duality pairing of $F$ and another vector space $G$, and endow $F$ with the induced weak topology.
+Note that the only role that the topologies on $E,F$ play is on defining the dual spaces $E',F'$: it does not matter which dual topology we choose.
 
 >**Proof.** $(1\Rightarrow 2)$ Suppose $v\in F\setminus\{0\}$. By [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), we can find $$v^{*}\in F'$$ such that $$v^{*}(v) \neq 0$$. Then by the assumption, there exists $u\in E$ such that $$Lu = v^{*}$$. Then
 >
@@ -191,9 +196,9 @@ Note that the topology on $F$ plays no role at all. Its only significance is on 
 >
 >thus $Rv\neq 0$. This shows that $R$ is injective.
 >
->To show continuity of $R^{-1}$, let $$\left(v_{\alpha}\right)_{\alpha\in D}$$ be a [net](https://en.wikipedia.org/wiki/Net_(mathematics)) in $F$ such that $$\left(Rv_{\alpha}\right)_{\alpha\in D}$$ is convergent to $Rv$ with respect to $\sigma(E',E)$ for some $v\in F$. We want to show that $$\left(v_{\alpha}\right)_{\alpha\in D}$$ is convergent to $v$ with respect to $\sigma(F,F')$, which means nothing but that $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$v^{*}(v)$$ for all $$v^{*}\in F'$$. Given $$v^{*}\in F'$$, by the assumption there exists $u\in E$ such that $$Lu=v^{*}$$. Then $$v^{*}(v_{\alpha}) = (Lu)(v_{\alpha}) = B(v_{\alpha},u) = (Rv_{\alpha})(u)$$, so $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$(Rv)(u) = v^{*}(v)$$ as desired.
+>For continuity of $R^{-1}$, it is enough to show that $R^{-1}$ is continuous when $\mathscr{T}=\sigma(E',E)$ because any dual topology should contain $\sigma(E',E)$ by the [Mackey-Arens theorem](#mackey-arens). Let $$\left(v_{\alpha}\right)_{\alpha\in D}$$ be a [net](https://en.wikipedia.org/wiki/Net_(mathematics)) in $F$ such that $$\left(Rv_{\alpha}\right)_{\alpha\in D}$$ is convergent to $Rv$ with respect to $\sigma(E',E)$ for some $v\in F$. We want to show that $$\left(v_{\alpha}\right)_{\alpha\in D}$$ is convergent to $v$ with respect to $\sigma(F,F')$, which means nothing but that $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$v^{*}(v)$$ for all $$v^{*}\in F'$$. Given $$v^{*}\in F'$$, by the assumption there exists $u\in E$ such that $$Lu=v^{*}$$. Then $$v^{*}(v_{\alpha}) = (Lu)(v_{\alpha}) = B(v_{\alpha},u) = (Rv_{\alpha})(u)$$, so $$\left(v^{*}(v_{\alpha})\right)_{\alpha\in D}$$ converges to $$(Rv)(u) = v^{*}(v)$$ as desired.
 >
->$(2\Rightarrow 3)$ Trivial, since $\tau(E',E)$ is finer than or equal to $\sigma(E',E)$.
+>$(2\Rightarrow 3)$ Trivial.
 >
 >$(3\Rightarrow 1)$ Take an arbitrary $$v^{*}\in F'$$. Consider a linear functional
 >
@@ -204,7 +209,7 @@ Note that the topology on $F$ plays no role at all. Its only significance is on 
 >\end{align*}
 >$$
 >
->By the assumption, $\lambda$ is continuous with respect to $\tau(E',E)$. Hence, by [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), there exists a linear extension $\tilde{\lambda}\colon E'\to \mathbb{K}$ of $\lambda$ which is continuous with respect to $\tau(E',E)$. Therefore, by [**Theorem 3**](#mackey-arens), there exists $u\in E$ such that $\iota(u) = \tilde{\lambda}$, that is, $$u^{*}(u) = \tilde{\lambda}(u^{*})$$ holds for all $$u^{*}\in E'$$. Then, for any $v\in F$,
+>By the assumption, $\lambda$ is continuous with respect to $\mathscr{T}$. Hence, by [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), there exists a linear extension $\tilde{\lambda}\colon E'\to \mathbb{K}$ of $\lambda$ which is continuous with respect to $\mathscr{T}$. Therefore, by the [Mackey-Arens theorem](#mackey-arens), there exists $u\in E$ such that $\iota(u) = \tilde{\lambda}$, that is, $$u^{*}(u) = \tilde{\lambda}(u^{*})$$ holds for all $$u^{*}\in E'$$. Then, for any $v\in F$,
 >
 >$$
 >  (Lu)(v) = B(v,u) = (Rv)(u) = \tilde{\lambda}(Rv) = \lambda(Rv) = v^{*}(v),
@@ -212,3 +217,219 @@ Note that the topology on $F$ plays no role at all. Its only significance is on 
 >
 >concluding $$Lu = v^{*}$$. Therefore, $L[E]$ contains $F'$.$\quad\blacksquare$
 
+In application, a usual assumption is that $E$ is a reflexive Banach space. By definition, the usual operator norm topology on $E'$ is a dual topology with respect to the pairing between $E'$ and $E$, thus in that case usually we want to verify the continuity of $R^{-1}\colon R[F]\to F$ with respect to the norm topology on $R[F]\subseteq E'$. As noted earlier, in this situation the operator norm topology coincides with the Mackey topology $\tau(E',E)$.
+
+When $E$ is not reflexive, continuity of $R^{-1}$ with respect to the norm topology is not enough, because the norm topology on $E'$ is in general finer than $\tau(E',E)$. Hence, we have to work with $\tau(E',E)$ instead. Or it could be any other dual topology, but in principle $\tau(E',E)$ is the finest one so the continuity must be easiest to show when we endow $E'$ with $\tau(E',E)$. To work with $\tau(E',E)$, we should first characterize absolutely convex $\sigma(E,E')$-compact sets, in other words, absolutely convex *weakly compact* subsets of $E$. For instance, when $E = L^{1}(\mu)$ for some measure $\mu$, we may need to use the [Dunford-Pettis theorem](https://en.wikipedia.org/wiki/Uniform_integrability#Relevant_theorems).
+
+It may seem that showing continuity of $R^{-1}\colon R[F]\to F$ when the codomain $F$ is endowed with the weak topology $\sigma(F,F')$ is easier than when $F$ is endowed with a finer topology, for instance a norm topology. However, this is in fact not the case when both $E$ and $F$ are normed spaces and $R\colon F\to E'$ is not only well-defined but also continuous. When $E,F$ are normed spaces, it is often the case that the given bilinear map $B$ is also [jointly continuous](https://en.wikipedia.org/wiki/Bilinear_map#Continuity_and_separate_continuity), thus this continuity condition on $R$ is easily guaranteed.
+
+Now, suppose that $E,F$ are normed spaces and $R\colon F\to E'$ is continuous. We claim that in this case, if $R$ is injective and
+
+$$
+  R^{-1}\colon (R[F],\|\cdot\|_{E'})\to (F,\sigma(F,F'))
+$$
+
+is continuous, then
+
+$$
+  R^{-1}\colon (R[F],\|\cdot\|_{E'})\to (F,\|\cdot\|_{F})
+$$
+
+is continuous as well. Note that the continuity of the first map means nothing but that the topology on $F$ induced by the norm $$v\mapsto \|Rv\|_{E'}$$ is finer than or equal to $\sigma(F,F')$. On the other hand, continuity of $R\colon F\to E'$ means that the topology induced by this new norm is coarser than or equal to the original norm topology on $F$. Hence, by the [Mackey-Arens theorem](#mackey-arens), this new norm must induce exactly the same dual space $F'$, but this means that the norm topology induced by it is nothing but the Mackey topology $\tau(F,F')$, which is nothing but the original norm topology on $F$. Hence, $R^{-1}$ should be continuous when the codomain is endowed with the norm topology as well.
+
+## Recovering the classical case
+
+When $E$ is a reflexive Banach space, a usual way of verifying the continuity condition required in [**Theorem 6**](#lax-milgram) is to show that the bilinear form $B$ is *coercive*:
+
+>**Definition 8 (Coercive bilinear forms).**
+>
+>Let $E,F$ be normed spaces over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$. Then a bilinear form $B\colon F\times E\to\mathbb{K}$ is said to be *coercive* if there exists a constant $c>0$ such that
+>
+>$$
+> \inf_{v\in F\setminus\{0\}}\sup_{u\in E\setminus\{0\}}
+> \frac{|B(v,u)|}{\|u\|_{E}\|v\|_{F}} \geq c.
+>$$
+>
+
+Note that coercivity is really nothing but the norm-continuity of the map $R^{-1}\colon R[F]\to F$. Indeed, recall the map $R\colon v\mapsto \left(u\mapsto B(v,u)\right)$ from $F$ to $E^{\star}$, then
+
+$$
+  \|Rv\|_{E'} = \sup_{u\in E\setminus\{0\}}\frac{|(Rv)(u)|}{\|u\|_{E}}
+  = \sup_{u\in E\setminus\{0\}}\frac{|B(v,u)|}{\|u\|_{E}},
+$$
+
+so $B$ being coercive is equivalent to that there exists a constant $c>0$ such that
+
+$$
+  \|v\|_{F}\leq \frac{1}{c}\|Rv\|_{E'}.
+$$
+
+Hence, we obtain the following corollary, which is a more common way the Lax-Milgram theorem is stated:
+
+>**Corollary 9 ([Lions-Lax-Milgram](https://en.wikipedia.org/wiki/Lions%E2%80%93Lax%E2%80%93Milgram_theorem)).**
+>
+>Let $E$ be a reflexive Banach space over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$, $F$ a normed space over $\mathbb{K}$, and $B\colon F\times E\to \mathbb{K}$ a bilinear form. Define $L\colon E\to F^{\star}$ and $R\colon F\to E^{\star}$ as in [**Theorem 6**](#lax-milgram) and suppose that $R[F]\subseteq E'$. Then $L[E] \supseteq F'$ holds if and only if $B$ is coercive.
+>
+
+As an example application, let us go back to the PDE we saw in the [Introduction](#introduction):
+
+$$
+\begin{cases}
+\begin{aligned}
+  -\Delta u &= f & \textrm{on}\quad & \Omega \\
+  u &= 0 & \textrm{on}\quad & \partial\Omega.
+\end{aligned}
+\end{cases}
+$$
+
+In this case, the bilinear form we are looking at is
+
+$$
+\begin{aligned}
+  B\colon H_{0}^{1}(\Omega)\times H_{0}^{1}(\Omega) &\to \mathbb{K} \\
+  (\phi,u) &\mapsto \int_{\Omega}\nabla\phi \cdot \nabla u.
+\end{aligned}
+$$
+
+Since $$B(\overline{\phi},\phi) = \|\phi\|_{L^{2}(\Omega)}^{2}$$, that this bilinear form is coercive follows immediately from the [Poincaré inequality](https://en.wikipedia.org/wiki/Poincar%C3%A9_inequality). Therefore, we can apply the corollary above and conclude that there exists $u\in H_{0}^{1}(\Omega)$ such that
+
+$$
+  \int_{\Omega}\nabla\phi \cdot \nabla u = \lambda(\phi)
+$$
+
+holds for all $\phi\in H_{0}^{1}(\Omega)$, for any given $$\lambda\in H_{0}^{1}(\Omega)^{*}$$. This space $$H_{0}^{1}(\Omega)^{*}$$ in particular contains all integrations against functions in $L^{2}(\Omega)$, but it contains many more elements.
+
+## A non-Banach application
+
+Let's have some fun with a case involving non-Banach locally convex spaces. Let us consider the bilinear form
+
+$$
+\begin{aligned}
+  B\colon \mathcal{C}_{c}^{\infty}(\Omega)\times \mathcal{C}_{c}^{\infty}(\Omega)'
+  &\to \mathbb{K} \\
+  (\phi,u) &\mapsto -\left\langle \Delta u,\phi\right\rangle
+  \mathrel{\unicode{x2254}} -\left\langle u,\Delta\phi\right\rangle,
+\end{aligned}
+$$
+
+where $$\mathcal{C}_{c}^{\infty}(\Omega)$$ is endowed with the usual [LF-topology](https://en.wikipedia.org/wiki/LF-space). Here, we are interested in the surjectivity of the induced map
+
+$$
+\begin{aligned}
+  L\colon \mathcal{C}_{c}^{\infty}(\Omega)' &\to \mathcal{C}_{c}^{\infty}(\Omega)' \\
+  u &\mapsto -\Delta u,
+\end{aligned}
+$$
+
+or putting differently, we are asking the question: *can we always invert the Laplacian applied to an arbitrary [distribution](https://en.wikipedia.org/wiki/Distribution_(mathematics))?*
+
+Let us try to apply [**Theorem 6**](#lax-milgram), so we consider the other induced map
+
+$$
+\begin{aligned}
+  R\colon \mathcal{C}_{c}^{\infty}(\Omega)&\to
+  \left(\mathcal{C}_{c}^{\infty}(\Omega)'\right)^{\star} \\
+  \phi &\mapsto \left(u\mapsto -\left\langle u,\Delta\phi\right\rangle \right).
+\end{aligned}
+$$
+
+First, we are interested in checking the condition
+
+$$
+  R\left[\mathcal{C}_{c}^{\infty}(\Omega)\right] \subseteq \mathcal{C}_{c}^{\infty}(\Omega)''.
+$$
+
+Here, we need to be a bit careful about which topology we should put on the space $$\mathcal{C}_{c}^{\infty}(\Omega)'$$ because there are multiple possible choices. However, as noted earlier, the only relevance of this choice is on determining what is the desired dual space of $$\mathcal{C}_{c}^{\infty}(\Omega)'$$, and there is really just only one choice of the space which we want to be the dual space of $$\mathcal{C}_{c}^{\infty}(\Omega)'$$: the predual $$\mathcal{C}_{c}^{\infty}(\Omega)$$. Hence, let us just choose any dual topology for the pairing between the two, for instance the weak-$$*$$ topology. Then, asking if
+
+$$
+  R\left[\mathcal{C}_{c}^{\infty}(\Omega)\right] \subseteq \mathcal{C}_{c}^{\infty}(\Omega)''
+  \cong \mathcal{C}_{c}^{\infty}(\Omega)
+$$
+
+really just means asking if $-\Delta\phi$ belongs to $$\mathcal{C}_{c}^{\infty}(\Omega)$$ for any $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$ which is trivially the case.
+
+The next question is whether or not $R$ is injective. This one is indeed easy to answer. Suppose $R\phi = 0$, then we must have $(R\phi)(\tilde{\phi}) = 0$ where $\tilde{\phi}$ is the distribution defined as
+
+$$
+  \tilde{\phi}\colon \psi \mapsto \int_{\Omega}\overline{\phi}\psi.
+$$
+
+Hence,
+
+$$
+  0 = -\left\langle\tilde{\phi},\Delta\phi\right\rangle
+  = -\int_{\Omega}\overline{\phi}\Delta\phi
+  = -\int_{\Omega}\nabla\cdot (\overline{\phi}\nabla\phi)
+  - |\nabla\phi|^{2}
+  = \int_{\Omega}|\nabla\phi|^{2}
+$$
+
+by the divergence theorem, so we get $\phi = 0$.
+
+Next, we want to know the continuity of the map
+
+$$
+  R^{-1}\colon R\left[\mathcal{C}_{c}^{\infty}(\Omega)\right]
+  \to\left(\mathcal{C}_{c}^{\infty}(\Omega),
+  \sigma\left(\mathcal{C}_{c}^{\infty}(\Omega),\mathcal{C}_{c}^{\infty}(\Omega)'\right)\right),
+$$
+
+which is where the "real work" should be done. Let us actually show that $R^{-1}$ is continuous even when the codomain is endowed with the usual LF-topology rather than the weak-$$*$$ topology. That is, we want to see that the map
+
+$$
+\begin{aligned}
+  R\colon \mathcal{C}_{c}^{\infty}(\Omega)&\to
+  \mathcal{C}_{c}^{\infty}(\Omega)\\
+  \phi &\mapsto -\Delta\phi
+\end{aligned}
+$$
+
+is open onto its image. Recall that $$\mathcal{C}_{c}^{\infty}(\Omega)$$ is the locally convex direct limit of spaces $$\mathcal{C}_{0}^{\infty}(\operatorname{int}K)$$ for all compact subsets $K$ in $\Omega$, where $$\mathcal{C}_{0}^{\infty}(\operatorname{int}K)$$ is the [Fréchet space](https://en.wikipedia.org/wiki/Fr%C3%A9chet_space) consisting of smooth functions on $\operatorname{int}K$ whose every derivative belongs to the Banach space $$\mathcal{C}_{0}(\operatorname{int}K)$$. Then a basic open neighborhood of $$0\in\mathcal{C}_{c}^{\infty}(\Omega)$$ is the absolutely convex hull of the union of open neighborhoods of $$0\in\mathcal{C}_{0}^{\infty}(\operatorname{int}K)$$. Hence, it turns out, it is enough to show that each
+
+$$
+\begin{aligned}
+  R_{K}\colon \mathcal{C}_{0}^{\infty}(\operatorname{int}K)&\to
+  \mathcal{C}_{0}^{\infty}(\operatorname{int}K)\\
+  \phi &\mapsto -\Delta\phi
+\end{aligned}
+$$
+
+is an open map onto its image.
+
+Assuming that $K$ has sufficiently smooth boundary (which we can), this is again a consequence of the [Poincaré inequality](https://en.wikipedia.org/wiki/Poincar%C3%A9_inequality). Given $$\phi\in\mathcal{C}_{0}^{\infty}(\operatorname{int}K)$$, note that
+
+$$
+  \int_{\operatorname{int}K}|\nabla\phi|^{2}
+  = -\int_{\operatorname{int}K}\overline{\phi}\Delta\phi
+  \leq \|\phi\|_{L^{2}(\operatorname{int}K)}\|\Delta\phi\|_{L^{2}(\operatorname{int}K)}.
+$$
+
+By the Poincaré inequality, there exists a constant $$C_{K}\in(0,\infty)$$ such that
+
+$$
+  \|\phi\|_{L^{2}(\operatorname{int}K)}^{2}
+  \leq C_{K}\|\nabla\phi\|_{L^{2}(\operatorname{int}K)}^{2}
+  \leq C_{K}\|\phi\|_{L^{2}(\operatorname{int}K)}\|\Delta\phi\|_{L^{2}(\operatorname{int}K)},
+$$
+
+thus we get
+
+$$
+  \|\phi\|_{L^{2}(\operatorname{int}K)}
+  \leq C_{K}\|\Delta\phi\|_{L^{2}(\operatorname{int}K)}
+  \leq \tilde{C}_{K}\|\Delta\phi\|_{\mathcal{C}_{0}(\operatorname{int}K)}
+$$
+
+for some different constant $\tilde{C}_{K}$. Now, applying this inequality to derivatives of $\phi$ and then applying the [Sobolev inequality](https://en.wikipedia.org/wiki/Sobolev_inequality#General_Sobolev_inequalities), we get the conclusion that $$\Delta\phi_{\alpha} \to 0$$ implies $$\phi_{\alpha}\to 0$$ in $$\mathcal{C}_{0}^{\infty}(\operatorname{int}K)$$ for any net $$\left(\phi_{\alpha}\right)_{\alpha\in D}$$, which is the desired conclusion.
+
+Therefore, we can now apply [**Theorem 6**](#lax-milgram) to conclude that the map
+
+$$
+\begin{aligned}
+  L\colon \mathcal{C}_{c}^{\infty}(\Omega)' &\to \mathcal{C}_{c}^{\infty}(\Omega)' \\
+  u &\mapsto -\Delta u
+\end{aligned}
+$$
+
+
+is surjective.
