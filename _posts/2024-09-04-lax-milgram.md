@@ -158,11 +158,11 @@ The theorem we want to prove is the following:
 
 >**Theorem 6 (Lax-Milgram).**
 >
->Let $E,F$ be [locally convex spaces](https://en.wikipedia.org/wiki/Locally_convex_topological_vector_space) over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ and $B\colon F\times E\to \mathbb{K}$ a [separately continuous](https://en.wikipedia.org/wiki/Locally_convex_topological_vector_space) bilinear map. Define
+>Let $E,F$ be [locally convex spaces](https://en.wikipedia.org/wiki/Locally_convex_topological_vector_space) over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ and $B\colon F\times E\to \mathbb{K}$ a bilinear form. Define
 >
 >$$
 >\begin{align*}
->  L\colon E&\to F' \\
+>  L\colon E&\to F^{\star} \\
 >  u&\mapsto \left(v\mapsto B(v,u)\right)
 >\end{align*}
 >$$
@@ -171,17 +171,17 @@ The theorem we want to prove is the following:
 >
 >$$
 >\begin{align*}
->  R\colon F&\to E' \\
->  v&\mapsto \left(u\mapsto B(v,u)\right).
+>  R\colon F&\to E^{\star} \\
+>  v&\mapsto \left(u\mapsto B(v,u)\right),
 >\end{align*}
 >$$
 >
->Then the followings are equivalent:
->1. $L$ is surjective.
+>and suppose that $R[F] \subseteq E'$. Then the followings are equivalent:
+>1. $L[E] \supseteq F'$.
 >2. $R$ is injective and $R^{-1}\colon \left(R[F],\sigma(E',E)\right)\to \left(F,\sigma(F,F')\right)$ is continuous.
 >3. $R$ is injective and $R^{-1}\colon \left(R[F],\tau(E',E)\right)\to \left(F,\sigma(F,F')\right)$ is continuous.
 
-Note that $B$ being separately continuous precisely means that $L,R$ are well-defined.
+Note that the topology on $F$ plays no role at all. Its only significance is on defining $F'$, but we could simply replace the canonical pairing between $F$ and $F'$ by any duality pairing of $F$ and another vector space $G$, and endow $F$ with the induced weak topology.
 
 >**Proof.** $(1\Rightarrow 2)$ Suppose $v\in F\setminus\{0\}$. By [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), we can find $$v^{*}\in F'$$ such that $$v^{*}(v) \neq 0$$. Then by the assumption, there exists $u\in E$ such that $$Lu = v^{*}$$. Then
 >
@@ -210,5 +210,5 @@ Note that $B$ being separately continuous precisely means that $L,R$ are well-de
 >  (Lu)(v) = B(v,u) = (Rv)(u) = \tilde{\lambda}(Rv) = \lambda(Rv) = v^{*}(v),
 >$$
 >
->concluding $$Lu = v^{*}$$. Therefore, $L$ is surjective.$\quad\blacksquare$
+>concluding $$Lu = v^{*}$$. Therefore, $L[E]$ contains $F'$.$\quad\blacksquare$
 
