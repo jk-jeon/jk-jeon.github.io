@@ -14,8 +14,8 @@ This is a short note on a generalization of the [Lax-Milgram theorem](https://en
 
 Let $\Omega\subseteq\mathbb{R}^{n}$ be a bounded and smooth enough domain and $f\in L^{2}(\Omega)$. Consider the PDE
 
-$$\label{eq:Poisson equation}
-\begin{split}
+$$
+\begin{split}\label{eq:Poisson equation}
 \begin{aligned}
   -\Delta u &= f & \textrm{on}\quad & \Omega \\
   u &= 0 & \textrm{on}\quad & \partial\Omega.
