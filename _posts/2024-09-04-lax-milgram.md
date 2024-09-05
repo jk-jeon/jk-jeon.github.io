@@ -269,7 +269,7 @@ Hence, we obtain the following corollary, which is a more common way the Lax-Mil
 
 >**Corollary 9 ([Lions-Lax-Milgram](https://en.wikipedia.org/wiki/Lions%E2%80%93Lax%E2%80%93Milgram_theorem)).**
 >
->Let $E$ be a reflexive Banach space over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$, $F$ a normed space over $\mathbb{K}$, and $B\colon F\times E\to \mathbb{K}$ a bilinear form. Define $L\colon E\to F^{\star}$ and $R\colon F\to E^{\star}$ as in [**Theorem 6**](#lax-milgram) and suppose that $R[F]\subseteq E'$. Then $L[E] \supseteq F'$ holds if and only if $B$ is coercive.
+>Let $E$ be a reflexive Banach space over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$, $F$ a normed space over $\mathbb{K}$, and $B\colon F\times E\to \mathbb{K}$ a bilinear form. Define $L\colon E\to F^{\star}$ and $R\colon F\to E^{\star}$ as in [**Theorem 6**](#lax-milgram) and suppose that $R[F]\subseteq E'$ and $R\colon F\to E'$ is continuous. Then $L[E] \supseteq F'$ holds if and only if $B$ is coercive.
 >
 
 As an example application, let us go back to the PDE we saw in the [Introduction](#introduction):
