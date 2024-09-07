@@ -208,7 +208,7 @@ The theorem we want to prove is the following:
 >3. $R$ is injective and $R^{-1}\colon \left(R[F],\mathscr{T}\right)\to \left(F,\sigma(F,F')\right)$ is continuous for some dual topology $\mathscr{T}$ on $E'$ with respect to the canonical pairing between $E'$ and $E$.
 >
 
-Note that the only role that the topologies on $E,F$ play is on defining the dual spaces $E',F'$: it does not matter which dual topology we choose.
+Note that the only role that the topologies on $E,F$ play is on defining the dual spaces $E',F'$: it does not matter which specific dual topologies we choose.
 
 >**Proof.** $(1\Rightarrow 2)$ Suppose $$v\in F\setminus\{0\}$$. By [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), we can find $$v^{*}\in F'$$ such that $$v^{*}(v) \neq 0$$. Then by the assumption, there exists $u\in E$ such that $$Lu = v^{*}$$. Then
 >
@@ -233,7 +233,7 @@ Note that the only role that the topologies on $E,F$ play is on defining the dua
 >\end{aligned}
 >$$
 >
->By the assumption, $\lambda$ is continuous with respect to $\mathscr{T}$. Hence, by [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), there exists a linear extension $\tilde{\lambda}\colon E'\to \mathbb{K}$ of $\lambda$ which is continuous with respect to $\mathscr{T}$. Therefore, by the [Mackey-Arens theorem](#mackey-arens), there exists $u\in E$ such that $\iota(u) = \tilde{\lambda}$, that is, $$u^{*}(u) = \tilde{\lambda}(u^{*})$$ holds for all $$u^{*}\in E'$$. Then, for any $v\in F$,
+>By the assumption, $\lambda$ is continuous with respect to $\mathscr{T}$. Hence, by [Hahn-Banach theorem](https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem), there exists a linear extension $\tilde{\lambda}\colon E'\to \mathbb{K}$ of $\lambda$ which is continuous with respect to $\mathscr{T}$. Since $\mathscr{T}$ is a dual topology, there exists $u\in E$ such that $\iota(u) = \tilde{\lambda}$, that is, $$u^{*}(u) = \tilde{\lambda}(u^{*})$$ holds for all $$u^{*}\in E'$$. Then, for any $v\in F$,
 >
 >$$
 >\begin{equation*}
