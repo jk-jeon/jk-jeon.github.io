@@ -24,7 +24,7 @@ $$
 \end{cases}
 $$
 
-Suppose that $u\in C^{2}(\overline{\Omega})$ is a solution to this equation. Then for each $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$, we have
+Suppose that $u\in \mathcal{C}^{2}(\overline{\Omega})$ is a solution to this equation. Then for each $\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$, we have
 
 $$
 \begin{equation*}
@@ -51,7 +51,7 @@ $$
 \end{equation*}
 $$
 
-holds for all $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$. Since both sides define a continuous linear functional on the Hilbert space $$H_{0}^{1}(\Omega)$$ (the norm-closure of $$\mathcal{C}_{c}^{\infty}(\Omega)$$ inside the [Sobolev space](https://en.wikipedia.org/wiki/Sobolev_space) $H^{1}(\Omega)$), we have converted the problem of solving the PDE into the problem of finding an element $$u\in H_{0}^{1}(\Omega)$$ such that the continuous linear functional $$\phi\mapsto\int_{\Omega}\nabla\phi\cdot\nabla u$$ coincides with $$\phi\mapsto\int_{\Omega}f\phi$$. Thus, basically what we are asking here is the surjectivity of the linear map
+holds for all $$\phi\in\mathcal{C}_{c}^{\infty}(\Omega)$$. Since both sides define continuous linear functionals on the Hilbert space $$H_{0}^{1}(\Omega)$$ (the norm-closure of $$\mathcal{C}_{c}^{\infty}(\Omega)$$ inside the [Sobolev space](https://en.wikipedia.org/wiki/Sobolev_space) $H^{1}(\Omega)$), we have converted the problem of solving the PDE into the problem of finding an element $$u\in H_{0}^{1}(\Omega)$$ such that the continuous linear functional $$\phi\mapsto\int_{\Omega}\nabla\phi\cdot\nabla u$$ coincides with $$\phi\mapsto\int_{\Omega}f\phi$$. Thus, basically what we are asking here is the surjectivity of the linear map
 
 $$
 \begin{align*}
@@ -62,7 +62,7 @@ $$
 
 This is called the *weak formulation* of the PDE. An element $$u\in H_{0}^{1}(\Omega)$$ satisfying $$Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$$ is then called a *weak solution* of the PDE. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
 
-Therefore, we can reformulate our PDE into the following functional analysis question: given a bilinear form $B\colon E\times F\to \mathbb{K}$ where $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ is the scalar field, when the induced map
+In summary, we can reformulate our PDE into the following functional analysis question: given a bilinear form $B\colon F\times E\to \mathbb{K}$ where $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ is the scalar field, when the induced map
 
 $$
 \begin{aligned}
@@ -77,7 +77,7 @@ The [Lax-Milgram theorem](https://en.wikipedia.org/wiki/Weak_formulation#The_Lax
 
 ## Duality pairings and Mackey-Arens theorem
 
-A lesson I learned from functional analysis is that every attempt for building a duality theory that encompasses, but goes beyond, the usual duality theory of Banach spaces will necessarily suffer, suffer quite a lot. This is not because the concept of duality is broken beyond Banach spaces, rather because it is already broken in the Banach space level. More precisely, the notion of "the correct dual space" is not always the usual one, the space of all continuous linear functionals with the [operator norm](https://en.wikipedia.org/wiki/Operator_norm). Rather, the correct dual space very much depends on the given situation, and there is no one-size-fit-all answer.
+A lesson I learned from functional analysis is that every attempt to directly generalize the duality theory of Banach spaces into something more general will necessarily suffer, even quite a lot. This is not because the concept of duality is broken beyond Banach spaces, rather because it is already broken in the Banach space level. More precisely, the notion of "the correct dual space" is not always the usual one, the space of all continuous linear functionals with the [operator norm](https://en.wikipedia.org/wiki/Operator_norm). Rather, the correct dual space, both as a set and as a normed space, very much depends on the given situation, and there is no one-size-fit-all answer.
 
 This is why it is a good idea to temporarily forget about the concept of continuous dual, and start with a so-called *duality pairing* given on an arbitrary pair $(E,F)$ of spaces, which a priori has nothing to with any kinds of topologies we can give on those spaces.
 
