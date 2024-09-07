@@ -83,7 +83,7 @@ This is why it is a good idea to temporarily forget about the concept of continu
 
 >**Definition 1 (Duality pairing).**
 >
->Let $E,F$ be vector spaces over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$. A bilinear map $\left\langle\,\cdot\,,\,\cdot\,\right\rangle\colon F\times E\to \mathbb{K}$ is called a **duality pairing** on $(E,F)$ if:
+>Let $E,F$ be vector spaces over $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$. A bilinear form $\left\langle\,\cdot\,,\,\cdot\,\right\rangle\colon F\times E\to \mathbb{K}$ is called a **duality pairing** on $(E,F)$ if:
 >1. for any $v\in E$, $\left\langle v,u\right\rangle = 0$ for all $u\in F$ implies $v=0$, and
 >2. for any $u\in F$, $\left\langle v,u\right\rangle = 0$ for all $v\in E$ implies $u=0$.
 >
@@ -247,7 +247,7 @@ In application, a usual assumption is that $E$ is a reflexive Banach space. By d
 
 When $E$ is not reflexive, continuity of $R^{-1}$ with respect to the norm topology is not enough, because the norm topology on $E'$ is in general finer than $\tau(E',E)$. Hence, we have to work with $\tau(E',E)$ instead. Or it could be any other dual topology, but in principle $\tau(E',E)$ is the finest one so the continuity must be easiest to show when we endow $E'$ with $\tau(E',E)$. To work with $\tau(E',E)$, we should first characterize absolutely convex $\sigma(E,E')$-compact sets, in other words, absolutely convex *weakly compact* subsets of $E$. For instance, when $E = L^{1}(\mu)$ for some measure $\mu$, we may need to use the [Dunford-Pettis theorem](https://en.wikipedia.org/wiki/Uniform_integrability#Relevant_theorems).
 
-It may seem that showing continuity of $R^{-1}\colon R[F]\to F$ when the codomain $F$ is endowed with the weak topology $\sigma(F,F')$ is easier than when $F$ is endowed with a finer topology, for instance a norm topology. However, this is in fact not the case when both $E$ and $F$ are normed spaces and $R\colon F\to E'$ is not only well-defined but also continuous. When $E,F$ are normed spaces, it is often the case that the given bilinear map $B$ is also [jointly continuous](https://en.wikipedia.org/wiki/Bilinear_map#Continuity_and_separate_continuity), thus this continuity condition on $R$ is easily guaranteed.
+It may seem that showing continuity of $R^{-1}\colon R[F]\to F$ when the codomain $F$ is endowed with the weak topology $\sigma(F,F')$ is easier than when $F$ is endowed with a finer topology, for instance a norm topology. However, this is in fact not the case when both $E$ and $F$ are normed spaces and $R\colon F\to E'$ is not only well-defined but also continuous. When $E,F$ are normed spaces, it is often the case that the given bilinear form $B$ is also [jointly continuous](https://en.wikipedia.org/wiki/Bilinear_map#Continuity_and_separate_continuity), thus this continuity condition on $R$ is easily guaranteed.
 
 Now, suppose that $E,F$ are normed spaces and $R\colon F\to E'$ is continuous. We claim that in this case, if $R$ is injective and
 
