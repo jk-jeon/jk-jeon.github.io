@@ -108,7 +108,7 @@ $$
 
 both denoted as $\iota$, are injective, that is, are linear embeddings.
 
-Since we obviously do not dare want to get our hands dirty with dull pure algebra😗, let us put some topologies on our spaces and see what happens. Specifically, a natural question to ask is, *when $F$ is precisely the continuous dual space of $E$*? That is, *which topologies on $E$ makes $F$ the continuous dual space of $E$*? The [Mackey-Arens theorem](https://en.wikipedia.org/wiki/Mackey_topology) answers this question.
+Since we obviously do not dare want to get our hands dirty with dull pure algebra😗, let us put some topologies on our spaces and see what happens. Specifically, a natural question to ask is, *when $F$ is precisely the continuous dual space of $E$*? That is, *which topologies on $E$ make $F$ the continuous dual space of $E$*? The [Mackey-Arens theorem](https://en.wikipedia.org/wiki/Mackey_topology) answers this question.
 
 Given a topological vector space $(E,\mathscr{T})$, let $(E,\mathscr{T})'$ denotes the *continuous dual space* of $(E,\mathscr{T})$, that is, the linear space of all linear functionals on $E$ that are continuous with respect to the topology $\mathscr{T}$. If $\mathscr{T}$ is obvious, we may omit it and just write $E'$.
 
