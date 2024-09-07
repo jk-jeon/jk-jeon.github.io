@@ -60,7 +60,7 @@ $$
 \end{align*}
 $$
 
-This is called the *weak formulation* of the PDE. An element $$u\in H_{0}^{1}(\Omega)$$ satisfying $$Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$$ is then called a *weak solution* of the PDE. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
+This is called a *weak formulation* of the PDE. An element $$u\in H_{0}^{1}(\Omega)$$ satisfying $$Lu = \left(\phi\mapsto\int_{\Omega}f\phi\right)$$ is then called a *weak solution* of the PDE. Once we find a weak solution, then some other machineries can be applied to show uniqueness and regularity of the found weak solution.
 
 In summary, we can reformulate our PDE into the following functional analysis question: given a bilinear form $B\colon F\times E\to \mathbb{K}$ where $\mathbb{K}=\mathbb{R}$ or $\mathbb{C}$ is the scalar field, when the induced map
 
@@ -108,7 +108,7 @@ $$
 
 both denoted as $\iota$, are injective, that is, are linear embeddings.
 
-Since we obviously do not want to get our hands dirty with dull pure algebra😗, let us put some topologies on $E,F$ and see what happens. Specifically, a natural question to ask is, *when $F$ is precisely the continuous dual space of $E$*? That is, *which topologies on $E$ makes $F$ the continuous dual space of $E$*? The [Mackey-Arens theorem](https://en.wikipedia.org/wiki/Mackey_topology) answers this question.
+Since we obviously do not dare want to get our hands dirty with dull pure algebra😗, let us put some topologies on our spaces see what happens. Specifically, a natural question to ask is, *when $F$ is precisely the continuous dual space of $E$*? That is, *which topologies on $E$ makes $F$ the continuous dual space of $E$*? The [Mackey-Arens theorem](https://en.wikipedia.org/wiki/Mackey_topology) answers this question.
 
 Given a topological vector space $(E,\mathscr{T})$, let $(E,\mathscr{T})'$ denotes the *continuous dual space* of $(E,\mathscr{T})$, that is, the linear space of all linear functionals on $E$ that are continuous with respect to the topology $\mathscr{T}$. If $\mathscr{T}$ is obvious, we may omit it and just write $E'$.
 
