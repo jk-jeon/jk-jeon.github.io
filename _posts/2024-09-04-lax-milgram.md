@@ -79,7 +79,7 @@ The [Lax-Milgram theorem](https://en.wikipedia.org/wiki/Weak_formulation#The_Lax
 
 A lesson I learned from functional analysis is that every attempt to directly generalize the duality theory of Banach spaces into something more general will necessarily suffer, even quite a lot. This is not because the concept of duality is broken beyond Banach spaces, rather because it is already broken in the Banach space level. More precisely, the notion of "the correct dual space" is not always the usual one, the space of all continuous linear functionals with the [operator norm](https://en.wikipedia.org/wiki/Operator_norm). Rather, the correct dual space, either as a mere vector space or as a [topological vector space](https://en.wikipedia.org/wiki/Topological_vector_space), very much depends on the context, and there is no one-size-fit-all answer.
 
-This is why it is a good idea to temporarily forget about the concept of continuous dual, and start with a so-called *duality pairing* given on an arbitrary pair $(E,F)$ of spaces, which a priori has nothing to with any kinds of topologies we can give on those spaces.
+This is why it is a good idea to temporarily forget about the concept of continuous dual, and start with a so-called *duality pairing* given on an arbitrary pair $(E,F)$ of spaces, which a priori has nothing to do with any kinds of topologies we can give on those spaces.
 
 >**Definition 1 (Duality pairing).**
 >
@@ -327,7 +327,7 @@ $$
 \end{aligned}
 $$
 
-Since $$B(\overline{\phi},\phi) = \|\phi\|_{L^{2}(\Omega)}^{2}$$, that this bilinear form is coercive follows immediately from the [Poincaré inequality](https://en.wikipedia.org/wiki/Poincar%C3%A9_inequality). Therefore, we can apply the corollary above and conclude that there exists $u\in H_{0}^{1}(\Omega)$ such that
+Since $$B(\overline{\phi},\phi) = \|\nabla\phi\|_{L^{2}(\Omega)}^{2}$$, that this bilinear form is coercive follows immediately from the [Poincaré inequality](https://en.wikipedia.org/wiki/Poincar%C3%A9_inequality). Therefore, we can apply the corollary above and conclude that there exists $u\in H_{0}^{1}(\Omega)$ such that
 
 $$
 \begin{equation*}
