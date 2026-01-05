@@ -8,7 +8,10 @@ redirect_from:
   - /about.html
 ---
 
-I am a graduate student of the Department of Mathematics in the University of California San Diego, under the advisement of Prof. [Andrej Zlatoš](https://mathweb.ucsd.edu/~zlatos/). My CV is available [here](http://jk-jeon.github.io/files/CV.pdf).
+I am a postdoctoral researcher in the Department of Mathematics at Duke University,
+working primarily with Prof. [Tarek M. Elgindi](https://sites.google.com/view/tarekelgindi/home).
+I received my Ph.D. from the University of California San Diego, in 2025,
+under the advisement of Prof. [Andrej Zlatoš](https://mathweb.ucsd.edu/~zlatos/). My CV is available [here](http://jk-jeon.github.io/files/CV.pdf).
 
 Academic interests
 ======
